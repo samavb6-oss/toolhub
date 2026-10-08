@@ -1,0 +1,29 @@
+[build]
+  command = "pnpm install --frozen-lockfile && pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Real site URL for canonical / Open Graph / JSON-LD. Defaults to the placeholder in .env.
+  # Set VITE_SITE_URL in the Netlify UI (or here) once the production domain is known.
+
+# Single-page app: let wouter handle /tools/:slug on direct loads and refreshes.
+# Not forced, so real files (assets, favicon, robots.txt) are still served as-is.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Hashed build output never changes -> cache for a year.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Conservative security headers (no CSP: inline JSON-LD + Google Fonts need a tailored policy).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

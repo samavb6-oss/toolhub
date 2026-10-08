@@ -1,0 +1,9 @@
+node_modules
+dist
+.shims
+*.tsbuildinfo
+.DS_Store
+
+# generated output of the repro configs in _diagnostics/
+_diagnostics/**/dist*
+_diagnostics/*-output.js
