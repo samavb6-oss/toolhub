@@ -4,8 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  # Real site URL for canonical / Open Graph / JSON-LD. Defaults to the placeholder in .env.
-  # Set VITE_SITE_URL in the Netlify UI (or here) once the production domain is known.
+  # VITE_SITE_URL is resolved by scripts/build.mjs from an explicit env value, Netlify URL, or the planned production hostname.
 
 # Single-page app: let wouter handle /tools/:slug on direct loads and refreshes.
 # Not forced, so real files (assets, favicon, robots.txt) are still served as-is.
