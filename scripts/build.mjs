@@ -1,7 +1,7 @@
 // Production build entry point: `pnpm build`.
 //   1. pre-bundle React/ReactDOM to ESM (see prebundle-react.mjs)
 //   2. run `vite build` with a watchdog so a stall fails fast instead of burning the
-//      whole Netlify build timeout
+//      whole CI build timeout
 //   3. sanity-check dist/ (see verify-dist.mjs)
 // Env: TOOLHUB_BUILD_TIMEOUT_MS (default 480000), TOOLHUB_DEBUG=1 (logs every module Vite
 // transforms, so a stall shows exactly where it happens).
@@ -18,14 +18,12 @@ const timeoutMs = Number(process.env.TOOLHUB_BUILD_TIMEOUT_MS ?? 8 * 60 * 1000);
 const debug = process.env.TOOLHUB_DEBUG === '1';
 
 // index.html uses %VITE_SITE_URL% for canonical, Open Graph, and JSON-LD URLs.
-// Prefer an explicit VITE_SITE_URL, then Netlify URL variables, and finally the
-// planned production hostname so a clean clone can build without a local .env file.
-// Netlify can override this at deploy time.
+// Prefer an explicit VITE_SITE_URL. Cloudflare Pages will provide the production
+// hostname through the project environment; local/other builds can set it explicitly.
 const siteUrl =
   process.env.VITE_SITE_URL ||
-  process.env.URL ||
-  process.env.DEPLOY_PRIME_URL ||
-  'https://samstoolhub.netlify.app';
+  process.env.CF_PAGES_URL ||
+  'https://samstoolhub.pages.dev';
 
 console.log(`[toolhub] node ${process.version}`);
 console.time('[toolhub] react shims');
