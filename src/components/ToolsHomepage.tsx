@@ -308,7 +308,7 @@ export function ToolsHomepage() {
                   <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />Practical tools, all in one place
                 </div>
                 <h1 className="max-w-5xl text-[clamp(2.35rem,6.5vw,5.2rem)] font-extrabold leading-[0.98] tracking-[-0.075em] text-[#182b45] dark:text-white">
-                  2,000+ Free Online Tools, Calculators, Converters &amp; Generators
+                  Free Online Tools, Calculators, Converters &amp; Generators
                 </h1>
                 <p className="mt-7 max-w-2xl text-sm leading-6 text-[#62748a] dark:text-[#cbd5e1] sm:text-[16px]">
                   Everything you need in one place. Use fast, free online calculators, PDF tools, image tools, converters, AI tools, writing tools and utilities without installing any software.
@@ -320,7 +320,7 @@ export function ToolsHomepage() {
               </div>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-[#7d8c9e] dark:text-[#94a3b8]">
                 <span className="flex items-center gap-2"><ShieldCheck aria-hidden="true" className="h-4 w-4 text-[#2d6cdf]" />Free to use</span>
-                <span className="h-1 w-1 rounded-full bg-[#b8c3d0]" /><span>2,000+ practical tools</span>
+                <span className="h-1 w-1 rounded-full bg-[#b8c3d0]" /><span>A growing collection of practical tools</span>
                 <span className="h-1 w-1 rounded-full bg-[#b8c3d0]" /><span>No sign-up required</span>
               </div>
             </div>
