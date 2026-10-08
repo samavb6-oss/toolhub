@@ -17,6 +17,16 @@ const require = createRequire(path.join(root, 'package.json'));
 const timeoutMs = Number(process.env.TOOLHUB_BUILD_TIMEOUT_MS ?? 8 * 60 * 1000);
 const debug = process.env.TOOLHUB_DEBUG === '1';
 
+// index.html uses %VITE_SITE_URL% for canonical, Open Graph, and JSON-LD URLs.
+// Prefer an explicit VITE_SITE_URL, then Netlify URL variables, and finally the
+// planned production hostname so a clean clone can build without a local .env file.
+// Netlify can override this at deploy time.
+const siteUrl =
+  process.env.VITE_SITE_URL ||
+  process.env.URL ||
+  process.env.DEPLOY_PRIME_URL ||
+  'https://samstoolhub.netlify.app';
+
 console.log(`[toolhub] node ${process.version}`);
 console.time('[toolhub] react shims');
 await prebundleReact();
@@ -27,7 +37,12 @@ const args = [viteBin, 'build', ...(debug ? ['--debug', 'vite:transform'] : []),
 const child = spawn(process.execPath, args, {
   cwd: root,
   stdio: 'inherit',
-  env: { ...process.env, NODE_ENV: 'production', TOOLHUB_USE_REACT_SHIMS: '1' },
+  env: {
+    ...process.env,
+    NODE_ENV: 'production',
+    TOOLHUB_USE_REACT_SHIMS: '1',
+    VITE_SITE_URL: siteUrl.replace(/\/$/, ''),
+  },
 });
 
 let timedOut = false;
