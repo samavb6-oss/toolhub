@@ -70,7 +70,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     slug: "qr-generator",
-    name: "QR Generator",
+    name: "QR Code Generator",
     category: "Utilities",
     icon: QrCode,
     title: "Free QR Code Generator — Download as PNG | ToolHub",
