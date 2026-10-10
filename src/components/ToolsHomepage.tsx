@@ -376,7 +376,7 @@ export function ToolsHomepage() {
                   {selectedTool.category.tools.filter((tool) => tool.name !== "More Tools").map((tool) => {
                     const path = getToolPathByName(tool.name);
                     return <li key={tool.name} className="rounded-xl border border-[#d7e5f8] bg-white/70 px-3 py-2.5 text-xs font-bold text-[#385271] dark:border-[#385780] dark:bg-[#14243a] dark:text-[#d6e5f9]">
-                      {path ? <Link href={path} className="flex items-center justify-between gap-2 hover:text-[#2d6cdf] dark:hover:text-[#8db7ff]">{tool.name}<span aria-hidden="true">→</span></Link> : <span>{tool.name}</span>}
+                      {path ? <Link href={path} className="flex items-center justify-between gap-2 hover:text-[#2d6cdf] dark:hover:text-[#8db7ff]">{tool.name}<span aria-hidden="true">→</span></Link> : <span className="flex items-center justify-between gap-2">{tool.name}<span className="rounded-full bg-[#f0f2f5] px-2 py-1 text-[9px] font-extrabold tracking-wide text-[#697789] dark:bg-[#273243] dark:text-[#a9b6c8]">PLANNED</span></span>}
                     </li>;
                   })}
                 </ul>}
