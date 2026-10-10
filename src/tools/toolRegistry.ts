@@ -51,6 +51,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Count characters, words, letters, numbers, whitespace and lines instantly as you type.",
   },
   {
+    slug: "case-converter",
+    name: "Case Converter",
+    category: "Writing Tools",
+    icon: Type,
+    title: "Free Case Converter — Uppercase, Lowercase & Title Case | ToolHub",
+    description: "Convert text to uppercase, lowercase, title case, sentence case or capitalized words instantly. Copy the result with this free online case converter.",
+    intro: "Change text capitalization in seconds, with live results and one-click copying.",
+  },
+  {
     slug: "word-counter",
     name: "Word Counter",
     category: "Writing Tools",
