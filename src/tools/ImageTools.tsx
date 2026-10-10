@@ -188,7 +188,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         <h2 className="text-base font-extrabold text-white">{isResize ? "Image and dimensions" : "Image and output settings"}</h2>
         <div className="mt-5">
           <ToolField label="Choose an image" htmlFor={`${mode}-file`} hint="PNG, JPEG or WebP · max 50 MB · processed locally in your browser">
-            <input id={`${mode}-file`} data-testid={`input-${mode}-image`} type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={(event) => chooseFile(event.currentTarget.files?.[0]) className={`${toolInputClass} h-auto min-h-12 py-2 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#263b58] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#d8e6fa]`} />
+            <input id={`${mode}-file`} data-testid={`input-${mode}-image`} type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={(event) => chooseFile(event.currentTarget.files?.[0])} className={`${toolInputClass} h-auto min-h-12 py-2 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#263b58] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#d8e6fa]`} />
           </ToolField>
         </div>
         {file && imageDimensions && <div className="mt-4 rounded-xl border border-[#26364b] bg-[#0b1320] px-4 py-3 text-xs leading-5 text-[#9aabc0]">
