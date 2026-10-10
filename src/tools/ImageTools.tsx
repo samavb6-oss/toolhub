@@ -8,7 +8,27 @@ import { downloadBlob, formatBytes } from "./toolUtils";
 
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
 type ImageDimensions = { width: number; height: number };
+type AspectPreset = "original" | "9:16" | "16:9" | "1:1" | "4:5" | "4:3" | "3:2" | "custom";
+type ResizeFitMode = "contain" | "cover";
 type ProcessingMode = "compress" | "resize";
+
+const aspectPresets: { value: AspectPreset; label: string }[] = [
+  { value: "original", label: "Original ratio" },
+  { value: "9:16", label: "9:16 · Vertical video / Shorts" },
+  { value: "16:9", label: "16:9 · Landscape video" },
+  { value: "1:1", label: "1:1 · Square" },
+  { value: "4:5", label: "4:5 · Portrait post" },
+  { value: "4:3", label: "4:3 · Classic" },
+  { value: "3:2", label: "3:2 · Photography" },
+  { value: "custom", label: "Custom dimensions" },
+];
+
+function ratioForPreset(preset: AspectPreset, original: ImageDimensions | null): number | null {
+  if (preset === "original") return original ? original.width / original.height : null;
+  if (preset === "custom") return null;
+  const [width, height] = preset.split(":").map(Number);
+  return width / height;
+}
 
 const imageFormats: { value: ImageFormat; label: string; extension: string }[] = [
   { value: "image/webp", label: "WebP", extension: "webp" },
@@ -34,6 +54,7 @@ async function processImage(
   dimensions: ImageDimensions,
   mime: ImageFormat,
   quality: number,
+  fitMode: ResizeFitMode | "stretch" = "stretch",
 ): Promise<Blob> {
   if (dimensions.width < 1 || dimensions.height < 1 || dimensions.width * dimensions.height > 80_000_000) {
     throw new Error("Choose dimensions between 1 pixel and 80 megapixels.");
@@ -51,7 +72,16 @@ async function processImage(
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
   }
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  if (fitMode === "stretch") {
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  } else {
+    const scale = fitMode === "contain"
+      ? Math.min(canvas.width / bitmap.width, canvas.height / bitmap.height)
+      : Math.max(canvas.width / bitmap.width, canvas.height / bitmap.height);
+    const drawWidth = bitmap.width * scale;
+    const drawHeight = bitmap.height * scale;
+    context.drawImage(bitmap, (canvas.width - drawWidth) / 2, (canvas.height - drawHeight) / 2, drawWidth, drawHeight);
+  }
   bitmap.close();
   return canvasToBlob(canvas, mime, quality);
 }
@@ -63,6 +93,8 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   const [widthText, setWidthText] = useState("");
   const [heightText, setHeightText] = useState("");
   const [keepRatio, setKeepRatio] = useState(true);
+  const [aspectPreset, setAspectPreset] = useState<AspectPreset>("original");
+  const [resizeFitMode, setResizeFitMode] = useState<ResizeFitMode>("contain");
   const [quality, setQuality] = useState(82);
   const [mime, setMime] = useState<ImageFormat>("image/webp");
   const [output, setOutput] = useState<Blob | null>(null);
@@ -97,6 +129,8 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
     setStatus("");
     setOutput(null);
     setImageDimensions(null);
+    setAspectPreset("original");
+    setKeepRatio(true);
     if (!nextFile) {
       setFile(null);
       setWidthText("");
@@ -131,9 +165,10 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
     setOutput(null);
     setStatus("");
     setWidthText(value);
-    if (keepRatio && imageDimensions) {
+    const ratio = ratioForPreset(aspectPreset, imageDimensions);
+    if (keepRatio && ratio) {
       const width = Number(value);
-      if (width > 0) setHeightText(String(Math.max(1, Math.round(width * imageDimensions.height / imageDimensions.width))));
+      if (width > 0) setHeightText(String(Math.max(1, Math.round(width / ratio))));
     }
   }
 
@@ -141,10 +176,25 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
     setOutput(null);
     setStatus("");
     setHeightText(value);
-    if (keepRatio && imageDimensions) {
+    const ratio = ratioForPreset(aspectPreset, imageDimensions);
+    if (keepRatio && ratio) {
       const height = Number(value);
-      if (height > 0) setWidthText(String(Math.max(1, Math.round(height * imageDimensions.width / imageDimensions.height))));
+      if (height > 0) setWidthText(String(Math.max(1, Math.round(height * ratio))));
     }
+  }
+
+  function updateAspectPreset(value: AspectPreset) {
+    setAspectPreset(value);
+    setOutput(null);
+    setStatus("");
+    if (value === "custom") {
+      setKeepRatio(false);
+      return;
+    }
+    setKeepRatio(true);
+    const ratio = ratioForPreset(value, imageDimensions);
+    const width = Number(widthText);
+    if (ratio && width > 0) setHeightText(String(Math.max(1, Math.round(width / ratio))));
   }
 
   async function runProcessing() {
@@ -157,7 +207,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
       const dimensions = isResize
         ? { width: Number(widthText), height: Number(heightText) }
         : imageDimensions;
-      const result = await processImage(file, dimensions, mime, quality / 100);
+      const result = await processImage(file, dimensions, mime, quality / 100, isResize ? resizeFitMode : "stretch");
       setOutput(result);
       const resultFormat = imageFormats.find((format) => format.value === result.type)?.label ?? "the selected format";
       setStatus(`Finished ${isResize ? "resizing" : "compressing"} ${file.name} as ${resultFormat}.`);
@@ -196,6 +246,17 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
           <p>{imageDimensions.width} × {imageDimensions.height} px <span aria-hidden="true">·</span> {formatBytes(file.size)}</p>
         </div>}
         {isResize && <div className="mt-5 space-y-4">
+          <ToolField label="Aspect ratio preset" htmlFor="resize-aspect-preset" hint="Choose a common format, or use custom dimensions.">
+            <select id="resize-aspect-preset" data-testid="select-resize-aspect-preset" className={toolInputClass} value={aspectPreset} disabled={!file} onChange={(event) => updateAspectPreset(event.target.value as AspectPreset)}>
+              {aspectPresets.map((preset) => <option key={preset.value} value={preset.value}>{preset.label}</option>)}
+            </select>
+          </ToolField>
+          <ToolField label="Image fit" htmlFor="resize-fit-mode" hint="Avoids stretching when the source ratio differs.">
+            <select id="resize-fit-mode" data-testid="select-resize-fit-mode" className={toolInputClass} value={resizeFitMode} disabled={!file} onChange={(event) => { setResizeFitMode(event.target.value as ResizeFitMode); setOutput(null); setStatus(""); }}>
+              <option value="contain">Fit inside · no cropping</option>
+              <option value="cover">Fill frame · crop edges</option>
+            </select>
+          </ToolField>
           <div className="grid grid-cols-2 gap-3">
             <ToolField label="Width (px)" htmlFor="resize-width">
               <input id="resize-width" data-testid="input-resize-width" className={toolInputClass} type="number" min="1" max="40000" value={widthText} disabled={!file} onChange={(event) => updateWidth(event.target.value)} />
@@ -205,7 +266,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
             </ToolField>
           </div>
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#2c3a4c] bg-[#152031] px-3 text-xs font-semibold text-[#cbd5e1]">
-            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} onChange={(event) => { setKeepRatio(event.target.checked); setOutput(null); setStatus(""); }} />
+            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} onChange={(event) => { const checked = event.target.checked; setKeepRatio(checked); setAspectPreset(checked ? "original" : "custom"); setOutput(null); setStatus(""); if (checked && imageDimensions) { const width = Number(widthText); if (width > 0) setHeightText(String(Math.max(1, Math.round(width * imageDimensions.height / imageDimensions.width)))); } }} />
             Keep aspect ratio
           </label>
         </div>}
