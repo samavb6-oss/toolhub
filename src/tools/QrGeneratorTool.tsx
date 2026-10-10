@@ -33,16 +33,16 @@ export function QrGeneratorTool() {
         <h2 className="text-base font-extrabold text-white">QR code content</h2>
         <p className="mt-1 text-xs leading-5 text-[#8193a9]">Paste a URL or enter plain text. The code is generated on this device.</p>
         <ToolField label="URL or text" htmlFor="qr-content">
-          <textarea id="qr-content" data-testid="input-qr-content" className={`${toolTextareaClass} mt-4 min-h-36`} maxLength={2900} placeholder="https://example.com or any short text" value={text} onChange={(event) => setText(event.target.value)} />
+          <textarea id="qr-content" data-testid="input-qr-content" className={`${toolTextareaClass} mt-4 min-h-36`} maxLength={2900} placeholder="https://example.com or any short text" value={text} onChange={(event) => { setText(event.target.value); setQrDataUrl(""); setStatus(""); setError(""); }} />
         </ToolField>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <ToolField label="Image size" htmlFor="qr-size">
-            <select id="qr-size" data-testid="select-qr-size" className={toolInputClass} value={size} onChange={(event) => setSize(Number(event.target.value))}>
+            <select id="qr-size" data-testid="select-qr-size" className={toolInputClass} value={size} onChange={(event) => { setSize(Number(event.target.value)); setQrDataUrl(""); setStatus(""); setError(""); }}>
               <option value={256}>256 × 256 px</option><option value={512}>512 × 512 px</option><option value={1024}>1024 × 1024 px</option>
             </select>
           </ToolField>
           <ToolField label="Error correction" htmlFor="qr-error-level" hint="Higher correction can make a denser code.">
-            <select id="qr-error-level" data-testid="select-qr-error-level" className={toolInputClass} value={level} onChange={(event) => setLevel(event.target.value as "L" | "M" | "Q" | "H")}>
+            <select id="qr-error-level" data-testid="select-qr-error-level" className={toolInputClass} value={level} onChange={(event) => { setLevel(event.target.value as "L" | "M" | "Q" | "H"); setQrDataUrl(""); setStatus(""); setError(""); }}>
               <option value="L">Low — 7%</option><option value="M">Medium — 15%</option><option value="Q">Quartile — 25%</option><option value="H">High — 30%</option>
             </select>
           </ToolField>
