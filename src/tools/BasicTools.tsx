@@ -267,12 +267,12 @@ export function AiPromptGenerator() {
 export function CharacterCounter() {
   const [text, setText] = useState("");
   const characters = Array.from(text).length;
-  const charactersNoSpaces = Array.from(text.replace(/\\s/gu, "")).length;
-  const words = text.match(/[\\p{L}\\p{N}][\\p{L}\\p{N}'’_-]*/gu)?.length ?? 0;
-  const letters = (text.match(/\\p{L}/gu) ?? []).length;
-  const numbers = (text.match(/\\p{N}/gu) ?? []).length;
-  const spaces = (text.match(/\\s/gu) ?? []).length;
-  const lines = text.length ? text.split(/\\r\\n|\\r|\\n/u).length : 0;
+  const charactersNoSpaces = Array.from(text.replace(/\s/gu, "")).length;
+  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}'’_-]*/gu)?.length ?? 0;
+  const letters = (text.match(/\p{L}/gu) ?? []).length;
+  const numbers = (text.match(/\p{N}/gu) ?? []).length;
+  const spaces = (text.match(/\s/gu) ?? []).length;
+  const lines = text.length ? text.split(/\r\n|\r|\n/u).length : 0;
   const stats = [
     ["Characters", characters, "result-char-count"],
     ["Without spaces", charactersNoSpaces, "result-char-count-no-spaces"],
