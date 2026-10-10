@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, QrCode, Type, ZoomIn,
+  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,6 +40,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Compress Images Online — Free Image Compressor | ToolHub",
     description: "Reduce image file size in your browser. Choose an output format and quality, compare the new size, and download the compressed image privately.",
     intro: "Reduce an image’s file size locally, with control over its output format and quality.",
+  },
+  {
+    slug: "character-counter",
+    name: "Character Counter",
+    category: "Writing Tools",
+    icon: ListChecks,
+    title: "Free Character Counter — Count Characters, Words & Spaces | ToolHub",
+    description: "Count characters with and without spaces, words, letters, numbers and lines instantly. Useful for social media limits, titles and descriptions; text stays in your browser.",
+    intro: "Count characters, words, letters, numbers, whitespace and lines instantly as you type.",
   },
   {
     slug: "word-counter",
