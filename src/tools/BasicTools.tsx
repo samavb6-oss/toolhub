@@ -263,3 +263,36 @@ export function AiPromptGenerator() {
     </ToolPanel>
   </div>;
 }
+
+export function CharacterCounter() {
+  const [text, setText] = useState("");
+  const characters = Array.from(text).length;
+  const charactersNoSpaces = Array.from(text.replace(/\s/gu, "")).length;
+  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}'’_-]*/gu)?.length ?? 0;
+  const letters = (text.match(/\p{L}/gu) ?? []).length;
+  const numbers = (text.match(/\p{N}/gu) ?? []).length;
+  const spaces = (text.match(/\s/gu) ?? []).length;
+  const lines = text.length ? text.split(/\r\n|\r|\n/u).length : 0;
+  const stats = [
+    ["Characters", characters, "result-char-count"],
+    ["Without spaces", charactersNoSpaces, "result-char-count-no-spaces"],
+    ["Words", words, "result-char-word-count"],
+    ["Letters", letters, "result-char-letters"],
+    ["Numbers", numbers, "result-char-numbers"],
+    ["Spaces & line breaks", spaces, "result-char-whitespace"],
+    ["Lines", lines, "result-char-lines"],
+  ] as const;
+
+  return <ToolPanel>
+    <ToolField label="Enter or paste your text" htmlFor="character-counter-text" hint="Counts update instantly. Your text stays in this browser.">
+      <textarea id="character-counter-text" data-testid="input-character-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Type or paste text here…" value={text} onChange={(event) => setText(event.target.value)} />
+    </ToolField>
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-xs text-[#8193a9]">Useful for social posts, titles, descriptions and character limits.</p>
+      <button type="button" data-testid="button-clear-character-counter" className={secondaryButtonClass} disabled={!text} onClick={() => setText("")}>Clear text</button>
+    </div>
+    <div aria-label="Character statistics" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {stats.map(([label, value, testId]) => <ResultStat key={label} label={label} value={String(value)} testId={testId} />)}
+    </div>
+  </ToolPanel>;
+}
