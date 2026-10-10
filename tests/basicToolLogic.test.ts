@@ -16,7 +16,7 @@ test("EMI returns a finite positive payment for a normal loan", () => {
   const payment = calculateEmi(500000, 8.5, 240);
   assert.ok(Number.isFinite(payment));
   assert.ok(payment > 0);
-  assert.ok(Math.abs(payment - 4339.78) < 0.1);
+  assert.ok(Math.abs(payment - 4339.12) < 0.1);
 });
 
 test("EMI rejects invalid loan inputs safely", () => {
