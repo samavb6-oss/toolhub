@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import {
-  AiPromptGenerator, EmiCalculator, PasswordGenerator, WordCounter,
+  AiPromptGenerator, CharacterCounter, EmiCalculator, PasswordGenerator, WordCounter,
 } from "@/tools/BasicTools";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
@@ -9,7 +9,7 @@ import { ToolPageFrame } from "@/tools/ToolPageFrame";
 import { toolDefinitions } from "@/tools/toolRegistry";
 import NotFound from "./not-found";
 
-const toolComponents = {
+const toolComponents = {\n  "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
   "merge-pdf": MergePdfTool,
   "compress-image": CompressImageTool,
