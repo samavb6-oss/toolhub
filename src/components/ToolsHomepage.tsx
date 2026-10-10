@@ -120,9 +120,9 @@ function getToolKey(categoryName: string, toolName: string): string {
 }
 
 function ToolTile({
-  tool, category, isFavorite, isSelected, onSelect, onFavorite,
+  tool, category, isFavorite, isSelected, isAvailable, onSelect, onFavorite,
 }: {
-  tool: Tool; category: Category; isFavorite: boolean; isSelected: boolean;
+  tool: Tool; category: Category; isFavorite: boolean; isSelected: boolean; isAvailable: boolean;
   onSelect: () => void; onFavorite: () => void;
 }) {
   const Icon = tool.icon;
@@ -141,6 +141,7 @@ function ToolTile({
           <Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
         </span>
         <span className="line-clamp-2 max-w-[10rem] text-[13px] font-semibold leading-[1.18] tracking-[-0.01em] text-[#26364a] dark:text-[#e8eef7]">{tool.name}</span>
+        {tool.name !== "More Tools" && <span className={`absolute left-2 top-2 rounded-full px-2 py-1 text-[9px] font-extrabold tracking-wide ${isAvailable ? "bg-[#e5f7ec] text-[#167447] dark:bg-[#173b2b] dark:text-[#91e0b2]" : "bg-[#f0f2f5] text-[#697789] dark:bg-[#273243] dark:text-[#a9b6c8]"}`}>{isAvailable ? "LIVE" : "PLANNED"}</span>}
         {isSelected && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#2d6cdf]" />}
       </button>
       <button
@@ -351,6 +352,7 @@ export function ToolsHomepage() {
                   return <button type="button" key={tool.name} onClick={() => selectTool(tool, category)} data-testid={`trending-${tool.name.toLowerCase().replaceAll(" ", "-")}`} style={{ animationDelay: `${index * 60}ms` }} className="group flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-[20px] border border-[#e2e8ef] bg-white/75 px-3 py-4 text-center shadow-[0_7px_24px_rgba(28,44,70,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#c6d6ee] hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#2d3b4d] dark:bg-[#1a2332] dark:shadow-[0_14px_30px_rgba(0,0,0,0.16)] dark:hover:border-[#48617f] dark:hover:bg-[#243244]">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition duration-300 group-hover:scale-105" style={{ backgroundColor: darkMode ? `${category.accent}25` : category.tint, color: category.accent }}><Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} /></span>
                     <span className="line-clamp-2 max-w-[9rem] text-[12px] font-bold leading-[1.2] text-[#35485f] dark:text-[#f1f5fb]">{tool.name}</span>
+                    <span className="rounded-full bg-[#e5f7ec] px-2 py-1 text-[9px] font-extrabold tracking-wide text-[#167447] dark:bg-[#173b2b] dark:text-[#91e0b2]">LIVE</span>
                   </button>;
                 })}
               </div>
@@ -364,7 +366,7 @@ export function ToolsHomepage() {
                   <div className="min-w-0 flex-1">
                     <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6d8dbd] dark:text-[#a4c2ef]">{selectedTool.tool.name === "More Tools" ? "Browse category" : "Tool directory"}</p>
                     <h2 className="text-lg font-extrabold tracking-[-0.03em] text-[#203a64] dark:text-[#e8f0fc]">{selectedTool.tool.name === "More Tools" ? `More ${selectedTool.category.name} tools` : selectedTool.tool.name}</h2>
-                    {selectedTool.tool.name !== "More Tools" && <p className="mt-1 text-xs font-medium text-[#7086a3] dark:text-[#aabbd1]">This tool is listed in {selectedTool.category.name}. The eight working tools are available from Trending tools.</p>}
+                    {selectedTool.tool.name !== "More Tools" && <p className="mt-1 text-xs font-medium text-[#7086a3] dark:text-[#aabbd1]">{getToolPathByName(selectedTool.tool.name) ? `Open the live ${selectedTool.tool.name} tool from this tile.` : `${selectedTool.tool.name} is planned but is not available yet. The eight LIVE tools in Trending tools are ready to use.`}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => setSelectedTool(null)} aria-label="Close selected tool panel" className="flex h-10 w-10 items-center justify-center rounded-xl text-[#7e96b6] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:hover:bg-[#263e60]"><X aria-hidden="true" className="h-[18px] w-[18px]" /></button>
@@ -398,7 +400,8 @@ export function ToolsHomepage() {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-8 lg:gap-3">
                     {category.tools.map((tool) => {
                       const toolKey = getToolKey(category.name, tool.name);
-                      return <ToolTile key={tool.name} tool={tool} category={category} isFavorite={favorites.includes(toolKey)} isSelected={selectedTool?.tool.name === tool.name && selectedTool.category.name === category.name} onSelect={() => selectTool(tool, category)} onFavorite={() => toggleFavorite(toolKey)} />;
+                      const isAvailable = tool.name === "More Tools" || Boolean(getToolPathByName(tool.name));
+                      return <ToolTile key={tool.name} tool={tool} category={category} isAvailable={isAvailable} isFavorite={favorites.includes(toolKey)} isSelected={selectedTool?.tool.name === tool.name && selectedTool.category.name === category.name} onSelect={() => selectTool(tool, category)} onFavorite={() => toggleFavorite(toolKey)} />;
                     })}
                   </div>
                 </div>
