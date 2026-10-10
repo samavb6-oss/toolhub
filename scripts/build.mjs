@@ -18,10 +18,21 @@ const require = createRequire(path.join(root, 'package.json'));
 const timeoutMs = Number(process.env.TOOLHUB_BUILD_TIMEOUT_MS ?? 8 * 60 * 1000);
 const debug = process.env.TOOLHUB_DEBUG === '1';
 
-// Use the stable production origin for canonical metadata and sitemap URLs.
-// CF_PAGES_URL is a deployment-specific URL, so it must not be used as the canonical origin.
-// Set VITE_SITE_URL only when the production site uses a different custom domain.
-const siteUrl = (process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\/$/, '');
+// Use only a stable production origin for canonical metadata and crawler-facing URLs.
+// CF_PAGES_URL is deployment-specific and must never become the canonical origin.
+// Require an explicit origin on Cloudflare Pages so an unverified fallback cannot be published.
+const configuredSiteUrl = process.env.VITE_SITE_URL?.trim();
+if (process.env.CF_PAGES === '1' && !configuredSiteUrl) {
+  console.error(
+    '[toolhub] VITE_SITE_URL is required on Cloudflare Pages. Set it to the stable production origin (for example, https://your-project.pages.dev) before building.',
+  );
+  process.exit(1);
+}
+const siteUrl = (configuredSiteUrl || 'https://samstoolhub.pages.dev').replace(/\/+$/, '');
+if (!/^https:\/\/[^/]+$/i.test(siteUrl)) {
+  console.error('[toolhub] VITE_SITE_URL must be an HTTPS origin without a path or trailing slash.');
+  process.exit(1);
+}
 
 console.log(`[toolhub] node ${process.version}`);
 console.time('[toolhub] react shims');
