@@ -17,13 +17,10 @@ const require = createRequire(path.join(root, 'package.json'));
 const timeoutMs = Number(process.env.TOOLHUB_BUILD_TIMEOUT_MS ?? 8 * 60 * 1000);
 const debug = process.env.TOOLHUB_DEBUG === '1';
 
-// index.html uses %VITE_SITE_URL% for canonical, Open Graph, and JSON-LD URLs.
-// Prefer an explicit VITE_SITE_URL. Cloudflare Pages will provide the production
-// hostname through the project environment; local/other builds can set it explicitly.
-const siteUrl =
-  process.env.VITE_SITE_URL ||
-  process.env.CF_PAGES_URL ||
-  'https://samstoolhub.pages.dev';
+// Canonical, Open Graph and JSON-LD URLs must use the stable production hostname.
+// CF_PAGES_URL can identify a specific deployment URL, so do not use it as the
+// canonical base. Set VITE_SITE_URL explicitly to override the production default.
+const siteUrl = process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev';
 
 console.log(`[toolhub] node ${process.version}`);
 console.time('[toolhub] react shims');
