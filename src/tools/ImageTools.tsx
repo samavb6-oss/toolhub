@@ -16,9 +16,8 @@ const imageFormats: { value: ImageFormat; label: string; extension: string }[] =
   { value: "image/png", label: "PNG", extension: "png" },
 ];
 
-function extensionFor(file: File, mime: string): string {
-  return imageFormats.find((format) => format.value === mime)?.extension ??
-    file.name.split(".").pop()?.toLowerCase() ?? "png";
+function extensionFor(mime: string): string {
+  return imageFormats.find((format) => format.value === mime)?.extension ?? "png";
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement, mime: ImageFormat, quality: number): Promise<Blob> {
@@ -129,6 +128,8 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   }
 
   function updateWidth(value: string) {
+    setOutput(null);
+    setStatus("");
     setWidthText(value);
     if (keepRatio && imageDimensions) {
       const width = Number(value);
@@ -137,6 +138,8 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   }
 
   function updateHeight(value: string) {
+    setOutput(null);
+    setStatus("");
     setHeightText(value);
     if (keepRatio && imageDimensions) {
       const height = Number(value);
@@ -168,7 +171,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   function downloadResult() {
     if (!output || !file) return;
     const baseName = file.name.replace(/\.[^.]+$/u, "") || "image";
-    downloadBlob(output, `${baseName}-${isResize ? "resized" : "compressed"}.${extensionFor(file, output.type)}`);
+    downloadBlob(output, `${baseName}-${isResize ? "resized" : "compressed"}.${extensionFor(output.type)}`);
   }
 
   const validDimensions = !isResize || (
@@ -185,7 +188,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         <h2 className="text-base font-extrabold text-white">{isResize ? "Image and dimensions" : "Image and output settings"}</h2>
         <div className="mt-5">
           <ToolField label="Choose an image" htmlFor={`${mode}-file`} hint="PNG, JPEG or WebP · max 50 MB · processed locally in your browser">
-            <input id={`${mode}-file`} data-testid={`input-${mode}-image`} type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => chooseFile(event.currentTarget.files?.[0])} className={`${toolInputClass} h-auto min-h-12 py-2 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#263b58] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#d8e6fa]`} />
+            <input id={`${mode}-file`} data-testid={`input-${mode}-image`} type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={(event) => chooseFile(event.currentTarget.files?.[0])} className={`${toolInputClass} h-auto min-h-12 py-2 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#263b58] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#d8e6fa]`} />
           </ToolField>
         </div>
         {file && imageDimensions && <div className="mt-4 rounded-xl border border-[#26364b] bg-[#0b1320] px-4 py-3 text-xs leading-5 text-[#9aabc0]">
@@ -202,19 +205,19 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
             </ToolField>
           </div>
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#2c3a4c] bg-[#152031] px-3 text-xs font-semibold text-[#cbd5e1]">
-            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} onChange={(event) => setKeepRatio(event.target.checked)} />
+            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} onChange={(event) => { setKeepRatio(event.target.checked); setOutput(null); setStatus(""); }} />
             Keep aspect ratio
           </label>
         </div>}
         {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions greater than zero and keep the result under 80 megapixels.</p>}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <ToolField label="Output format" htmlFor={`${mode}-format`}>
-            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} onChange={(event) => setMime(event.target.value as ImageFormat)}>
+            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
               {imageFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
             </select>
           </ToolField>
           <ToolField label={`Quality — ${quality}%`} htmlFor={`${mode}-quality`} hint={mime === "image/png" ? "PNG is lossless; quality is not applied." : "Lower quality generally means a smaller file."}>
-            <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={mime === "image/png"} onChange={(event) => setQuality(Number(event.target.value))} />
+            <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={mime === "image/png"} onChange={(event) => { setQuality(Number(event.target.value)); setOutput(null); setStatus(""); }} />
           </ToolField>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">

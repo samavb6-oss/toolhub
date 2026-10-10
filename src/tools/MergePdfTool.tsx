@@ -14,7 +14,7 @@ export function MergePdfTool() {
   const [error, setError] = useState("");
 
   function addFiles(incoming: FileList | null) {
-    if (!incoming?.length) return;
+    if (busy || !incoming?.length) return;
     const accepted = Array.from(incoming);
     const invalid = accepted.find((file) => !file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf");
     if (invalid) {
@@ -81,7 +81,7 @@ export function MergePdfTool() {
       <div><h2 className="text-base font-extrabold text-white">Add PDF files</h2><p className="mt-1 max-w-xl text-xs leading-5 text-[#8193a9]">Choose at least two files. Use the arrows to set the page order before merging.</p></div>
       <label className={secondaryButtonClass}>
         <FilePlus2 aria-hidden="true" className="h-4 w-4" />Add PDFs
-        <input type="file" data-testid="input-merge-pdfs" accept="application/pdf,.pdf" multiple className="sr-only" onChange={(event) => { addFiles(event.currentTarget.files); event.currentTarget.value = ""; }} />
+        <input type="file" data-testid="input-merge-pdfs" accept="application/pdf,.pdf" multiple disabled={busy} className="sr-only" onChange={(event) => { addFiles(event.currentTarget.files); event.currentTarget.value = ""; }} />
       </label>
     </div>
     <p className="mt-3 text-[11px] leading-5 text-[#718197]">Up to 20 files and 100 MB combined. Processing happens locally; files are not uploaded.</p>
