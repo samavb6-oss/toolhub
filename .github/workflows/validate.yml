@@ -22,5 +22,7 @@ jobs:
           version: 10
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Typecheck application
+        run: pnpm typecheck
       - name: Build and verify production output
         run: pnpm build
