@@ -73,7 +73,7 @@ const categories: Category[] = [
   {
     name: "Utilities", eyebrow: "Password generators, QR codes, JSON tools and more.", icon: Settings2,
     tint: "#eef2f6", accent: "#536375", tools: [
-      { name: "QR Generator", icon: QrCode }, { name: "Password Generator", icon: Fingerprint },
+      { name: "QR Code Generator", icon: QrCode }, { name: "Password Generator", icon: Fingerprint },
       { name: "UUID Generator", icon: Copy }, { name: "Barcode Generator", icon: Code2 },
       { name: "Random Number", icon: Dices }, { name: "JSON Formatter", icon: Braces },
       { name: "Base64 Encoder", icon: FileCode2 }, { name: "More Tools", icon: MoreHorizontal },
@@ -112,7 +112,7 @@ const trendingTools: Tool[] = [
   { name: "EMI Calculator", icon: Calculator }, { name: "Merge PDF", icon: FilePlus2 },
   { name: "Compress Image", icon: ImageMinus }, { name: "Word Counter", icon: Type },
   { name: "Password Generator", icon: Fingerprint }, { name: "Resize Image", icon: ZoomIn },
-  { name: "QR Generator", icon: QrCode }, { name: "AI Prompt Generator", icon: Bot },
+  { name: "QR Code Generator", icon: QrCode }, { name: "AI Prompt Generator", icon: Bot },
 ];
 
 function getToolKey(categoryName: string, toolName: string): string {
