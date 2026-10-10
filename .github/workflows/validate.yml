@@ -24,5 +24,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Typecheck application
         run: pnpm typecheck
+      - name: Test core tool logic
+        run: pnpm test
       - name: Build and verify production output
         run: pnpm build
