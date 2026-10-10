@@ -38,7 +38,7 @@ Create a Pages project connected to this GitHub repository and configure:
 
 Ensure the build environment has pnpm available. The repository includes `.nvmrc` specifying Node 22 and `pnpm-lock.yaml` for reproducible dependency installation.
 
-The build script uses `VITE_SITE_URL` if provided, then `CF_PAGES_URL`, and otherwise falls back to `https://samstoolhub.pages.dev`. Set `VITE_SITE_URL` to the final canonical origin (without a trailing slash) if the production hostname differs from that fallback. Canonical, Open Graph and homepage JSON-LD metadata are generated from this value. Tool pages set their own title, description, canonical URL and JSON-LD at runtime.
+The build script uses `VITE_SITE_URL` for the canonical production origin. If it is not set, the current fallback is `https://samstoolhub.pages.dev`. Set `VITE_SITE_URL` to the actual production origin (without a trailing slash) if the live hostname differs from that fallback. Do not use a per-deployment preview URL as the canonical origin. Canonical, Open Graph and homepage JSON-LD metadata are generated from this value. Tool pages set their own title, description, canonical URL and JSON-LD at runtime.
 
 Cloudflare Pages serves this as a single-page application. The app routes are `/` and `/tools/:slug`; verify that direct visits and refreshes on tool URLs work after deployment.
 
@@ -48,7 +48,7 @@ Cloudflare Pages serves this as a single-page application. The app routes are `/
 - `public/sitemap.xml` lists the homepage and the eight implemented tool routes.
 - `scripts/verify-dist.mjs` checks that the sitemap, robots file, favicon and built assets are present.
 
-If the production hostname changes, update the sitemap URLs to match the canonical origin as well as setting `VITE_SITE_URL`.
+The build rewrites the generated `robots.txt` and `sitemap.xml` to use the same origin as `VITE_SITE_URL`. If the production hostname changes, set `VITE_SITE_URL` to that hostname.
 
 ## Project layout
 
