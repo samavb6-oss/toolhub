@@ -38,7 +38,7 @@ Create a Pages project connected to this GitHub repository and configure:
 
 Ensure the build environment has pnpm available. The repository includes `.nvmrc` specifying Node 22 and `pnpm-lock.yaml` for reproducible dependency installation.
 
-The build script uses `VITE_SITE_URL` for the canonical production origin. If it is not set, the current fallback is `https://samstoolhub.pages.dev`. Set `VITE_SITE_URL` to the actual production origin (without a trailing slash) if the live hostname differs from that fallback. Do not use a per-deployment preview URL as the canonical origin. Canonical, Open Graph and homepage JSON-LD metadata are generated from this value. Tool pages set their own title, description, canonical URL and JSON-LD at runtime.
+Set `VITE_SITE_URL` in Cloudflare Pages environment variables to the actual stable production origin (for example, `https://your-project.pages.dev`, or your verified custom domain), with no trailing slash. The build now fails on Cloudflare Pages if this value is missing or is not an HTTPS origin; this prevents publishing canonical URLs for an assumed hostname. Do not use a per-deployment preview URL as the canonical origin. Local/CI builds without Cloudflare Pages use `https://samstoolhub.pages.dev` as a fallback for validation only. Canonical, Open Graph and homepage JSON-LD metadata are generated from the configured value. Tool pages set their own title, description, canonical URL and JSON-LD at runtime.
 
 Cloudflare Pages serves this as a single-page application. The app routes are `/` and `/tools/:slug`; verify that direct visits and refreshes on tool URLs work after deployment.
 
