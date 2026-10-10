@@ -35,7 +35,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
   else if (/toolhub\.example/.test(canonical))
     notes.push(
       'NOTE: canonical / Open Graph / JSON-LD still use the PLACEHOLDER domain https://toolhub.example. ' +
-        'Set VITE_SITE_URL (Netlify env var or .env) to the real URL before launch.',
+        'Set VITE_SITE_URL to the production origin if it differs from the default Cloudflare Pages hostname.',
     );
   else notes.push(`canonical site URL: ${canonical}`);
 
