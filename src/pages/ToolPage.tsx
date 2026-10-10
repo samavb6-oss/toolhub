@@ -9,7 +9,8 @@ import { ToolPageFrame } from "@/tools/ToolPageFrame";
 import { toolDefinitions } from "@/tools/toolRegistry";
 import NotFound from "./not-found";
 
-const toolComponents = {\n  "character-counter": CharacterCounter,
+const toolComponents = {
+  "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
   "merge-pdf": MergePdfTool,
   "compress-image": CompressImageTool,
