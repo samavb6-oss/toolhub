@@ -296,3 +296,75 @@ export function CharacterCounter() {
     </div>
   </ToolPanel>;
 }
+
+
+type CaseMode = "uppercase" | "lowercase" | "title" | "sentence" | "capitalize";
+
+function convertCase(text: string, mode: CaseMode): string {
+  switch (mode) {
+    case "uppercase": return text.toLocaleUpperCase();
+    case "lowercase": return text.toLocaleLowerCase();
+    case "title": return text.toLocaleLowerCase().replace(/(^|[\\s\\-–—])([\\p{L}\\p{N}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
+    case "sentence": {
+      const lower = text.toLocaleLowerCase();
+      return lower.replace(/(^|[.!?。！？]\\s+)([\\p{L}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
+    }
+    case "capitalize": return text.replace(/(^|\\s)([\\p{L}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
+  }
+}
+
+const caseModes: { value: CaseMode; label: string; description: string }[] = [
+  { value: "uppercase", label: "UPPERCASE", description: "MAKE EVERY LETTER CAPITAL" },
+  { value: "lowercase", label: "lowercase", description: "make every letter lowercase" },
+  { value: "title", label: "Title Case", description: "Capitalize Each Word" },
+  { value: "sentence", label: "Sentence case", description: "Capitalize the start of sentences." },
+  { value: "capitalize", label: "Capitalize Words", description: "Capitalize the first letter of each word" },
+];
+
+export function CaseConverter() {
+  const [text, setText] = useState("");
+  const [mode, setMode] = useState<CaseMode>("sentence");
+  const [status, setStatus] = useState("");
+  const [copied, setCopied] = useState(false);
+  const output = convertCase(text, mode);
+
+  async function copyOutput() {
+    try {
+      await copyText(output);
+      setCopied(true);
+      setStatus("Converted text copied to your clipboard.");
+    } catch (error) {
+      setCopied(false);
+      setStatus(error instanceof Error ? error.message : "Could not copy the text.");
+    }
+  }
+
+  function chooseMode(nextMode: CaseMode) {
+    setMode(nextMode);
+    setCopied(false);
+    setStatus("");
+  }
+
+  return <ToolPanel>
+    <ToolField label="Your text" htmlFor="case-converter-input" hint="Paste or type text, then choose a case style. The result updates instantly.">
+      <textarea id="case-converter-input" data-testid="input-case-converter" className={`${toolTextareaClass} min-h-[220px] resize-y`} placeholder="Type or paste text here…" value={text} onChange={(event) => { setText(event.target.value); setCopied(false); setStatus(""); }} />
+    </ToolField>
+    <div className="mt-5">
+      <p className="mb-3 text-sm font-bold text-white">Convert to</p>
+      <div className="flex flex-wrap gap-2">
+        {caseModes.map((item) => <button key={item.value} type="button" data-testid={`button-case-${item.value}`} aria-pressed={mode === item.value} className={mode === item.value ? primaryButtonClass : secondaryButtonClass} onClick={() => chooseMode(item.value)}>{item.label}</button>)}
+      </div>
+    </div>
+    <div className="mt-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label htmlFor="case-converter-output" className="text-sm font-bold text-white">Converted text</label>
+        <button type="button" data-testid="button-copy-case-converter" className={secondaryButtonClass} disabled={!output} onClick={copyOutput}>{copied ? <Check aria-hidden="true" className="h-4 w-4" /> : <Copy aria-hidden="true" className="h-4 w-4" />}{copied ? "Copied" : "Copy result"}</button>
+      </div>
+      <textarea id="case-converter-output" data-testid="result-case-converter" aria-label="Converted text" className={`${toolTextareaClass} mt-3 min-h-[220px] resize-y`} placeholder="Your converted text will appear here…" value={output} readOnly />
+      <p role="status" aria-live="polite" data-testid="status-case-converter" className="mt-3 min-h-5 text-xs text-[#84cba5]">{status}</p>
+    </div>
+    <div className="mt-2 flex justify-end">
+      <button type="button" data-testid="button-clear-case-converter" className={secondaryButtonClass} disabled={!text} onClick={() => { setText(""); setCopied(false); setStatus(""); }}>Clear text</button>
+    </div>
+  </ToolPanel>;
+}
