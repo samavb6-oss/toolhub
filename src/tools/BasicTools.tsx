@@ -163,20 +163,20 @@ export function PasswordGenerator() {
         <h2 className="text-base font-extrabold text-white">Password settings</h2>
         <div className="mt-5">
           <ToolField label={`Length — ${length} characters`} htmlFor="password-length">
-            <input id="password-length" data-testid="input-password-length" className="mt-4 w-full accent-[#3b82f6]" type="range" min="8" max="64" step="1" value={length} onChange={(event) => setLength(Number(event.target.value))} />
+            <input id="password-length" data-testid="input-password-length" className="mt-4 w-full accent-[#3b82f6]" type="range" min="8" max="64" step="1" value={length} onChange={(event) => { setLength(Number(event.target.value)); setPassword(""); setStatus(""); setCopied(false); }} />
           </ToolField>
         </div>
         <fieldset className="mt-6">
           <legend className="text-xs font-bold text-[#cbd5e1]">Include character types</legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {passwordGroups.map((group) => <label key={group.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#2c3a4c] bg-[#152031] px-3 text-xs font-semibold text-[#cbd5e1]">
-              <input type="checkbox" data-testid={`checkbox-${group.id}`} className="h-4 w-4 accent-[#3b82f6]" checked={selectedGroups.includes(group.id)} onChange={() => toggleGroup(group.id)} />
+              <input type="checkbox" data-testid={`checkbox-${group.id}`} className="h-4 w-4 accent-[#3b82f6]" checked={selectedGroups.includes(group.id)} onChange={() => { toggleGroup(group.id); setPassword(""); setStatus(""); setCopied(false); }} />
               {group.label}
             </label>)}
           </div>
         </fieldset>
         <label className="mt-4 flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#2c3a4c] bg-[#152031] px-3 text-xs font-semibold text-[#cbd5e1]">
-          <input type="checkbox" data-testid="checkbox-exclude-ambiguous" className="h-4 w-4 accent-[#3b82f6]" checked={excludeAmbiguous} onChange={(event) => setExcludeAmbiguous(event.target.checked)} />
+          <input type="checkbox" data-testid="checkbox-exclude-ambiguous" className="h-4 w-4 accent-[#3b82f6]" checked={excludeAmbiguous} onChange={(event) => { setExcludeAmbiguous(event.target.checked); setPassword(""); setStatus(""); setCopied(false); }} />
           Exclude similar-looking characters (0, O, 1, l)
         </label>
         <button type="button" data-testid="button-generate-password" className={`${primaryButtonClass} mt-6 w-full`} onClick={generate}><RefreshCw aria-hidden="true" className="h-4 w-4" />Generate password</button>
