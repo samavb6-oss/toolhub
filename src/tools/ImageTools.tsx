@@ -9,6 +9,7 @@ import { downloadBlob, formatBytes } from "./toolUtils";
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
 type ImageDimensions = { width: number; height: number };
 type AspectPreset = "original" | "9:16" | "16:9" | "1:1" | "4:5" | "4:3" | "3:2" | "custom";
+type ResizeFitMode = "contain" | "cover";
 type ProcessingMode = "compress" | "resize";
 
 const aspectPresets: { value: AspectPreset; label: string }[] = [
@@ -53,6 +54,7 @@ async function processImage(
   dimensions: ImageDimensions,
   mime: ImageFormat,
   quality: number,
+  fitMode: ResizeFitMode | "stretch" = "stretch",
 ): Promise<Blob> {
   if (dimensions.width < 1 || dimensions.height < 1 || dimensions.width * dimensions.height > 80_000_000) {
     throw new Error("Choose dimensions between 1 pixel and 80 megapixels.");
@@ -70,7 +72,16 @@ async function processImage(
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
   }
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  if (fitMode === "stretch") {
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  } else {
+    const scale = fitMode === "contain"
+      ? Math.min(canvas.width / bitmap.width, canvas.height / bitmap.height)
+      : Math.max(canvas.width / bitmap.width, canvas.height / bitmap.height);
+    const drawWidth = bitmap.width * scale;
+    const drawHeight = bitmap.height * scale;
+    context.drawImage(bitmap, (canvas.width - drawWidth) / 2, (canvas.height - drawHeight) / 2, drawWidth, drawHeight);
+  }
   bitmap.close();
   return canvasToBlob(canvas, mime, quality);
 }
@@ -83,6 +94,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   const [heightText, setHeightText] = useState("");
   const [keepRatio, setKeepRatio] = useState(true);
   const [aspectPreset, setAspectPreset] = useState<AspectPreset>("original");
+  const [resizeFitMode, setResizeFitMode] = useState<ResizeFitMode>("contain");
   const [quality, setQuality] = useState(82);
   const [mime, setMime] = useState<ImageFormat>("image/webp");
   const [output, setOutput] = useState<Blob | null>(null);
@@ -195,7 +207,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
       const dimensions = isResize
         ? { width: Number(widthText), height: Number(heightText) }
         : imageDimensions;
-      const result = await processImage(file, dimensions, mime, quality / 100);
+      const result = await processImage(file, dimensions, mime, quality / 100, isResize ? resizeFitMode : "stretch");
       setOutput(result);
       const resultFormat = imageFormats.find((format) => format.value === result.type)?.label ?? "the selected format";
       setStatus(`Finished ${isResize ? "resizing" : "compressing"} ${file.name} as ${resultFormat}.`);
@@ -237,6 +249,12 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
           <ToolField label="Aspect ratio preset" htmlFor="resize-aspect-preset" hint="Choose a common format, or use custom dimensions.">
             <select id="resize-aspect-preset" data-testid="select-resize-aspect-preset" className={toolInputClass} value={aspectPreset} disabled={!file} onChange={(event) => updateAspectPreset(event.target.value as AspectPreset)}>
               {aspectPresets.map((preset) => <option key={preset.value} value={preset.value}>{preset.label}</option>)}
+            </select>
+          </ToolField>
+          <ToolField label="Image fit" htmlFor="resize-fit-mode" hint="Avoids stretching when the source ratio differs.">
+            <select id="resize-fit-mode" data-testid="select-resize-fit-mode" className={toolInputClass} value={resizeFitMode} disabled={!file} onChange={(event) => { setResizeFitMode(event.target.value as ResizeFitMode); setOutput(null); setStatus(""); }}>
+              <option value="contain">Fit inside · no cropping</option>
+              <option value="cover">Fill frame · crop edges</option>
             </select>
           </ToolField>
           <div className="grid grid-cols-2 gap-3">
