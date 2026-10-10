@@ -81,7 +81,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
       problems.push('sitemap.xml is missing the standard sitemap namespace');
     if (!/<loc>https:\/\/[^<]+<\/loc>/.test(sitemap))
       problems.push('sitemap.xml contains no absolute HTTPS URLs');
-    if (/%VITE_[A-Z0-9_]+%|toolhub\\.example/.test(sitemap))
+    if (sitemap.includes('%VITE_') || sitemap.includes('toolhub.example'))
       problems.push('sitemap.xml contains a placeholder URL');
     notes.push(`sitemap.xml -> ${(sitemap.match(/<loc>/g) ?? []).length} URL(s)`);
   }
