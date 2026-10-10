@@ -35,7 +35,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
   else if (/toolhub\.example/.test(canonical))
     notes.push(
       'NOTE: canonical / Open Graph / JSON-LD still use the PLACEHOLDER domain https://toolhub.example. ' +
-        'Set VITE_SITE_URL (Netlify env var or .env) to the real URL before launch.',
+        'Set VITE_SITE_URL to the production origin if it differs from the default Cloudflare Pages hostname.',
     );
   else notes.push(`canonical site URL: ${canonical}`);
 
@@ -71,9 +71,21 @@ export function verifyDist(dist = path.join(root, 'dist')) {
   if (!allJs.includes('/tools/:slug')) problems.push('router path "/tools/:slug" not found in JS output');
   for (const f of jsFiles) notes.push(`${f}: ${(statSync(path.join(assetsDir, f)).size / 1024).toFixed(1)} KB`);
 
-  for (const f of ['favicon.svg', 'robots.txt']) {
+  for (const f of ['favicon.svg', 'robots.txt', 'sitemap.xml']) {
     if (!existsSync(path.join(dist, f))) problems.push(`public/${f} was not copied to dist`);
   }
+  const sitemapPath = path.join(dist, 'sitemap.xml');
+  if (existsSync(sitemapPath)) {
+    const sitemap = readFileSync(sitemapPath, 'utf8');
+    if (!sitemap.includes('http://www.sitemaps.org/schemas/sitemap/0.9'))
+      problems.push('sitemap.xml is missing the standard sitemap namespace');
+    if (!/<loc>https:\/\/[^<]+<\/loc>/.test(sitemap))
+      problems.push('sitemap.xml contains no absolute HTTPS URLs');
+    if (sitemap.includes('%VITE_') || sitemap.includes('toolhub.example'))
+      problems.push('sitemap.xml contains a placeholder URL');
+    notes.push(`sitemap.xml -> ${(sitemap.match(/<loc>/g) ?? []).length} URL(s)`);
+  }
+
   return { ok: problems.length === 0, problems, notes };
 }
 

@@ -6,6 +6,7 @@
 // Env: TOOLHUB_BUILD_TIMEOUT_MS (default 480000), TOOLHUB_DEBUG=1 (logs every module Vite
 // transforms, so a stall shows exactly where it happens).
 import { spawn } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,13 +18,21 @@ const require = createRequire(path.join(root, 'package.json'));
 const timeoutMs = Number(process.env.TOOLHUB_BUILD_TIMEOUT_MS ?? 8 * 60 * 1000);
 const debug = process.env.TOOLHUB_DEBUG === '1';
 
-// index.html uses %VITE_SITE_URL% for canonical, Open Graph, and JSON-LD URLs.
-// Prefer an explicit VITE_SITE_URL. Cloudflare Pages will provide the production
-// hostname through the project environment; local/other builds can set it explicitly.
-const siteUrl =
-  process.env.VITE_SITE_URL ||
-  process.env.CF_PAGES_URL ||
-  'https://samstoolhub.pages.dev';
+// Use only a stable production origin for canonical metadata and crawler-facing URLs.
+// CF_PAGES_URL is deployment-specific and must never become the canonical origin.
+// Require an explicit origin on Cloudflare Pages so an unverified fallback cannot be published.
+const configuredSiteUrl = process.env.VITE_SITE_URL?.trim();
+if (process.env.CF_PAGES === '1' && !configuredSiteUrl) {
+  console.error(
+    '[toolhub] VITE_SITE_URL is required on Cloudflare Pages. Set it to the stable production origin (for example, https://your-project.pages.dev) before building.',
+  );
+  process.exit(1);
+}
+const siteUrl = (configuredSiteUrl || 'https://samstoolhub.pages.dev').replace(/\/+$/, '');
+if (!/^https:\/\/[^/]+$/i.test(siteUrl)) {
+  console.error('[toolhub] VITE_SITE_URL must be an HTTPS origin without a path or trailing slash.');
+  process.exit(1);
+}
 
 console.log(`[toolhub] node ${process.version}`);
 console.time('[toolhub] react shims');
@@ -59,6 +68,14 @@ child.on('exit', (code, signal) => {
   clearTimeout(timer);
   if (timedOut) process.exit(1);
   if (code !== 0) process.exit(code ?? (signal ? 1 : 0));
+
+  // Keep crawler-facing URLs aligned with the same canonical origin used by index.html.
+  // The checked-in files use the default Pages hostname; rewrite the built copies only.
+  for (const file of ['robots.txt', 'sitemap.xml']) {
+    const filePath = path.join(root, 'dist', file);
+    const contents = readFileSync(filePath, 'utf8');
+    writeFileSync(filePath, contents.replaceAll('https://samstoolhub.pages.dev', siteUrl));
+  }
 
   const { ok, problems, notes } = verifyDist();
   notes.forEach((n) => console.log(`[toolhub] ${n}`));
