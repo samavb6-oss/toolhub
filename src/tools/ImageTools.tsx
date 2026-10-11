@@ -54,7 +54,9 @@ async function processImage(
     ? isValidCanvasDimensions(dimensions)
     : isValidImageDimensions(dimensions);
   if (!validDimensions) {
-    throw new Error("Enter whole-number dimensions from 1 to 40,000 pixels per side, with a maximum of 80 megapixels.");
+    throw new Error(fitMode === "stretch"
+      ? "This image exceeds the 80-megapixel processing limit."
+      : "Enter whole-number dimensions from 1 to 40,000 pixels per side, with a maximum of 80 megapixels.");
   }
   const bitmap = await createImageBitmap(file);
   try {
