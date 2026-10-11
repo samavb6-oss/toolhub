@@ -1,11 +1,33 @@
+export type EmiResults = {
+  emi: number;
+  totalInterest: number;
+  totalRepayment: number;
+};
+
 export function calculateEmi(principal: number, annualRate: number, months: number): number {
   if (!Number.isFinite(principal) || principal <= 0 || !Number.isFinite(annualRate) || annualRate < 0 || !Number.isInteger(months) || months < 1) {
-    return 0;
+    return Number.NaN;
   }
+
   const monthlyRate = annualRate / 1200;
-  if (monthlyRate === 0) return principal / months;
-  const growth = (1 + monthlyRate) ** months;
-  return principal * monthlyRate * growth / (growth - 1);
+  const emi = monthlyRate === 0
+    ? principal / months
+    : principal * (monthlyRate / -Math.expm1(-months * Math.log1p(monthlyRate)));
+
+  return Number.isFinite(emi) && emi > 0 ? emi : Number.NaN;
+}
+
+export function calculateEmiResults(principal: number, annualRate: number, months: number): EmiResults | null {
+  const emi = calculateEmi(principal, annualRate, months);
+  if (!Number.isFinite(emi) || emi <= 0) return null;
+
+  const totalRepayment = emi * months;
+  const totalInterest = totalRepayment - principal;
+  if (!Number.isFinite(totalRepayment) || !Number.isFinite(totalInterest) || totalRepayment <= 0 || totalInterest < 0) {
+    return null;
+  }
+
+  return { emi, totalInterest, totalRepayment };
 }
 
 export type TextCounts = {
