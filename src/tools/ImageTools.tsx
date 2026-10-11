@@ -290,7 +290,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
             Keep aspect ratio
           </label>
         </div>}
-        {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions greater than zero and keep the result under 80 megapixels.</p>}
+        {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions from 1 to 40,000 px per side, with a maximum of 80 megapixels.</p>}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <ToolField label="Output format" htmlFor={`${mode}-format`}>
             <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
