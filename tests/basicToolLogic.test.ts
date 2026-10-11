@@ -81,6 +81,6 @@ test("word counter counts paragraphs across CRLF, lone CR, and Unicode line sepa
 test("word counter keeps emoji out of word counts and counts Unicode code points", () => {
   const counts = countText("Hi 😀 🌍");
   assert.equal(counts.words, 2);
-  assert.equal(counts.characters, 7);
-  assert.equal(counts.charactersNoSpaces, 5);
+  assert.equal(counts.characters, 6);
+  assert.equal(counts.charactersNoSpaces, 4);
 });
