@@ -12,7 +12,7 @@ export function ratioForPreset(preset: AspectPreset, original: ImageDimensions |
   return width / height;
 }
 
-export function isValidImageDimensions(dimensions: ImageDimensions): boolean {
+export function isValidCanvasDimensions(dimensions: ImageDimensions): boolean {
   const { width, height } = dimensions;
   return Number.isFinite(width) &&
     Number.isFinite(height) &&
@@ -20,9 +20,13 @@ export function isValidImageDimensions(dimensions: ImageDimensions): boolean {
     Number.isInteger(height) &&
     width >= 1 &&
     height >= 1 &&
-    width <= MAX_IMAGE_DIMENSION &&
-    height <= MAX_IMAGE_DIMENSION &&
     width * height <= MAX_IMAGE_PIXELS;
+}
+
+export function isValidImageDimensions(dimensions: ImageDimensions): boolean {
+  return isValidCanvasDimensions(dimensions) &&
+    dimensions.width <= MAX_IMAGE_DIMENSION &&
+    dimensions.height <= MAX_IMAGE_DIMENSION;
 }
 
 export function fitRectangle(
