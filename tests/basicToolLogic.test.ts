@@ -47,6 +47,11 @@ test("EMI results preserve normal and zero-interest totals", () => {
     totalInterest: 0,
     totalRepayment: 12000,
   });
+  assert.deepEqual(calculateEmiResults(1, 0, 3), {
+    emi: 1 / 3,
+    totalInterest: 0,
+    totalRepayment: 1,
+  });
   const normal = calculateEmiResults(500000, 8.5, 240);
   assert.ok(normal);
   assert.ok(Number.isFinite(normal.emi));
