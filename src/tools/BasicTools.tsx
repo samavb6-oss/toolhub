@@ -108,13 +108,13 @@ export function WordCounter() {
 
   return <ToolPanel>
     <ToolField label="Paste or write your text" htmlFor="word-counter-text" hint="Counts update as you type. Text stays in this browser tab.">
-      <textarea id="word-counter-text" data-testid="input-word-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Start typing or paste your text here…" value={text} onChange={(event) => setText(event.target.value)} />
+      <textarea id="word-counter-text" data-testid="input-word-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Start typing or paste your text here…" value={text} onChange={(event) => { setText(event.target.value); setCopied(false); setCopyError(""); }} />
     </ToolField>
     <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-[#8193a9]">Reading time estimated at 200 words per minute.</p>
       <div className="flex gap-2">
         <button type="button" data-testid="button-copy-word-counter-text" className={secondaryButtonClass} disabled={!text} onClick={copyTextToClipboard}>{copied ? <Check aria-hidden="true" className="h-4 w-4" /> : <Copy aria-hidden="true" className="h-4 w-4" />}{copied ? "Copied" : "Copy text"}</button>
-        <button type="button" data-testid="button-clear-word-counter" className={secondaryButtonClass} disabled={!text} onClick={() => { setText(""); setCopyError(""); }}>Clear</button>
+        <button type="button" data-testid="button-clear-word-counter" className={secondaryButtonClass} disabled={!text} onClick={() => { setText(""); setCopied(false); setCopyError(""); }}>Clear</button>
       </div>
     </div>
     {copyError && <p role="alert" className="mt-3 text-xs text-[#ffb9be]">{copyError}</p>}

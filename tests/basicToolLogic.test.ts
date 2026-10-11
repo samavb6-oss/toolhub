@@ -61,3 +61,26 @@ test("AI prompt generator includes required task and optional context", () => {
   assert.match(prompt, /Context:\nOne hour per day/);
   assert.match(prompt, /Requirements and constraints:\nNo weekends/);
 });
+
+
+test("word counter keeps Unicode combining marks inside words", () => {
+  const counts = countText("नमस्ते दुनिया café don't well-being");
+  assert.equal(counts.words, 5);
+});
+
+test("word counter does not count trailing apostrophes or hyphens as part of a word", () => {
+  assert.equal(countText("hello- world' don't re-enter").words, 4);
+});
+
+test("word counter counts paragraphs across CRLF, lone CR, and Unicode line separators", () => {
+  assert.equal(countText("First paragraph.\r\n\r\nSecond paragraph.\r\n\r\nThird paragraph.").paragraphs, 3);
+  assert.equal(countText("First paragraph.\r\rSecond paragraph.").paragraphs, 2);
+  assert.equal(countText("First paragraph.\u2028\u2028Second paragraph.").paragraphs, 2);
+});
+
+test("word counter keeps emoji out of word counts and counts Unicode code points", () => {
+  const counts = countText("Hi 😀 🌍");
+  assert.equal(counts.words, 2);
+  assert.equal(counts.characters, 7);
+  assert.equal(counts.charactersNoSpaces, 5);
+});
