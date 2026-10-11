@@ -5,7 +5,7 @@ import {
   toolInputClass, toolTextareaClass,
 } from "./ToolPageFrame";
 import {
-  buildAiPrompt, calculateEmi, countText, generateSecurePassword, passwordGroups,
+  buildAiPrompt, calculateEmiResults, countText, generateSecurePassword, passwordGroups,
 } from "./basicToolLogic";
 import type { PromptFields } from "./basicToolLogic";
 import { copyText } from "./toolUtils";
@@ -42,8 +42,8 @@ export function EmiCalculator() {
     Number.isInteger(years) && years >= 0 && years <= 50 &&
     Number.isInteger(extraMonths) && extraMonths >= 0 && extraMonths <= 11 &&
     months > 0 && months <= 600;
-  const emi = isValid ? calculateEmi(principal, annualRate, months) : 0;
-  const totalPayment = emi * months;
+  const results = isValid ? calculateEmiResults(principal, annualRate, months) : null;
+  const calculationError = isValid && results === null;
 
   return <ToolPanel>
     <div className="grid gap-7 lg:grid-cols-[1fr_0.92fr]">
@@ -65,14 +65,15 @@ export function EmiCalculator() {
           </ToolField>
         </div>
         {!isValid && <p role="alert" data-testid="status-emi-validation" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs font-semibold leading-5 text-[#ffb9be]">Enter a positive loan amount, a non-negative rate, and a term from 1 month to 50 years.</p>}
+        {calculationError && <p role="alert" data-testid="status-emi-calculation" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs font-semibold leading-5 text-[#ffb9be]">These values produce results outside the calculator’s supported numeric range. Reduce the loan amount or term to see a reliable estimate.</p>}
       </div>
       <section aria-label="EMI results" className="rounded-2xl border border-[#28466b] bg-[linear-gradient(145deg,#152c49,#111b29)] p-5 sm:p-6">
         <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#8fb6ec]">Estimated monthly payment</p>
-        <p data-testid="result-emi-monthly" className="mt-2 text-4xl font-extrabold tracking-[-0.06em] text-white">{isValid ? inr(emi) : "—"}</p>
-        <p className="mt-2 text-xs text-[#91a3b9]">{isValid ? `${months} monthly payments` : "Correct the values to calculate your EMI."}</p>
+        <p data-testid="result-emi-monthly" className="mt-2 text-4xl font-extrabold tracking-[-0.06em] text-white">{results ? inr(results.emi) : "—"}</p>
+        <p className="mt-2 text-xs text-[#91a3b9]">{results ? `${months} monthly payments` : calculationError ? "The calculated results exceed the supported numeric range. Try a smaller loan amount or shorter term." : "Correct the values to calculate your EMI."}</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <ResultStat label="Total interest" value={isValid ? inr(totalPayment - principal) : "—"} testId="result-emi-interest" />
-          <ResultStat label="Total repayment" value={isValid ? inr(totalPayment) : "—"} testId="result-emi-total" />
+          <ResultStat label="Total interest" value={results ? inr(results.totalInterest) : "—"} testId="result-emi-interest" />
+          <ResultStat label="Total repayment" value={results ? inr(results.totalRepayment) : "—"} testId="result-emi-total" />
         </div>
       </section>
     </div>
