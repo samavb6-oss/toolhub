@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   fitRectangle,
+  isValidCanvasDimensions,
   isValidImageDimensions,
   ratioForPreset,
   MAX_IMAGE_DIMENSION,
@@ -55,4 +56,10 @@ test("cover fills the target and centers the cropped excess", () => {
   assert.deepEqual(fitRectangle({ width: 1600, height: 900 }, { width: 400, height: 400 }, "cover"), {
     x: -155.55555555555554, y: 0, width: 711.1111111111111, height: 400,
   });
+});
+
+test("compressor canvas validation preserves the previous pixel-only limit", () => {
+  assert.equal(isValidCanvasDimensions({ width: 45_000, height: 1_000 }), true);
+  assert.equal(isValidImageDimensions({ width: 45_000, height: 1_000 }), false);
+  assert.equal(isValidCanvasDimensions({ width: 10_000, height: 8_001 }), false);
 });
