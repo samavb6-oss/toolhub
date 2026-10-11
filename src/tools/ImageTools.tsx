@@ -6,7 +6,7 @@ import {
 } from "./ToolPageFrame";
 import { downloadBlob, formatBytes } from "./toolUtils";
 import {
-  fitRectangle, isValidImageDimensions, ratioForPreset,
+  fitRectangle, isValidCanvasDimensions, isValidImageDimensions, ratioForPreset,
   type AspectPreset, type ImageDimensions, type ResizeFitMode,
 } from "./imageResizeLogic";
 
@@ -50,7 +50,10 @@ async function processImage(
   quality: number,
   fitMode: ResizeFitMode | "stretch" = "stretch",
 ): Promise<Blob> {
-  if (!isValidImageDimensions(dimensions)) {
+  const validDimensions = fitMode === "stretch"
+    ? isValidCanvasDimensions(dimensions)
+    : isValidImageDimensions(dimensions);
+  if (!validDimensions) {
     throw new Error("Enter whole-number dimensions from 1 to 40,000 pixels per side, with a maximum of 80 megapixels.");
   }
   const bitmap = await createImageBitmap(file);
