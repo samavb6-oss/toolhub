@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import {
   ToolField, ToolPanel, primaryButtonClass, secondaryButtonClass,
@@ -8,6 +8,7 @@ import {
   buildAiPrompt, calculateEmi, countText, generateSecurePassword, passwordGroups,
 } from "./basicToolLogic";
 import type { PromptFields } from "./basicToolLogic";
+import { countCharacters, describeCounts } from "./characterCounterLogic";
 import { copyText } from "./toolUtils";
 
 function ResultStat({ label, value, detail, testId }: { label: string; value: string; detail?: string; testId: string }) {
@@ -108,13 +109,13 @@ export function WordCounter() {
 
   return <ToolPanel>
     <ToolField label="Paste or write your text" htmlFor="word-counter-text" hint="Counts update as you type. Text stays in this browser tab.">
-      <textarea id="word-counter-text" data-testid="input-word-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Start typing or paste your text here…" value={text} onChange={(event) => setText(event.target.value)} />
+      <textarea id="word-counter-text" data-testid="input-word-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Start typing or paste your text here…" value={text} onChange={(event) => { setText(event.target.value); setCopied(false); setCopyError(""); }} />
     </ToolField>
     <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-[#8193a9]">Reading time estimated at 200 words per minute.</p>
       <div className="flex gap-2">
         <button type="button" data-testid="button-copy-word-counter-text" className={secondaryButtonClass} disabled={!text} onClick={copyTextToClipboard}>{copied ? <Check aria-hidden="true" className="h-4 w-4" /> : <Copy aria-hidden="true" className="h-4 w-4" />}{copied ? "Copied" : "Copy text"}</button>
-        <button type="button" data-testid="button-clear-word-counter" className={secondaryButtonClass} disabled={!text} onClick={() => { setText(""); setCopyError(""); }}>Clear</button>
+        <button type="button" data-testid="button-clear-word-counter" className={secondaryButtonClass} disabled={!text} onClick={() => { setText(""); setCopied(false); setCopyError(""); }}>Clear</button>
       </div>
     </div>
     {copyError && <p role="alert" className="mt-3 text-xs text-[#ffb9be]">{copyError}</p>}
@@ -266,32 +267,45 @@ export function AiPromptGenerator() {
 
 export function CharacterCounter() {
   const [text, setText] = useState("");
-  const characters = Array.from(text).length;
-  const charactersNoSpaces = Array.from(text.replace(/\s/gu, "")).length;
-  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}'’_-]*/gu)?.length ?? 0;
-  const letters = (text.match(/\p{L}/gu) ?? []).length;
-  const numbers = (text.match(/\p{N}/gu) ?? []).length;
-  const spaces = (text.match(/\s/gu) ?? []).length;
-  const lines = text.length ? text.split(/\r\n|\r|\n/u).length : 0;
+  const [announcement, setAnnouncement] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const counts = countCharacters(text);
+  const summary = describeCounts(counts);
   const stats = [
-    ["Characters", characters, "result-char-count"],
-    ["Without spaces", charactersNoSpaces, "result-char-count-no-spaces"],
-    ["Words", words, "result-char-word-count"],
-    ["Letters", letters, "result-char-letters"],
-    ["Numbers", numbers, "result-char-numbers"],
-    ["Spaces & line breaks", spaces, "result-char-whitespace"],
-    ["Lines", lines, "result-char-lines"],
+    ["Characters", counts.characters, "result-char-count"],
+    ["Without spaces", counts.charactersNoSpaces, "result-char-count-no-spaces"],
+    ["Words", counts.words, "result-char-word-count"],
+    ["Letters", counts.letters, "result-char-letters"],
+    ["Numbers", counts.numbers, "result-char-numbers"],
+    ["Spaces & line breaks", counts.whitespace, "result-char-whitespace"],
+    ["Lines", counts.lines, "result-char-lines"],
   ] as const;
+
+  // Screen-reader users cannot see the tiles update while typing, so announce a
+  // short summary once typing pauses instead of on every keystroke. Nothing is
+  // announced on first load while the field is still empty.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnnouncement((previous) => (text || previous ? summary : "")), 800);
+    return () => window.clearTimeout(timer);
+  }, [text, summary]);
+
+  function clearText() {
+    setText("");
+    // The Clear button disables itself once the field is empty, which would drop
+    // keyboard focus to the page; hand focus back to the text field instead.
+    textareaRef.current?.focus();
+  }
 
   return <ToolPanel>
     <ToolField label="Enter or paste your text" htmlFor="character-counter-text" hint="Counts update instantly. Your text stays in this browser.">
-      <textarea id="character-counter-text" data-testid="input-character-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Type or paste text here…" value={text} onChange={(event) => setText(event.target.value)} />
+      <textarea ref={textareaRef} id="character-counter-text" data-testid="input-character-counter-text" className={`${toolTextareaClass} min-h-[260px] resize-y`} placeholder="Type or paste text here…" value={text} onChange={(event) => setText(event.target.value)} />
     </ToolField>
     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs text-[#8193a9]">Useful for social posts, titles, descriptions and character limits.</p>
-      <button type="button" data-testid="button-clear-character-counter" className={secondaryButtonClass} disabled={!text} onClick={() => setText("")}>Clear text</button>
+      <button type="button" data-testid="button-clear-character-counter" className={secondaryButtonClass} disabled={!text} onClick={clearText}>Clear text</button>
     </div>
-    <div aria-label="Character statistics" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <p role="status" aria-live="polite" aria-atomic="true" data-testid="status-character-counter" className="sr-only">{announcement}</p>
+    <div role="group" aria-label="Character statistics" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {stats.map(([label, value, testId]) => <ResultStat key={label} label={label} value={String(value)} testId={testId} />)}
     </div>
   </ToolPanel>;
