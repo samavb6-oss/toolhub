@@ -22,10 +22,17 @@ export function calculateEmiResults(principal: number, annualRate: number, month
   if (!Number.isFinite(emi) || emi <= 0) return null;
 
   const totalRepayment = emi * months;
-  const totalInterest = annualRate === 0 ? 0 : totalRepayment - principal;
-  if (!Number.isFinite(totalRepayment) || !Number.isFinite(totalInterest) || totalRepayment <= 0 || totalInterest < 0) {
+  const rawInterest = annualRate === 0 ? 0 : totalRepayment - principal;
+  if (!Number.isFinite(totalRepayment) || !Number.isFinite(rawInterest) || totalRepayment <= 0) {
     return null;
   }
+
+  // Subtracting two large, nearly equal floating-point values can produce a tiny
+  // negative interest even though a non-negative-rate EMI cannot repay less than
+  // principal. Tolerate only a few ULPs at this scale; reject larger inconsistencies.
+  const interestTolerance = Number.EPSILON * Math.max(Math.abs(totalRepayment), Math.abs(principal)) * 4;
+  if (rawInterest < -interestTolerance) return null;
+  const totalInterest = Math.max(0, rawInterest);
 
   return { emi, totalInterest, totalRepayment };
 }
