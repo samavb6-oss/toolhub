@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
+  Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free EMI Calculator: Monthly Loan Payment | ToolHub",
     description: "Calculate your monthly loan EMI, total interest and repayment amount in seconds. Adjust the loan amount, interest rate and term with this free EMI calculator.",
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
+  },
+  {
+    slug: "age-calculator",
+    name: "Age Calculator",
+    category: "Utilities",
+    icon: CalendarDays,
+    title: "Free Age Calculator — Calculate Age in Years, Months & Days | ToolHub",
+    description: "Calculate your age in completed years, months and days on any date. Includes leap-day birthday handling and clear date validation.",
+    intro: "Calculate your exact calendar age in years, months and days, and see when your next birthday falls.",
   },
   {
     slug: "merge-pdf",
