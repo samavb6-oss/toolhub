@@ -24,6 +24,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
   },
   {
+    slug: "gst-calculator",
+    name: "GST Calculator",
+    category: "Finance",
+    icon: Calculator,
+    title: "Free GST Calculator — Add or Extract GST | ToolHub",
+    description: "Calculate Indian GST on a base price or extract GST from an inclusive total. Compare CGST and SGST/UTGST for intra-state supplies with IGST for inter-state supplies.",
+    intro: "Add GST to a price or extract it from a total, with an explicit intra-state or inter-state calculation assumption.",
+  },
+  {
     slug: "merge-pdf",
     name: "Merge PDF",
     category: "PDF Tools",
@@ -65,7 +74,7 @@ export const toolDefinitions: ToolDefinition[] = [
     category: "Writing Tools",
     icon: Type,
     title: "Free Word Counter: Words, Characters & Read Time | ToolHub",
-    description: "Count words, characters, sentences and paragraphs as you type. Check reading time with this free online word counter; your text stays in your browser.",
+    description: "Count words, characters, sentences and reading time as you type. Check reading time with this free online word counter; your text stays in your browser.",
     intro: "See live word, character, sentence and reading-time counts for your text.",
   },
   {
