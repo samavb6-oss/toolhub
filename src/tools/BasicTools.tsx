@@ -8,6 +8,8 @@ import {
   buildAiPrompt, calculateEmi, countText, generateSecurePassword, passwordGroups,
 } from "./basicToolLogic";
 import type { PromptFields } from "./basicToolLogic";
+import { convertCase } from "./caseConversion";
+import type { CaseMode } from "./caseConversion";
 import { countCharacters, describeCounts } from "./characterCounterLogic";
 import { copyText } from "./toolUtils";
 
@@ -311,21 +313,6 @@ export function CharacterCounter() {
   </ToolPanel>;
 }
 
-
-type CaseMode = "uppercase" | "lowercase" | "title" | "sentence" | "capitalize";
-
-function convertCase(text: string, mode: CaseMode): string {
-  switch (mode) {
-    case "uppercase": return text.toLocaleUpperCase();
-    case "lowercase": return text.toLocaleLowerCase();
-    case "title": return text.toLocaleLowerCase().replace(/(^|[\\s\\-–—])([\\p{L}\\p{N}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
-    case "sentence": {
-      const lower = text.toLocaleLowerCase();
-      return lower.replace(/(^|[.!?。！？]\\s+)([\\p{L}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
-    }
-    case "capitalize": return text.replace(/(^|\\s)([\\p{L}])/gu, (_match, separator: string, character: string) => separator + character.toLocaleUpperCase());
-  }
-}
 
 const caseModes: { value: CaseMode; label: string; description: string }[] = [
   { value: "uppercase", label: "UPPERCASE", description: "MAKE EVERY LETTER CAPITAL" },
