@@ -25,7 +25,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
       continue;
     }
     const routeHtml = readFileSync(routePath, 'utf8');
-    const expectedCanonical = `${(process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\\/+$/, '')}/tools/${tool.slug}`;
+    const expectedCanonical = (process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\/+$/, '') + '/tools/' + tool.slug;
     if (!routeHtml.includes(`<link rel="canonical" href="${expectedCanonical}"`)) {
       problems.push(`/tools/${tool.slug} has an incorrect or missing canonical URL`);
     }
@@ -35,7 +35,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
     if (!routeHtml.includes(`name="description" content="${escapeHtml(tool.description)}"`)) {
       problems.push(`/tools/${tool.slug} has an incorrect or missing static description`);
     }
-    const routeLd = [...routeHtml.matchAll(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/g)].map((m) => m[1]);
+    const routeLd = [...routeHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
     if (routeLd.length !== 1) problems.push(`/tools/${tool.slug} must have one static JSON-LD block`);
     else {
       try { JSON.parse(routeLd[0]); }
