@@ -173,6 +173,31 @@ test("an extra payment larger than the loan clears it in one payment", () => {
   assertConsistent(result, 10000);
 });
 
+test("sub-paisa extra payments use effective rounded paise", () => {
+  for (const [raw, expectedExtraPaise] of [
+    ["0.001", 0], ["0.004", 0], ["0.005", 1], ["0.01", 1],
+  ] as const) {
+    const validated = validateLoanForm(withForm({ extraPayment: raw }));
+    assert.equal(validated.ok, true, raw);
+    if (!validated.ok) continue;
+    const actual = calculateLoan(validated.input);
+    const baseline = loan(500000, 8.5, 240);
+    assert.equal(
+      paise(actual.monthlyPaymentWithExtra) - paise(actual.monthlyPayment),
+      expectedExtraPaise,
+      `effective extra paise for ${raw}`,
+    );
+    if (expectedExtraPaise === 0) {
+      assert.equal(actual.interestSaved, 0, raw);
+      assert.equal(actual.monthsSaved, 0, raw);
+      assert.deepEqual(actual.yearly, baseline.yearly, raw);
+    } else {
+      assert.ok(actual.totalInterest <= baseline.totalInterest, raw);
+    }
+    assertConsistent(actual, 500000);
+  }
+});
+
 // --- Large values ----------------------------------------------------------
 
 test("largest supported loan stays exact and finite", () => {

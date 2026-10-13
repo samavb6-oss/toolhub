@@ -52,7 +52,7 @@ export function LoanCalculatorTool() {
     className: cn(toolInputClass, errors[field] && invalidInputClass),
   });
 
-  const hasExtra = Boolean(result && validation.ok && validation.input.extraPayment > 0);
+  const hasExtra = Boolean(result && validation.ok && result.monthlyPaymentWithExtra > result.monthlyPayment);
   const finalDiffers = Boolean(result && result.finalPayment !== result.monthlyPayment && result.numberOfPayments > 1);
 
   return <ToolPanel>
