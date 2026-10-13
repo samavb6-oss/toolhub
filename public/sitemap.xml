@@ -7,9 +7,6 @@
     <loc>https://samstoolhub.pages.dev/tools/emi-calculator</loc>
   </url>
   <url>
-    <loc>https://samstoolhub.pages.dev/tools/loan-calculator</loc>
-  </url>
-  <url>
     <loc>https://samstoolhub.pages.dev/tools/merge-pdf</loc>
   </url>
   <url>
@@ -23,6 +20,9 @@
   </url>
   <url>
     <loc>https://samstoolhub.pages.dev/tools/resize-image</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/loan-calculator</loc>
   </url>
   <url>
     <loc>https://samstoolhub.pages.dev/tools/qr-generator</loc>
