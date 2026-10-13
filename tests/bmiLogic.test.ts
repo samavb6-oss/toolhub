@@ -33,12 +33,15 @@ test("WHO adult category boundaries", () => {
   assert.equal(id(55), "obesity");
 });
 
-test("category always agrees with the displayed one-decimal value", () => {
+test("category thresholds use full-precision BMI, independently of display rounding", () => {
   assert.equal(roundBmi(24.95), 25);
-  assert.equal(categorizeBmi(24.95).id, "overweight"); // shown as 25.0
-  assert.equal(categorizeBmi(24.94).id, "normal");     // shown as 24.9
-  assert.equal(categorizeBmi(18.46).id, "normal");      // shown as 18.5
-  assert.equal(categorizeBmi(18.44).id, "underweight"); // shown as 18.4
+  assert.equal(categorizeBmi(24.95).id, "normal");
+  assert.equal(categorizeBmi(24.999).id, "normal");
+  assert.equal(categorizeBmi(25).id, "overweight");
+  assert.equal(categorizeBmi(18.499).id, "underweight");
+  assert.equal(categorizeBmi(18.5).id, "normal");
+  assert.equal(categorizeBmi(29.999).id, "overweight");
+  assert.equal(categorizeBmi(30).id, "obesity");
 });
 
 test("categories are listed in order with ranges", () => {
