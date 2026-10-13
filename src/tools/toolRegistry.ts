@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
+  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free EMI Calculator: Monthly Loan Payment | ToolHub",
     description: "Calculate your monthly loan EMI, total interest and repayment amount in seconds. Adjust the loan amount, interest rate and term with this free EMI calculator.",
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
+  },
+  {
+    slug: "loan-calculator",
+    name: "Loan Calculator",
+    category: "Finance",
+    icon: Landmark,
+    title: "Free Loan Calculator: Repayment Schedule & Interest | ToolHub",
+    description: "See your monthly payment, total interest and year-by-year loan repayment. Compare principal against interest and test the effect of paying extra each month.",
+    intro: "Plan a loan repayment: see what you pay each month, how much of it is interest, and what an extra monthly payment could save.",
   },
   {
     slug: "merge-pdf",

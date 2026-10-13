@@ -2,6 +2,7 @@ import { useParams } from "wouter";
 import {
   AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, WordCounter,
 } from "@/tools/BasicTools";
+import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
@@ -13,6 +14,7 @@ const toolComponents = {
   "case-converter": CaseConverter,
   "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
+  "loan-calculator": LoanCalculatorTool,
   "merge-pdf": MergePdfTool,
   "compress-image": CompressImageTool,
   "word-counter": WordCounter,
