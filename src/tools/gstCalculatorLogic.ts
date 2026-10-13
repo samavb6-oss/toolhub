@@ -23,13 +23,47 @@ export type GstCalculationResult =
 
 const MAX_SAFE_PAISE = Number.MAX_SAFE_INTEGER;
 
+/** Expand ordinary or scientific decimal notation without binary floating-point rounding. */
+function expandDecimal(value: string): string | null {
+  const unsigned = value.startsWith("+") ? value.slice(1) : value;
+  if (!unsigned || unsigned.startsWith("-")) return null;
+  const parts = unsigned.toLowerCase().split("e");
+  if (parts.length > 2) return null;
+  const mantissa = parts[0];
+  const exponent = parts.length === 2 ? Number(parts[1]) : 0;
+  if (!Number.isInteger(exponent) || Math.abs(exponent) > 400) return null;
+  if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(mantissa)) return null;
+
+  const dot = mantissa.indexOf(".");
+  const decimalPosition = (dot < 0 ? mantissa.length : dot) + exponent;
+  const digits = mantissa.replace(".", "");
+  if (decimalPosition <= 0) return `0.${"0".repeat(-decimalPosition)}${digits}`;
+  if (decimalPosition >= digits.length) return digits + "0".repeat(decimalPosition - digits.length);
+  return `${digits.slice(0, decimalPosition)}.${digits.slice(decimalPosition)}`;
+}
+
+/** Convert a non-negative rupee amount to paise using decimal half-up rounding. */
 function parseMoneyToPaise(value: number | string): number | null {
   if (typeof value === "string" && value.trim() === "") return null;
   const amount = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(amount) || amount < 0) return null;
-  const paise = Math.round((amount + Number.EPSILON) * 100);
-  if (!Number.isSafeInteger(paise) || paise > MAX_SAFE_PAISE) return null;
-  return paise;
+
+  // Keep the original decimal text when available: Number("10000.005") cannot represent
+  // the exact half-paise boundary, and adding Number.EPSILON is too small at that scale.
+  const raw = typeof value === "string" ? value.trim() : String(value);
+  const expanded = expandDecimal(raw);
+  if (expanded === null) return null;
+  const match = /^(\d*)(?:\.(\d*))?$/.exec(expanded);
+  if (!match) return null;
+
+  const whole = match[1] || "0";
+  const fraction = match[2] || "";
+  const firstTwoDecimals = (fraction + "00").slice(0, 2);
+  let paise = BigInt(whole) * 100n + BigInt(firstTwoDecimals);
+  if ((fraction[2] || "0") >= "5") paise += 1n;
+
+  if (paise > BigInt(MAX_SAFE_PAISE)) return null;
+  return Number(paise);
 }
 
 function roundTaxPaise(amountPaise: number, rate: number): number | null {
