@@ -12,6 +12,37 @@ export function verifyDist(dist = path.join(root, 'dist')) {
   if (!existsSync(indexPath)) return { ok: false, problems: [`missing ${indexPath}`], notes };
 
   const html = readFileSync(indexPath, 'utf8');
+
+  const notFoundPath = path.join(dist, '404.html');
+  if (!existsSync(notFoundPath)) problems.push('missing public/404.html (Cloudflare Pages needs this to return a real 404 instead of SPA fallback)');
+
+  const toolMetadata = readToolMetadata(root);
+  for (const tool of toolMetadata) {
+    const routePath = path.join(dist, 'tools', `${tool.slug}.html`);
+    if (!existsSync(routePath)) {
+      problems.push(`missing static metadata page for /tools/${tool.slug}`);
+      continue;
+    }
+    const routeHtml = readFileSync(routePath, 'utf8');
+    const expectedCanonical = `${(process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\\/+$/, '')}/tools/${tool.slug}`;
+    if (!routeHtml.includes(`<link rel="canonical" href="${expectedCanonical}"`)) {
+      problems.push(`/tools/${tool.slug} has an incorrect or missing canonical URL`);
+    }
+    if (!routeHtml.includes(`<title>${tool.title}</title>`)) {
+      problems.push(`/tools/${tool.slug} has an incorrect or missing static title`);
+    }
+    if (!routeHtml.includes(`name="description" content="${tool.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"`)) {
+      problems.push(`/tools/${tool.slug} has an incorrect or missing static description`);
+    }
+    const routeLd = [...routeHtml.matchAll(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/g)].map((m) => m[1]);
+    if (routeLd.length !== 1) problems.push(`/tools/${tool.slug} must have one static JSON-LD block`);
+    else {
+      try { JSON.parse(routeLd[0]); }
+      catch (e) { problems.push(`/tools/${tool.slug} has invalid JSON-LD: ${e.message}`); }
+    }
+  }
+  notes.push(`static tool metadata pages -> ${toolMetadata.length} checked`);
+
   if (/src=["']\/?src\/main\.tsx["']/.test(html)) problems.push('index.html still points at /src/main.tsx (not built)');
   if (!/<div id="root"><\/div>/.test(html)) problems.push('index.html lost <div id="root">');
 
@@ -83,7 +114,11 @@ export function verifyDist(dist = path.join(root, 'dist')) {
       problems.push('sitemap.xml contains no absolute HTTPS URLs');
     if (sitemap.includes('%VITE_') || sitemap.includes('toolhub.example'))
       problems.push('sitemap.xml contains a placeholder URL');
-    notes.push(`sitemap.xml -> ${(sitemap.match(/<loc>/g) ?? []).length} URL(s)`);
+    for (const tool of toolMetadata) {
+      const toolUrl = `${(process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\\/+$/, '')}/tools/${tool.slug}`;
+      if (!sitemap.includes(`<loc>${toolUrl}</loc>`)) problems.push(`sitemap.xml is missing /tools/${tool.slug}`);
+    }
+    notes.push(`sitemap.xml -> ${(sitemap.match(/<loc>/g) ?? []).length} URL(s), all tool routes checked`);
   }
 
   return { ok: problems.length === 0, problems, notes };
