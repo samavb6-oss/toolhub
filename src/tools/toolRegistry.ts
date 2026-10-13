@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,42 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free EMI Calculator: Monthly Loan Payment | ToolHub",
     description: "Calculate your monthly loan EMI, total interest and repayment amount in seconds. Adjust the loan amount, interest rate and term with this free EMI calculator.",
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
+  },
+  {
+    slug: "sip-calculator",
+    name: "SIP Calculator",
+    category: "Finance",
+    icon: BarChart3,
+    title: "Free SIP Calculator: Estimate Mutual Fund SIP Returns | ToolHub",
+    description: "Estimate the future value of a monthly SIP from your investment amount, expected annual return and duration. See total invested, estimated returns and a year-by-year breakdown.",
+    intro: "Project what a monthly SIP could grow to under an assumed return. An estimate, not a guarantee.",
+  },
+  {
+    slug: "gst-calculator",
+    name: "GST Calculator",
+    category: "Finance",
+    icon: BadgeDollarSign,
+    title: "Free GST Calculator — Add or Extract GST | ToolHub",
+    description: "Calculate Indian GST on a base price or extract GST from an inclusive total. Compare CGST and SGST/UTGST for intra-state supplies with IGST for inter-state supplies.",
+    intro: "Add GST to a price or extract it from a total, with an explicit intra-state or inter-state calculation assumption.",
+  },
+  {
+    slug: "loan-calculator",
+    name: "Loan Calculator",
+    category: "Finance",
+    icon: Landmark,
+    title: "Free Loan Calculator: Repayment Schedule & Interest | ToolHub",
+    description: "See your monthly payment, total interest and year-by-year loan repayment. Compare principal against interest and test the effect of paying extra each month.",
+    intro: "Plan a loan repayment: see what you pay each month, how much of it is interest, and what an extra monthly payment could save.",
+  },
+  {
+    slug: "bmi-calculator",
+    name: "BMI Calculator",
+    category: "Health",
+    icon: Gauge,
+    title: "Free BMI Calculator: Body Mass Index for Adults | ToolHub",
+    description: "Calculate your body mass index from height and weight in metric or imperial units, see your WHO adult category and a healthy weight range. BMI is a screening measure, not a diagnosis.",
+    intro: "Work out your body mass index from your height and weight. It is a quick screening measure, not a diagnosis.",
   },
   {
     slug: "age-calculator",
