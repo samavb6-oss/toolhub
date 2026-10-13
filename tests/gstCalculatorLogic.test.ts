@@ -117,6 +117,16 @@ test("rounds input amounts up at a half-paise boundary", () => {
   assert.equal(value("12.345", 0).baseAmount, 12.35);
 });
 
+test("rounds larger half-paise boundaries correctly for strings and numbers", () => {
+  assert.equal(value("10000.005", 0).baseAmount, 10000.01);
+  assert.equal(value(10000.005, 0).baseAmount, 10000.01);
+});
+
+test("accepts scientific-notation amounts without losing decimal rounding", () => {
+  assert.equal(value("1e3", 0).baseAmount, 1000);
+  assert.equal(value(1e-7, 0).baseAmount, 0);
+});
+
 test("rejects whitespace-only amount input", () => {
   assert.equal(calculateGst("   ", 18).ok, false);
 });
