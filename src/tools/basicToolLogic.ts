@@ -18,9 +18,13 @@ export type TextCounts = {
 };
 
 export function countText(text: string): TextCounts {
-  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}'’_-]*/gu)?.length ?? 0;
+  // Keep combining marks attached to their base letters so scripts such as
+  // Devanagari are not split into multiple words.
+  const words = text.match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?:['’_-][\p{L}\p{M}\p{N}]+)*/gu)?.length ?? 0;
   const sentences = text.trim() ? (text.match(/[^.!?]+[.!?]+|[^.!?]+$/gu)?.filter((part) => part.trim()).length ?? 0) : 0;
-  const paragraphs = text.split(/\n\s*\n/u).filter((part) => part.trim()).length;
+  // Normalize CRLF, lone CR, and Unicode line separators before counting paragraphs.
+  const normalizedLines = text.replace(/\r\n?/gu, "\n").replace(/[\u2028\u2029]/gu, "\n");
+  const paragraphs = normalizedLines.split(/\n[ \t]*\n+/u).filter((part) => part.trim()).length;
   return {
     words,
     characters: Array.from(text).length,
