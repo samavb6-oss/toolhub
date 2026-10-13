@@ -41,6 +41,13 @@ test("EMI results suppress all figures when total repayment overflows", () => {
   assert.equal(calculateEmiResults(1e308, 100, 600), null);
 });
 
+test("EMI treats scale-sized cancellation noise as zero interest for tiny valid rates", () => {
+  const result = calculateEmiResults(22851536281.880947, 6.371613507418029e-16, 278);
+  assert.ok(result);
+  assert.equal(result.totalInterest, 0);
+  assert.ok(Number.isFinite(result.totalRepayment));
+});
+
 test("EMI results preserve normal and zero-interest totals", () => {
   assert.deepEqual(calculateEmiResults(12000, 0, 12), {
     emi: 1000,
