@@ -116,7 +116,7 @@ export function verifyDist(dist = path.join(root, 'dist')) {
     if (sitemap.includes('%VITE_') || sitemap.includes('toolhub.example'))
       problems.push('sitemap.xml contains a placeholder URL');
     for (const tool of toolMetadata) {
-      const toolUrl = `${(process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\\/+$/, '')}/tools/${tool.slug}`;
+      const toolUrl = (process.env.VITE_SITE_URL || 'https://samstoolhub.pages.dev').replace(/\/+$/, '') + '/tools/' + tool.slug;
       if (!sitemap.includes(`<loc>${toolUrl}</loc>`)) problems.push(`sitemap.xml is missing /tools/${tool.slug}`);
     }
     notes.push(`sitemap.xml -> ${(sitemap.match(/<loc>/g) ?? []).length} URL(s), all tool routes checked`);
