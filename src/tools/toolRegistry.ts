@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
+  Bot, Calculator, FilePlus2, Fingerprint, Gauge, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free EMI Calculator: Monthly Loan Payment | ToolHub",
     description: "Calculate your monthly loan EMI, total interest and repayment amount in seconds. Adjust the loan amount, interest rate and term with this free EMI calculator.",
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
+  },
+  {
+    slug: "bmi-calculator",
+    name: "BMI Calculator",
+    category: "Health",
+    icon: Gauge,
+    title: "Free BMI Calculator: Body Mass Index for Adults | ToolHub",
+    description: "Calculate your body mass index from height and weight in metric or imperial units, see your WHO adult category and a healthy weight range. BMI is a screening measure, not a diagnosis.",
+    intro: "Work out your body mass index from your height and weight. It is a quick screening measure, not a diagnosis.",
   },
   {
     slug: "merge-pdf",

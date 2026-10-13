@@ -2,6 +2,7 @@ import { useParams } from "wouter";
 import {
   AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, WordCounter,
 } from "@/tools/BasicTools";
+import { BmiCalculator } from "@/tools/BmiCalculator";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
@@ -10,6 +11,7 @@ import { toolDefinitions } from "@/tools/toolRegistry";
 import NotFound from "./not-found";
 
 const toolComponents = {
+  "bmi-calculator": BmiCalculator,
   "case-converter": CaseConverter,
   "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
