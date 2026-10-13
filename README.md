@@ -40,7 +40,7 @@ Ensure the build environment has pnpm available. The repository includes `.nvmrc
 
 Set `VITE_SITE_URL` in Cloudflare Pages environment variables to the actual stable production origin (for example, `https://your-project.pages.dev`, or your verified custom domain), with no trailing slash. The build now fails on Cloudflare Pages if this value is missing or is not an HTTPS origin; this prevents publishing canonical URLs for an assumed hostname. Do not use a per-deployment preview URL as the canonical origin. Local/CI builds without Cloudflare Pages use `https://samstoolhub.pages.dev` as a fallback for validation only. Canonical, Open Graph and homepage JSON-LD metadata are generated from the configured value. Tool pages set their own title, description, canonical URL and JSON-LD at runtime.
 
-Cloudflare Pages serves this as a single-page application. The app routes are `/` and `/tools/:slug`; verify that direct visits and refreshes on tool URLs work after deployment.
+Cloudflare Pages serves this as a single-page application. The build emits a static HTML shell with tool-specific title, description, canonical, Open Graph, Twitter and JSON-LD metadata for every `/tools/:slug` route. A top-level `404.html` provides a real not-found response on Cloudflare Pages; keep the generated tool pages in place so the static 404 does not replace valid tool routes. The homepage also includes crawlable links to every live tool. After deployment, verify direct visits and refreshes on tool URLs and confirm an unknown URL returns HTTP 404.
 
 ## Search engine files
 

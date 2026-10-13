@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { prebundleReact } from './prebundle-react.mjs';
 import { verifyDist } from './verify-dist.mjs';
+import { generateToolMetadataPages } from './prerender-tool-metadata.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'package.json'));
@@ -76,6 +77,8 @@ child.on('exit', (code, signal) => {
     const contents = readFileSync(filePath, 'utf8');
     writeFileSync(filePath, contents.replaceAll('https://samstoolhub.pages.dev', siteUrl));
   }
+
+  generateToolMetadataPages({ root, distDir: path.join(root, 'dist'), siteUrl });
 
   const { ok, problems, notes } = verifyDist();
   notes.forEach((n) => console.log(`[toolhub] ${n}`));
