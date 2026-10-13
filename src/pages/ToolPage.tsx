@@ -1,8 +1,11 @@
 import { useParams } from "wouter";
 import {
-  AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, WordCounter,
+  AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, SipCalculator, WordCounter,
 } from "@/tools/BasicTools";
 import { AgeCalculator } from "@/tools/AgeCalculator";
+import { BmiCalculator } from "@/tools/BmiCalculator";
+import { GstCalculatorTool } from "@/tools/GstCalculatorTool";
+import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
@@ -11,6 +14,10 @@ import { toolDefinitions } from "@/tools/toolRegistry";
 import NotFound from "./not-found";
 
 const toolComponents = {
+  "bmi-calculator": BmiCalculator,
+  "gst-calculator": GstCalculatorTool,
+  "loan-calculator": LoanCalculatorTool,
+  "sip-calculator": SipCalculator,
   "age-calculator": AgeCalculator,
   "case-converter": CaseConverter,
   "character-counter": CharacterCounter,
