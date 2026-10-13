@@ -5,6 +5,8 @@ import { calculateAge, parseDateOnly } from "../src/tools/ageCalculatorLogic.ts"
 const age = (birth: string, on: string) => calculateAge(birth, on)?.age;
 test("validates strict calendar dates", () => {
   assert.deepEqual(parseDateOnly("2000-02-29"), { year: 2000, month: 2, day: 29 });
+  assert.equal(parseDateOnly("0001-02-29"), null);
+  assert.deepEqual(parseDateOnly("0004-02-29"), { year: 4, month: 2, day: 29 });
   for (const value of ["1900-02-29", "2024-04-31", "2024-2-03", "0000-01-01", ""]) assert.equal(parseDateOnly(value), null);
 });
 test("calculates age on birthday and the preceding day", () => {
