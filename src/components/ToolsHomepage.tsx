@@ -12,7 +12,7 @@ import {
   ShieldCheck, Sparkles, Split, Star, Sun, Tag, Thermometer, Timer, Type,
   Unlock, UserRound, WandSparkles, Weight, X, Youtube, ZoomIn,
 } from "lucide-react";
-import { getToolPathByName } from "@/tools/toolRegistry";
+import { getToolPathByName, toolDefinitions } from "@/tools/toolRegistry";
 
 type Tool = { name: string; icon: LucideIcon };
 type Category = {
@@ -408,6 +408,15 @@ export function ToolsHomepage() {
               </section>)}
             </div>}
           </div>
+          <section aria-labelledby="available-tools-heading" className="mx-auto mt-2 max-w-[1500px] px-4 pb-10 sm:px-7 lg:px-10">
+            <div className="rounded-2xl border border-[#e2e8ef] bg-white/70 p-5 dark:border-[#2a394d] dark:bg-[#111b29]">
+              <h2 id="available-tools-heading" className="text-base font-extrabold tracking-tight text-[#203149] dark:text-[#f0f4fb]">All available tools</h2>
+              <p className="mt-1 text-xs leading-5 text-[#718198] dark:text-[#aab7cb]">Open any live calculator or utility directly.</p>
+              <nav aria-label="Available tools" className="mt-4 flex flex-wrap gap-2">
+                {toolDefinitions.map((tool) => <Link key={tool.slug} href={`/tools/${tool.slug}`} className="inline-flex min-h-9 items-center rounded-full border border-[#d9e3ef] bg-white px-3 py-2 text-xs font-bold text-[#315276] transition hover:border-[#9dbbe2] hover:text-[#2258ba] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#31445d] dark:bg-[#172538] dark:text-[#d4e3f7] dark:hover:border-[#6385b4]">{tool.name}</Link>)}
+              </nav>
+            </div>
+          </section>
         </main>
         <footer className="border-t border-[#e5eaf0] bg-[#eef2f6] dark:border-[#263548] dark:bg-[#111827]">
           <div className="mx-auto flex max-w-[1500px] flex-col gap-3 px-4 py-7 text-xs font-semibold text-[#8b99a9] sm:flex-row sm:items-center sm:justify-between sm:px-7 lg:px-10">
