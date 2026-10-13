@@ -2,6 +2,7 @@ import { useParams } from "wouter";
 import {
   AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, WordCounter,
 } from "@/tools/BasicTools";
+import { AgeCalculator } from "@/tools/AgeCalculator";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
@@ -13,6 +14,7 @@ const toolComponents = {
   "case-converter": CaseConverter,
   "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
+  "age-calculator": AgeCalculator,
   "merge-pdf": MergePdfTool,
   "compress-image": CompressImageTool,
   "word-counter": WordCounter,
@@ -28,6 +30,5 @@ export default function ToolPage() {
   if (!tool) return <NotFound />;
   const ToolComponent = toolComponents[tool.slug as keyof typeof toolComponents];
   if (!ToolComponent) return <NotFound />;
-
   return <ToolPageFrame tool={tool}><ToolComponent /></ToolPageFrame>;
 }
