@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { escapeHtml, readToolMetadata } from './prerender-tool-metadata.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -28,10 +29,10 @@ export function verifyDist(dist = path.join(root, 'dist')) {
     if (!routeHtml.includes(`<link rel="canonical" href="${expectedCanonical}"`)) {
       problems.push(`/tools/${tool.slug} has an incorrect or missing canonical URL`);
     }
-    if (!routeHtml.includes(`<title>${tool.title}</title>`)) {
+    if (!routeHtml.includes(`<title>${escapeHtml(tool.title)}</title>`)) {
       problems.push(`/tools/${tool.slug} has an incorrect or missing static title`);
     }
-    if (!routeHtml.includes(`name="description" content="${tool.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"`)) {
+    if (!routeHtml.includes(`name="description" content="${escapeHtml(tool.description)}"`)) {
       problems.push(`/tools/${tool.slug} has an incorrect or missing static description`);
     }
     const routeLd = [...routeHtml.matchAll(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/g)].map((m) => m[1]);
