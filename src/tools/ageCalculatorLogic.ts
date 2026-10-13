@@ -13,18 +13,24 @@ export function parseDateOnly(value: string): CalendarDate | null {
   if (!match) return null;
   const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
   if (year < 1 || month < 1 || month > 12 || day < 1) return null;
-  const days = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const days = utcCalendarDate(year, month, 0).getUTCDate();
   if (day > days) return null;
   return { year, month, day };
 }
+function utcCalendarDate(year: number, monthIndex: number, day: number): Date {
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, monthIndex, day);
+  return date;
+}
 function ordinal(date: CalendarDate): number {
-  return Math.floor(Date.UTC(date.year, date.month - 1, date.day) / 86_400_000);
+  return Math.floor(utcCalendarDate(date.year, date.month - 1, date.day).getTime() / 86_400_000);
 }
 function formatDate(date: CalendarDate): string {
   return `${String(date.year).padStart(4, "0")}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
 }
 function daysInMonth(year: number, month: number): number {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return utcCalendarDate(year, month, 0).getUTCDate();
 }
 function addAgeOffset(birth: CalendarDate, years: number, months: number): CalendarDate {
   const absoluteMonth = (birth.year + years) * 12 + birth.month - 1 + months;
