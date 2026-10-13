@@ -1,5 +1,5 @@
 import {
-  Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
+  BarChart3, Bot, Calculator, FilePlus2, Fingerprint, ImageMinus, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free EMI Calculator: Monthly Loan Payment | ToolHub",
     description: "Calculate your monthly loan EMI, total interest and repayment amount in seconds. Adjust the loan amount, interest rate and term with this free EMI calculator.",
     intro: "Estimate a fixed-rate monthly loan payment and see the total interest before you borrow.",
+  },
+  {
+    slug: "sip-calculator",
+    name: "SIP Calculator",
+    category: "Finance",
+    icon: BarChart3,
+    title: "Free SIP Calculator: Estimate Mutual Fund SIP Returns | ToolHub",
+    description: "Estimate the future value of a monthly SIP from your investment amount, expected annual return and duration. See total invested, estimated returns and a year-by-year breakdown.",
+    intro: "Project what a monthly SIP could grow to under an assumed return. An estimate, not a guarantee.",
   },
   {
     slug: "merge-pdf",

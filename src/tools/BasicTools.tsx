@@ -5,9 +5,10 @@ import {
   toolInputClass, toolTextareaClass,
 } from "./ToolPageFrame";
 import {
-  buildAiPrompt, calculateEmi, countText, generateSecurePassword, passwordGroups,
+  buildAiPrompt, calculateEmi, calculateSip, countText, describeIndianAmount, generateSecurePassword,
+  parseSipNumber, passwordGroups, roundSipAmounts, validateSipInputs,
 } from "./basicToolLogic";
-import type { PromptFields } from "./basicToolLogic";
+import type { PromptFields, SipYearRow } from "./basicToolLogic";
 import { copyText } from "./toolUtils";
 
 function ResultStat({ label, value, detail, testId }: { label: string; value: string; detail?: string; testId: string }) {
@@ -77,6 +78,154 @@ export function EmiCalculator() {
       </section>
     </div>
     <p className="mt-6 border-t border-[#26364b] pt-4 text-xs leading-5 text-[#8193a9]">Estimate only. The calculation assumes a fixed annual rate with monthly compounding and equal payments; lender fees and rate changes are not included.</p>
+  </ToolPanel>;
+}
+
+const sipFaqs: Array<{ question: string; answer: string }> = [
+  {
+    question: "How is the SIP future value calculated?",
+    answer: "Each monthly instalment is assumed to be invested at the start of its month and to grow at one-twelfth of the annual return, compounded monthly. The future value is P × [((1 + i)ⁿ − 1) ÷ i] × (1 + i), where P is the monthly amount, i is the annual rate ÷ 12 and n is the number of months.",
+  },
+  {
+    question: "Are these returns guaranteed?",
+    answer: "No. The calculator applies one fixed return to every month. Real investments rise and fall, so actual results can be higher or lower, and may be negative. Treat the output as an illustration of how time and compounding work, not as a forecast or financial advice.",
+  },
+  {
+    question: "Why might another SIP calculator show a slightly different number?",
+    answer: "Calculators differ in when each instalment is assumed to be invested (start or end of the month) and in how the annual rate becomes a monthly rate. This one invests at the start of the month and divides the annual rate by 12. Investing at the end of each month gives a slightly lower figure.",
+  },
+  {
+    question: "Which expected return should I enter?",
+    answer: "There is no single correct value. Try a few different rates, including cautious ones, to see how sensitive the result is. Past performance of any fund or index does not guarantee future returns.",
+  },
+  {
+    question: "Does the result include taxes, fund charges or inflation?",
+    answer: "No. The projection is before taxes, expense ratios, exit loads and other costs, and it is not adjusted for inflation, so the buying power of the final amount will be lower than the number shown.",
+  },
+];
+
+function SipGrowthChart({ rows }: { rows: SipYearRow[] }) {
+  const width = 640;
+  const height = 250;
+  const top = 8;
+  const bottom = 28;
+  const plotHeight = height - top - bottom;
+  const max = Math.max(...rows.map((row) => row.value));
+  const slot = width / rows.length;
+  const barWidth = Math.max(2, slot * 0.7);
+  const step = rows.length <= 10 ? 1 : rows.length <= 20 ? 5 : 10;
+  const last = rows[rows.length - 1];
+  const showTick = (year: number) => year === rows.length || (year % step === 0 && rows.length - year >= step / 2);
+
+  return <svg
+    viewBox={`0 0 ${width} ${height}`} className="h-auto w-full" role="img" data-testid="chart-sip-growth"
+    aria-label={`Stacked bar chart of the amount invested and estimated returns at the end of each year, growing to ${inr(last.value)} after ${last.year} years. The same figures are listed in the table below.`}
+  >
+    <line x1="0" x2={width} y1={top + plotHeight} y2={top + plotHeight} stroke="#33455c" />
+    {rows.map((row, index) => {
+      const x = index * slot + (slot - barWidth) / 2;
+      const investedHeight = (row.invested / max) * plotHeight;
+      const returnsHeight = Math.max(0, (row.returns / max) * plotHeight);
+      return <g key={row.year}>
+        <rect x={x} y={top + plotHeight - investedHeight} width={barWidth} height={investedHeight} fill="#3b82f6" />
+        <rect x={x} y={top + plotHeight - investedHeight - returnsHeight} width={barWidth} height={returnsHeight} fill="#34d399" />
+        {showTick(row.year) && <text x={x + barWidth / 2} y={height - 8} textAnchor="middle" fontSize="14" fill="#8291a3">{row.year}</text>}
+      </g>;
+    })}
+  </svg>;
+}
+
+export function SipCalculator() {
+  const [monthlyText, setMonthlyText] = useState("5000");
+  const [rateText, setRateText] = useState("12");
+  const [yearsText, setYearsText] = useState("10");
+  const monthly = parseSipNumber(monthlyText);
+  const rate = parseSipNumber(rateText);
+  const years = parseSipNumber(yearsText);
+  const errors = validateSipInputs(monthly, rate, years);
+  const result = calculateSip(monthly, rate, years);
+  const display = result ? roundSipAmounts(result.invested, result.futureValue) : null;
+  const words = display ? describeIndianAmount(display.value) : null;
+  const errorClass = "mt-1.5 text-xs font-semibold leading-5 text-[#ffb9be]";
+  const fieldProps = (id: string, error?: string) => ({
+    "aria-invalid": error ? true : undefined,
+    "aria-describedby": error ? `${id}-error` : undefined,
+  });
+
+  return <ToolPanel>
+    <div className="grid gap-7 lg:grid-cols-[1fr_0.92fr]">
+      <div>
+        <h2 className="text-base font-extrabold text-white">Investment details</h2>
+        <p className="mt-1 text-xs leading-5 text-[#8193a9]">Enter a monthly amount, the annual return you want to test, and how long you will invest.</p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <ToolField label="Monthly investment (₹)" htmlFor="sip-monthly">
+            <input id="sip-monthly" data-testid="input-sip-monthly" className={toolInputClass} type="number" inputMode="decimal" min="1" max="10000000" step="500" value={monthlyText} onChange={(event) => setMonthlyText(event.target.value)} {...fieldProps("sip-monthly", errors.monthly)} />
+            {errors.monthly && <p id="sip-monthly-error" role="alert" data-testid="error-sip-monthly" className={errorClass}>{errors.monthly}</p>}
+          </ToolField>
+          <ToolField label="Expected annual return (%)" htmlFor="sip-rate">
+            <input id="sip-rate" data-testid="input-sip-rate" className={toolInputClass} type="number" inputMode="decimal" min="0" max="30" step="0.5" value={rateText} onChange={(event) => setRateText(event.target.value)} {...fieldProps("sip-rate", errors.rate)} />
+            {errors.rate && <p id="sip-rate-error" role="alert" data-testid="error-sip-rate" className={errorClass}>{errors.rate}</p>}
+          </ToolField>
+          <ToolField label="Investment period (years)" htmlFor="sip-years">
+            <input id="sip-years" data-testid="input-sip-years" className={toolInputClass} type="number" inputMode="numeric" min="1" max="50" step="1" value={yearsText} onChange={(event) => setYearsText(event.target.value)} {...fieldProps("sip-years", errors.years)} />
+            {errors.years && <p id="sip-years-error" role="alert" data-testid="error-sip-years" className={errorClass}>{errors.years}</p>}
+          </ToolField>
+        </div>
+        {result && rate > 15 && <p data-testid="note-sip-high-rate" className="mt-4 rounded-xl border border-[#5c5230] bg-[#352f1d] px-4 py-3 text-xs font-semibold leading-5 text-[#f2dc9b]">A return assumption this high may overstate what is realistic over long periods. Try a more cautious rate as well.</p>}
+        {!result && <p data-testid="status-sip-validation" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs font-semibold leading-5 text-[#ffb9be]">Correct the highlighted fields to see your projection.</p>}
+      </div>
+      <section aria-label="SIP results" className="min-w-0 rounded-2xl border border-[#28466b] bg-[linear-gradient(145deg,#152c49,#111b29)] p-5 sm:p-6">
+        <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#8fb6ec]">Projected value (estimate)</p>
+        <p data-testid="result-sip-value" aria-live="polite" className="mt-2 break-words text-4xl font-extrabold tracking-[-0.06em] text-white">{display ? inr(display.value) : "—"}</p>
+        <p className="mt-2 text-xs text-[#91a3b9]">{display ? `${words ? `About ${words} · ` : ""}${inr(monthly)} a month for ${years} ${years === 1 ? "year" : "years"} at ${rate}% a year` : "Enter valid values to see an estimate."}</p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <ResultStat label="Total invested" value={display ? inr(display.invested) : "—"} testId="result-sip-invested" />
+          <ResultStat label="Estimated returns" value={display ? inr(display.returns) : "—"} testId="result-sip-returns" />
+        </div>
+      </section>
+    </div>
+    {result && <div className="mt-8 border-t border-[#26364b] pt-6">
+      <h2 className="text-base font-extrabold text-white">Year-by-year growth</h2>
+      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-[#aab7c9]" aria-hidden="true">
+        <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-sm bg-[#3b82f6]" />Amount invested</span>
+        <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-sm bg-[#34d399]" />Estimated returns</span>
+      </div>
+      <div className="mt-3"><SipGrowthChart rows={result.yearly} /></div>
+      <div role="region" aria-label="Year-by-year SIP breakdown" tabIndex={0} className="mt-4 max-h-80 overflow-auto rounded-xl border border-[#26364b] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/25">
+        <table data-testid="table-sip-yearly" className="w-full min-w-[480px] text-right text-xs">
+          <caption className="sr-only">Amount invested, estimated returns and projected value at the end of each year</caption>
+          <thead className="sticky top-0 bg-[#162336] text-[#aab7c9]">
+            <tr>
+              <th scope="col" className="px-3 py-2.5 text-left font-bold">Year</th>
+              <th scope="col" className="px-3 py-2.5 font-bold">Invested</th>
+              <th scope="col" className="px-3 py-2.5 font-bold">Estimated returns</th>
+              <th scope="col" className="px-3 py-2.5 font-bold">Projected value</th>
+            </tr>
+          </thead>
+          <tbody className="text-[#dbe5f2]">
+            {result.yearly.map((row) => {
+              const rounded = roundSipAmounts(row.invested, row.value);
+              return <tr key={row.year} className="border-t border-[#26364b]">
+                <th scope="row" className="px-3 py-2 text-left font-semibold">{row.year}</th>
+                <td className="px-3 py-2">{inr(rounded.invested)}</td>
+                <td className="px-3 py-2">{inr(rounded.returns)}</td>
+                <td className="px-3 py-2 font-semibold text-white">{inr(rounded.value)}</td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>}
+    <p className="mt-6 border-t border-[#26364b] pt-4 text-xs leading-5 text-[#8193a9]" data-testid="text-sip-assumptions">Estimate only; not a guarantee of returns and not financial advice. The projection assumes a constant annual return, equal investments at the start of every month, and monthly compounding at one-twelfth of the annual rate. Taxes, fund charges, inflation and market volatility are not included, and actual results can be lower or negative.</p>
+    <section aria-labelledby="sip-faq-heading" className="mt-6 border-t border-[#26364b] pt-6">
+      <h2 id="sip-faq-heading" className="text-base font-extrabold text-white">SIP calculator FAQ</h2>
+      <div className="mt-3 divide-y divide-[#26364b] rounded-xl border border-[#26364b]">
+        {sipFaqs.map((faq) => <details key={faq.question} className="group px-4 py-3">
+          <summary className="cursor-pointer text-sm font-bold text-[#e8eef7] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/25">{faq.question}</summary>
+          <p className="mt-2 text-xs leading-5 text-[#9fb0c5]">{faq.answer}</p>
+        </details>)}
+      </div>
+    </section>
   </ToolPanel>;
 }
 
