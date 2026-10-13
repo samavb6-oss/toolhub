@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildAiPrompt,
   calculateEmi,
+  calculateEmiResults,
   countText,
   generateSecurePassword,
   passwordGroups,
@@ -19,10 +20,51 @@ test("EMI returns a finite positive payment for a normal loan", () => {
   assert.ok(Math.abs(payment - 4339.12) < 0.1);
 });
 
-test("EMI rejects invalid loan inputs safely", () => {
-  assert.equal(calculateEmi(0, 8, 12), 0);
-  assert.equal(calculateEmi(1000, -1, 12), 0);
-  assert.equal(calculateEmi(1000, 8, 0), 0);
+test("EMI rejects invalid loan inputs without returning a misleading zero", () => {
+  assert.ok(Number.isNaN(calculateEmi(0, 8, 12)));
+  assert.ok(Number.isNaN(calculateEmi(1000, -1, 12)));
+  assert.ok(Number.isNaN(calculateEmi(1000, 8, 0)));
+});
+
+test("EMI uses a stable formula for a very large principal when the monthly payment is representable", () => {
+  const payment = calculateEmi(1e308, 100, 600);
+  assert.ok(Number.isFinite(payment));
+  assert.ok(payment > 0);
+});
+
+test("EMI returns a non-finite sentinel when the final monthly payment cannot be represented", () => {
+  assert.ok(Number.isNaN(calculateEmi(Number.MAX_VALUE, 100, 1)));
+  assert.ok(Number.isNaN(calculateEmi(1e308, Number.MAX_VALUE, 600)));
+});
+
+test("EMI results suppress all figures when total repayment overflows", () => {
+  assert.equal(calculateEmiResults(1e308, 100, 600), null);
+});
+
+test("EMI treats scale-sized cancellation noise as zero interest for tiny valid rates", () => {
+  const result = calculateEmiResults(22851536281.880947, 6.371613507418029e-16, 278);
+  assert.ok(result);
+  assert.equal(result.totalInterest, 0);
+  assert.ok(Number.isFinite(result.totalRepayment));
+});
+
+test("EMI results preserve normal and zero-interest totals", () => {
+  assert.deepEqual(calculateEmiResults(12000, 0, 12), {
+    emi: 1000,
+    totalInterest: 0,
+    totalRepayment: 12000,
+  });
+  assert.deepEqual(calculateEmiResults(1, 0, 3), {
+    emi: 1 / 3,
+    totalInterest: 0,
+    totalRepayment: 1,
+  });
+  const normal = calculateEmiResults(500000, 8.5, 240);
+  assert.ok(normal);
+  assert.ok(Number.isFinite(normal.emi));
+  assert.ok(Number.isFinite(normal.totalInterest));
+  assert.ok(Number.isFinite(normal.totalRepayment));
+  assert.ok(Math.abs(normal.emi - 4339.12) < 0.1);
 });
 
 test("word counter handles empty text and multiple paragraphs", () => {

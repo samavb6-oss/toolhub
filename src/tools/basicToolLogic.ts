@@ -1,11 +1,40 @@
+export type EmiResults = {
+  emi: number;
+  totalInterest: number;
+  totalRepayment: number;
+};
+
 export function calculateEmi(principal: number, annualRate: number, months: number): number {
   if (!Number.isFinite(principal) || principal <= 0 || !Number.isFinite(annualRate) || annualRate < 0 || !Number.isInteger(months) || months < 1) {
-    return 0;
+    return Number.NaN;
   }
+
   const monthlyRate = annualRate / 1200;
-  if (monthlyRate === 0) return principal / months;
-  const growth = (1 + monthlyRate) ** months;
-  return principal * monthlyRate * growth / (growth - 1);
+  const emi = monthlyRate === 0
+    ? principal / months
+    : principal * (monthlyRate / -Math.expm1(-months * Math.log1p(monthlyRate)));
+
+  return Number.isFinite(emi) && emi > 0 ? emi : Number.NaN;
+}
+
+export function calculateEmiResults(principal: number, annualRate: number, months: number): EmiResults | null {
+  const emi = calculateEmi(principal, annualRate, months);
+  if (!Number.isFinite(emi) || emi <= 0) return null;
+
+  const totalRepayment = emi * months;
+  const rawInterest = annualRate === 0 ? 0 : totalRepayment - principal;
+  if (!Number.isFinite(totalRepayment) || !Number.isFinite(rawInterest) || totalRepayment <= 0) {
+    return null;
+  }
+
+  // Subtracting two large, nearly equal floating-point values can produce a tiny
+  // negative interest even though a non-negative-rate EMI cannot repay less than
+  // principal. Tolerate only a few ULPs at this scale; reject larger inconsistencies.
+  const interestTolerance = Number.EPSILON * Math.max(Math.abs(totalRepayment), Math.abs(principal)) * 4;
+  if (rawInterest < -interestTolerance) return null;
+  const totalInterest = Math.max(0, rawInterest);
+
+  return { emi, totalInterest, totalRepayment };
 }
 
 export type TextCounts = {
