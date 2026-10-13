@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Download, FilePlus2, LoaderCircle, Trash2 } from "lucide-react";
 import { ToolPanel, primaryButtonClass, secondaryButtonClass } from "./ToolPageFrame";
 import { downloadBlob, formatBytes } from "./toolUtils";
-import { mergePdfFiles } from "./pdfTools";
+import { MAX_MERGE_BYTES, MAX_MERGE_FILES, MergePdfError, mergePdfFiles, validateMergeSelection } from "./pdfTools";
 
 type PdfInput = { id: string; file: File };
 
@@ -12,26 +12,14 @@ export function MergePdfTool() {
   const [merged, setMerged] = useState<Blob | null>(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const mergingRef = useRef(false);
 
   function addFiles(incoming: FileList | null) {
     if (busy || !incoming?.length) return;
     const accepted = Array.from(incoming);
-    const invalid = accepted.find((file) => !file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf");
-    if (invalid) {
-      setError(`${invalid.name} is not a PDF file.`);
-      return;
-    }
-    if ([...items, ...accepted].length > 20) {
-      setError("Merge up to 20 PDF files at a time.");
-      return;
-    }
-    const selectedFiles = [...items.map((item) => item.file), ...accepted];
-    if (selectedFiles.some((file) => file.size > 100 * 1024 * 1024)) {
-      setError("Each PDF must be smaller than 100 MB.");
-      return;
-    }
-    if (selectedFiles.reduce((total, file) => total + file.size, 0) > 100 * 1024 * 1024) {
-      setError("Keep the combined size below 100 MB to keep browser memory use manageable.");
+    const problem = validateMergeSelection(items.map((item) => item.file), accepted);
+    if (problem) {
+      setError(problem);
       return;
     }
     setItems((current) => [...current, ...accepted.map((file) => ({ id: crypto.randomUUID(), file }))]);
@@ -50,6 +38,7 @@ export function MergePdfTool() {
     });
     setMerged(null);
     setStatus("");
+    setError("");
   }
 
   function removeFile(id: string) {
@@ -60,6 +49,8 @@ export function MergePdfTool() {
   }
 
   async function mergeFiles() {
+    if (mergingRef.current) return;
+    mergingRef.current = true;
     setBusy(true);
     setError("");
     setStatus("");
@@ -67,11 +58,11 @@ export function MergePdfTool() {
     try {
       const result = await mergePdfFiles(items.map((item) => item.file));
       setMerged(result.blob);
-      setStatus(`Merged ${items.length} files and ${result.pageCount} pages. Your PDF is ready to download.`);
+      setStatus(`Merged ${items.length} files into one PDF with ${result.pageCount} ${result.pageCount === 1 ? "page" : "pages"}. Your PDF is ready to download.`);
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "The PDFs could not be merged.";
-      setError(message.includes("encrypted") ? "One of the PDFs is encrypted or password-protected. Unlock it before merging." : message);
+      setError(caught instanceof MergePdfError ? caught.message : "The PDFs could not be merged. Please try again.");
     } finally {
+      mergingRef.current = false;
       setBusy(false);
     }
   }
@@ -84,15 +75,15 @@ export function MergePdfTool() {
         <input type="file" data-testid="input-merge-pdfs" accept="application/pdf,.pdf" multiple disabled={busy} className="sr-only" onChange={(event) => { addFiles(event.currentTarget.files); event.currentTarget.value = ""; }} />
       </label>
     </div>
-    <p className="mt-3 text-[11px] leading-5 text-[#718197]">Up to 20 files and 100 MB combined. Processing happens locally; files are not uploaded.</p>
+    <p className="mt-3 text-[11px] leading-5 text-[#718197]">Up to {MAX_MERGE_FILES} files and {formatBytes(MAX_MERGE_BYTES)} combined. Processing happens locally; files are not uploaded.</p>
     {items.length > 0 ? <ol aria-label="PDF merge order" className="mt-5 space-y-2">
-      {items.map(({ id, file }, index) => <li key={id} data-testid={`item-pdf-${index + 1}`} className="flex items-center gap-3 rounded-xl border border-[#28394e] bg-[#0c1522] p-3">
+      {items.map(({ id, file }, index) => <li key={id} data-testid={`item-pdf-${index + 1}`} className="flex flex-wrap items-center gap-3 rounded-xl border border-[#28394e] bg-[#0c1522] p-3">
         <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#572e3b] text-xs font-extrabold text-[#ffb0b7]">{index + 1}</span>
-        <div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-[#dce6f3]">{file.name}</p><p className="mt-1 text-[11px] text-[#8193a9]">{formatBytes(file.size)}</p></div>
-        <div className="flex gap-1">
-          <button type="button" data-testid={`button-move-pdf-up-${index}`} aria-label={`Move ${file.name} up`} title="Move up" className={secondaryButtonClass} disabled={index === 0 || busy} onClick={() => moveFile(index, -1)}><ArrowUp aria-hidden="true" className="h-4 w-4" /></button>
-          <button type="button" data-testid={`button-move-pdf-down-${index}`} aria-label={`Move ${file.name} down`} title="Move down" className={secondaryButtonClass} disabled={index === items.length - 1 || busy} onClick={() => moveFile(index, 1)}><ArrowDown aria-hidden="true" className="h-4 w-4" /></button>
-          <button type="button" data-testid={`button-remove-pdf-${index}`} aria-label={`Remove ${file.name}`} title="Remove file" className={secondaryButtonClass} disabled={busy} onClick={() => removeFile(id)}><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
+        <div className="min-w-0 flex-1 basis-40"><p title={file.name} className="truncate text-xs font-bold text-[#dce6f3]">{file.name}</p><p className="mt-1 text-[11px] text-[#8193a9]">{formatBytes(file.size)}</p></div>
+        <div className="flex w-full justify-end gap-1 sm:w-auto">
+          <button type="button" data-testid={`button-move-pdf-up-${index}`} aria-label={`Move ${file.name}, position ${index + 1} of ${items.length}, up`} title="Move up" className={secondaryButtonClass} disabled={index === 0 || busy} onClick={() => moveFile(index, -1)}><ArrowUp aria-hidden="true" className="h-4 w-4" /></button>
+          <button type="button" data-testid={`button-move-pdf-down-${index}`} aria-label={`Move ${file.name}, position ${index + 1} of ${items.length}, down`} title="Move down" className={secondaryButtonClass} disabled={index === items.length - 1 || busy} onClick={() => moveFile(index, 1)}><ArrowDown aria-hidden="true" className="h-4 w-4" /></button>
+          <button type="button" data-testid={`button-remove-pdf-${index}`} aria-label={`Remove ${file.name}, position ${index + 1} of ${items.length}`} title="Remove file" className={secondaryButtonClass} disabled={busy} onClick={() => removeFile(id)}><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
         </div>
       </li>)}
     </ol> : <div className="mt-5 flex min-h-36 flex-col items-center justify-center rounded-2xl border border-dashed border-[#33455c] bg-[#0b1320] px-5 text-center text-xs text-[#718197]"><FilePlus2 aria-hidden="true" className="mb-3 h-8 w-8" /><p>No PDFs selected yet.</p></div>}

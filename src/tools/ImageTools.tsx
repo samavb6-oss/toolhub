@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, ImageDown, LoaderCircle, RefreshCw } from "lucide-react";
 import {
   ToolField, ToolPanel, primaryButtonClass, secondaryButtonClass,
   toolInputClass,
 } from "./ToolPageFrame";
 import { downloadBlob, formatBytes } from "./toolUtils";
+import {
+  fitRectangle, isValidCanvasDimensions, isValidImageDimensions, ratioForPreset,
+  type AspectPreset, type ImageDimensions, type ResizeFitMode,
+} from "./imageResizeLogic";
 
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
-type ImageDimensions = { width: number; height: number };
-type AspectPreset = "original" | "9:16" | "16:9" | "1:1" | "4:5" | "4:3" | "3:2" | "custom";
-type ResizeFitMode = "contain" | "cover";
 type ProcessingMode = "compress" | "resize";
 
 const aspectPresets: { value: AspectPreset; label: string }[] = [
@@ -22,13 +23,6 @@ const aspectPresets: { value: AspectPreset; label: string }[] = [
   { value: "3:2", label: "3:2 · Photography" },
   { value: "custom", label: "Custom dimensions" },
 ];
-
-function ratioForPreset(preset: AspectPreset, original: ImageDimensions | null): number | null {
-  if (preset === "original") return original ? original.width / original.height : null;
-  if (preset === "custom") return null;
-  const [width, height] = preset.split(":").map(Number);
-  return width / height;
-}
 
 const imageFormats: { value: ImageFormat; label: string; extension: string }[] = [
   { value: "image/webp", label: "WebP", extension: "webp" },
@@ -56,34 +50,39 @@ async function processImage(
   quality: number,
   fitMode: ResizeFitMode | "stretch" = "stretch",
 ): Promise<Blob> {
-  if (dimensions.width < 1 || dimensions.height < 1 || dimensions.width * dimensions.height > 80_000_000) {
-    throw new Error("Choose dimensions between 1 pixel and 80 megapixels.");
+  const validDimensions = fitMode === "stretch"
+    ? isValidCanvasDimensions(dimensions)
+    : isValidImageDimensions(dimensions);
+  if (!validDimensions) {
+    throw new Error(fitMode === "stretch"
+      ? "This image exceeds the 80-megapixel processing limit."
+      : "Enter whole-number dimensions from 1 to 40,000 pixels per side, with a maximum of 80 megapixels.");
   }
   const bitmap = await createImageBitmap(file);
-  const canvas = document.createElement("canvas");
-  canvas.width = dimensions.width;
-  canvas.height = dimensions.height;
-  const context = canvas.getContext("2d");
-  if (!context) {
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Image processing is unavailable in this browser.");
+    if (mime === "image/jpeg") {
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    if (fitMode === "stretch") {
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    } else {
+      const rect = fitRectangle(
+        { width: bitmap.width, height: bitmap.height },
+        dimensions,
+        fitMode,
+      );
+      context.drawImage(bitmap, rect.x, rect.y, rect.width, rect.height);
+    }
+    return await canvasToBlob(canvas, mime, quality);
+  } finally {
     bitmap.close();
-    throw new Error("Image processing is unavailable in this browser.");
   }
-  if (mime === "image/jpeg") {
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  }
-  if (fitMode === "stretch") {
-    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  } else {
-    const scale = fitMode === "contain"
-      ? Math.min(canvas.width / bitmap.width, canvas.height / bitmap.height)
-      : Math.max(canvas.width / bitmap.width, canvas.height / bitmap.height);
-    const drawWidth = bitmap.width * scale;
-    const drawHeight = bitmap.height * scale;
-    context.drawImage(bitmap, (canvas.width - drawWidth) / 2, (canvas.height - drawHeight) / 2, drawWidth, drawHeight);
-  }
-  bitmap.close();
-  return canvasToBlob(canvas, mime, quality);
 }
 
 function ImageProcessor({ mode }: { mode: ProcessingMode }) {
@@ -103,6 +102,13 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const operationId = useRef(0);
+  const selectionId = useRef(0);
+
+  useEffect(() => () => {
+    operationId.current += 1;
+    selectionId.current += 1;
+  }, []);
 
   useEffect(() => {
     if (!file) {
@@ -125,6 +131,11 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   }, [output]);
 
   async function chooseFile(nextFile?: File) {
+    const requestId = ++selectionId.current;
+    operationId.current += 1;
+    setFile(null);
+    setWidthText("");
+    setHeightText("");
     setError("");
     setStatus("");
     setOutput(null);
@@ -149,14 +160,21 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
     }
     try {
       const bitmap = await createImageBitmap(nextFile);
-      const dimensions = { width: bitmap.width, height: bitmap.height };
-      bitmap.close();
+      let dimensions: ImageDimensions;
+      try {
+        dimensions = { width: bitmap.width, height: bitmap.height };
+      } finally {
+        bitmap.close();
+      }
+      if (requestId !== selectionId.current) return;
       setImageDimensions(dimensions);
       setWidthText(String(dimensions.width));
       setHeightText(String(dimensions.height));
       setFile(nextFile);
     } catch {
+      if (requestId !== selectionId.current) return;
       setFile(null);
+      setImageDimensions(null);
       setError("This image could not be opened. Try a different PNG, JPEG or WebP file.");
     }
   }
@@ -198,23 +216,31 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
   }
 
   async function runProcessing() {
-    if (!file || !imageDimensions) return;
+    if (!file || !imageDimensions || busy) return;
+    const requestId = ++operationId.current;
+    const sourceFile = file;
+    const sourceDimensions = imageDimensions;
+    const sourceMime = mime;
+    const sourceQuality = quality;
+    const sourceFitMode = resizeFitMode;
+    const dimensions = isResize
+      ? { width: Number(widthText), height: Number(heightText) }
+      : sourceDimensions;
     setBusy(true);
     setError("");
     setStatus("");
     setOutput(null);
     try {
-      const dimensions = isResize
-        ? { width: Number(widthText), height: Number(heightText) }
-        : imageDimensions;
-      const result = await processImage(file, dimensions, mime, quality / 100, isResize ? resizeFitMode : "stretch");
+      const result = await processImage(sourceFile, dimensions, sourceMime, sourceQuality / 100, isResize ? sourceFitMode : "stretch");
+      if (requestId !== operationId.current) return;
       setOutput(result);
       const resultFormat = imageFormats.find((format) => format.value === result.type)?.label ?? "the selected format";
-      setStatus(`Finished ${isResize ? "resizing" : "compressing"} ${file.name} as ${resultFormat}.`);
+      setStatus(`Finished ${isResize ? "resizing" : "compressing"} ${sourceFile.name} as ${resultFormat}.`);
     } catch (caught) {
+      if (requestId !== operationId.current) return;
       setError(caught instanceof Error ? caught.message : "The image could not be processed.");
     } finally {
-      setBusy(false);
+      if (requestId === operationId.current) setBusy(false);
     }
   }
 
@@ -224,11 +250,10 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
     downloadBlob(output, `${baseName}-${isResize ? "resized" : "compressed"}.${extensionFor(output.type)}`);
   }
 
-  const validDimensions = !isResize || (
-    Number.isInteger(Number(widthText)) && Number(widthText) > 0 &&
-    Number.isInteger(Number(heightText)) && Number(heightText) > 0 &&
-    Number(widthText) * Number(heightText) <= 80_000_000
-  );
+  const validDimensions = !isResize || isValidImageDimensions({
+    width: Number(widthText),
+    height: Number(heightText),
+  });
   const sizeDifference = file && output ? file.size - output.size : 0;
   const savings = file && output && file.size > 0 ? (sizeDifference / file.size) * 100 : 0;
 
@@ -247,38 +272,38 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         </div>}
         {isResize && <div className="mt-5 space-y-4">
           <ToolField label="Aspect ratio preset" htmlFor="resize-aspect-preset" hint="Choose a common format, or use custom dimensions.">
-            <select id="resize-aspect-preset" data-testid="select-resize-aspect-preset" className={toolInputClass} value={aspectPreset} disabled={!file} onChange={(event) => updateAspectPreset(event.target.value as AspectPreset)}>
+            <select id="resize-aspect-preset" data-testid="select-resize-aspect-preset" className={toolInputClass} value={aspectPreset} disabled={!file || busy} onChange={(event) => updateAspectPreset(event.target.value as AspectPreset)}>
               {aspectPresets.map((preset) => <option key={preset.value} value={preset.value}>{preset.label}</option>)}
             </select>
           </ToolField>
           <ToolField label="Image fit" htmlFor="resize-fit-mode" hint="Avoids stretching when the source ratio differs.">
-            <select id="resize-fit-mode" data-testid="select-resize-fit-mode" className={toolInputClass} value={resizeFitMode} disabled={!file} onChange={(event) => { setResizeFitMode(event.target.value as ResizeFitMode); setOutput(null); setStatus(""); }}>
+            <select id="resize-fit-mode" data-testid="select-resize-fit-mode" className={toolInputClass} value={resizeFitMode} disabled={!file || busy} onChange={(event) => { setResizeFitMode(event.target.value as ResizeFitMode); setOutput(null); setStatus(""); }}>
               <option value="contain">Fit inside · no cropping</option>
               <option value="cover">Fill frame · crop edges</option>
             </select>
           </ToolField>
           <div className="grid grid-cols-2 gap-3">
             <ToolField label="Width (px)" htmlFor="resize-width">
-              <input id="resize-width" data-testid="input-resize-width" className={toolInputClass} type="number" min="1" max="40000" value={widthText} disabled={!file} onChange={(event) => updateWidth(event.target.value)} />
+              <input id="resize-width" data-testid="input-resize-width" className={toolInputClass} type="number" min="1" max="40000" value={widthText} disabled={!file || busy} onChange={(event) => updateWidth(event.target.value)} />
             </ToolField>
             <ToolField label="Height (px)" htmlFor="resize-height">
-              <input id="resize-height" data-testid="input-resize-height" className={toolInputClass} type="number" min="1" max="40000" value={heightText} disabled={!file} onChange={(event) => updateHeight(event.target.value)} />
+              <input id="resize-height" data-testid="input-resize-height" className={toolInputClass} type="number" min="1" max="40000" value={heightText} disabled={!file || busy} onChange={(event) => updateHeight(event.target.value)} />
             </ToolField>
           </div>
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#2c3a4c] bg-[#152031] px-3 text-xs font-semibold text-[#cbd5e1]">
-            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} onChange={(event) => { const checked = event.target.checked; setKeepRatio(checked); setAspectPreset(checked ? "original" : "custom"); setOutput(null); setStatus(""); if (checked && imageDimensions) { const width = Number(widthText); if (width > 0) setHeightText(String(Math.max(1, Math.round(width * imageDimensions.height / imageDimensions.width)))); } }} />
+            <input type="checkbox" data-testid="checkbox-keep-aspect-ratio" className="h-4 w-4 accent-[#3b82f6]" checked={keepRatio} disabled={busy} onChange={(event) => { const checked = event.target.checked; setKeepRatio(checked); setAspectPreset(checked ? "original" : "custom"); setOutput(null); setStatus(""); if (checked && imageDimensions) { const width = Number(widthText); if (width > 0) setHeightText(String(Math.max(1, Math.round(width * imageDimensions.height / imageDimensions.width)))); } }} />
             Keep aspect ratio
           </label>
         </div>}
-        {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions greater than zero and keep the result under 80 megapixels.</p>}
+        {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions from 1 to 40,000 px per side, with a maximum of 80 megapixels.</p>}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <ToolField label="Output format" htmlFor={`${mode}-format`}>
-            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
+            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
               {imageFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
             </select>
           </ToolField>
           <ToolField label={`Quality — ${quality}%`} htmlFor={`${mode}-quality`} hint={mime === "image/png" ? "PNG is lossless; quality is not applied." : "Lower quality generally means a smaller file."}>
-            <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={mime === "image/png"} onChange={(event) => { setQuality(Number(event.target.value)); setOutput(null); setStatus(""); }} />
+            <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={busy || mime === "image/png"} onChange={(event) => { setQuality(Number(event.target.value)); setOutput(null); setStatus(""); }} />
           </ToolField>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
