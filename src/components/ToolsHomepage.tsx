@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import type { LucideIcon } from "lucide-react";
 import {
-  Activity, ArrowUpRight, BadgeDollarSign, BarChart3, BookOpen, Bot,
+  Activity, ArrowUpRight, BadgeDollarSign, BarChart3, BookOpen, Bot, CalendarDays,
   Braces, BriefcaseBusiness, Calculator, ChevronRight, Clock3, CloudSun,
   Code2, Copy, Crop, Dices, Droplets, FileArchive, FileCode2, FileImage,
   FileOutput, FilePlus2, FileText, Fingerprint, Flame, Gauge, Hash, HeartPulse,
@@ -71,9 +71,9 @@ const categories: Category[] = [
     ],
   },
   {
-    name: "Utilities", eyebrow: "Password generators, QR codes, JSON tools and more.", icon: Settings2,
+    name: "Utilities", eyebrow: "Age, password, QR and other everyday utilities.", icon: Settings2,
     tint: "#eef2f6", accent: "#536375", tools: [
-      { name: "QR Generator", icon: QrCode }, { name: "Password Generator", icon: Fingerprint },
+      { name: "Age Calculator", icon: CalendarDays }, { name: "QR Generator", icon: QrCode }, { name: "Password Generator", icon: Fingerprint },
       { name: "UUID Generator", icon: Copy }, { name: "Barcode Generator", icon: Code2 },
       { name: "Random Number", icon: Dices }, { name: "JSON Formatter", icon: Braces },
       { name: "Base64 Encoder", icon: FileCode2 }, { name: "More Tools", icon: MoreHorizontal },
