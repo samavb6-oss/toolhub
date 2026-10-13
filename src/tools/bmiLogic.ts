@@ -68,8 +68,8 @@ export function roundBmi(value: number): number {
 }
 
 export function categorizeBmi(bmi: number): BmiCategory {
-  const rounded = roundBmi(bmi);
-  const id: BmiCategoryId = rounded < 18.5 ? "underweight" : rounded < 25 ? "normal" : rounded < 30 ? "overweight" : "obesity";
+  // Classification uses the full-precision BMI; rounding is presentation-only.
+  const id: BmiCategoryId = bmi < 18.5 ? "underweight" : bmi < 25 ? "normal" : bmi < 30 ? "overweight" : "obesity";
   return BMI_CATEGORIES.find((category) => category.id === id)!;
 }
 
