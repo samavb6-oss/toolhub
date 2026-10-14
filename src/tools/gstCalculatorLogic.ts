@@ -67,10 +67,25 @@ function parseMoneyToPaise(value: number | string): number | null {
 }
 
 function roundTaxPaise(amountPaise: number, rate: number): number | null {
-  // Guard the multiplication before rounding to avoid silently losing paise precision.
   if (rate === 0) return 0;
-  if (amountPaise > MAX_SAFE_PAISE / rate) return null;
-  return Math.round((amountPaise * rate) / 100 + Number.EPSILON);
+
+  // Use the canonical decimal representation of the numeric rate and integer arithmetic.
+  // Multiplying paise by a floating-point percentage can round a true value just below
+  // half a paise up to the wrong result for large, otherwise representable amounts.
+  const expandedRate = expandDecimal(String(rate));
+  if (expandedRate === null) return null;
+  const match = /^(\d*)(?:\.(\d*))?$/.exec(expandedRate);
+  if (!match) return null;
+
+  const whole = match[1] || "0";
+  const fraction = match[2] || "";
+  const rateNumerator = BigInt(whole + fraction);
+  const denominator = 100n * (10n ** BigInt(fraction.length));
+  const numerator = BigInt(amountPaise) * rateNumerator;
+  const roundedPaise = (numerator + denominator / 2n) / denominator;
+
+  if (roundedPaise > BigInt(MAX_SAFE_PAISE)) return null;
+  return Number(roundedPaise);
 }
 
 function fromPaise(paise: number): number {
