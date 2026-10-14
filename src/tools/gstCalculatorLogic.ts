@@ -66,12 +66,7 @@ function parseMoneyToPaise(value: number | string): number | null {
   return Number(paise);
 }
 
-function roundTaxPaise(amountPaise: number, rate: number): number | null {
-  if (rate === 0) return 0;
-
-  // Use the canonical decimal representation of the numeric rate and integer arithmetic.
-  // Multiplying paise by a floating-point percentage can round a true value just below
-  // half a paise up to the wrong result for large, otherwise representable amounts.
+function parseRateFraction(rate: number): { numerator: bigint; scale: bigint } | null {
   const expandedRate = expandDecimal(String(rate));
   if (expandedRate === null) return null;
   const match = /^(\d*)(?:\.(\d*))?$/.exec(expandedRate);
@@ -79,10 +74,26 @@ function roundTaxPaise(amountPaise: number, rate: number): number | null {
 
   const whole = match[1] || "0";
   const fraction = match[2] || "";
-  const rateNumerator = BigInt(whole + fraction);
-  const denominator = 100n * (10n ** BigInt(fraction.length));
-  const numerator = BigInt(amountPaise) * rateNumerator;
-  const roundedPaise = (numerator + denominator / 2n) / denominator;
+  return {
+    numerator: BigInt(whole + fraction),
+    scale: 10n ** BigInt(fraction.length),
+  };
+}
+
+/** Round a non-negative rational number to the nearest integer, with exact halves up. */
+function roundRatioHalfUp(numerator: bigint, denominator: bigint): bigint {
+  return (2n * numerator + denominator) / (2n * denominator);
+}
+
+function roundTaxPaise(amountPaise: number, rate: number): number | null {
+  if (rate === 0) return 0;
+  const rateFraction = parseRateFraction(rate);
+  if (rateFraction === null) return null;
+
+  // Integer arithmetic avoids floating-point drift at half-paise boundaries.
+  const denominator = 100n * rateFraction.scale;
+  const numerator = BigInt(amountPaise) * rateFraction.numerator;
+  const roundedPaise = roundRatioHalfUp(numerator, denominator);
 
   if (roundedPaise > BigInt(MAX_SAFE_PAISE)) return null;
   return Number(roundedPaise);
@@ -127,8 +138,19 @@ export function calculateGst(
     }
     taxPaise = calculatedTax;
   } else {
-    const denominator = 1 + numericRate / 100;
-    basePaise = Math.round(amountPaise / denominator);
+    const rateFraction = parseRateFraction(numericRate);
+    if (rateFraction === null) {
+      return { ok: false, error: "Enter a GST rate between 0% and 100%." };
+    }
+    // base = inclusive total / (1 + rate / 100), calculated as an exact ratio:
+    // totalPaise * rateScale / (100 * rateScale + rateNumerator).
+    const denominator = 100n * rateFraction.scale + rateFraction.numerator;
+    const numerator = BigInt(amountPaise) * 100n * rateFraction.scale;
+    const roundedBasePaise = roundRatioHalfUp(numerator, denominator);
+    if (roundedBasePaise > BigInt(MAX_SAFE_PAISE)) {
+      return { ok: false, error: "This amount is too large to calculate safely." };
+    }
+    basePaise = Number(roundedBasePaise);
     taxPaise = amountPaise - basePaise;
   }
 
