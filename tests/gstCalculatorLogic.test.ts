@@ -90,6 +90,15 @@ test("extracts inclusive GST as IGST for inter-state supplies", () => {
   assert.equal(result.sgst, 0);
 });
 
+
+test("extracts inclusive GST exactly for large fractional-rate totals", () => {
+  // Exact base = round(7,036,874,417,680,349 * 1000 / 1001) paise.
+  const result = value("70368744176803.49", "0.1", "inclusive");
+  assert.equal(result.baseAmount, 70298445731072.42);
+  assert.equal(result.gstAmount, 70298445731.07);
+  assert.equal(result.totalAmount, 70368744176803.49);
+});
+
 test("extracts inclusive GST into CGST and SGST for intra-state supplies", () => {
   const result = value(112, 12, "inclusive", "intra-state");
   assert.equal(result.baseAmount, 100);
