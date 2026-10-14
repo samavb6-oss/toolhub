@@ -109,6 +109,16 @@ test("supports fractional percentage rates", () => {
   assert.equal(result.totalAmount, 1025);
 });
 
+
+test("rounds large fractional-rate calculations exactly to paise", () => {
+  // The exact tax is 7,029,844,571,352.499 paise: half-up must round down.
+  // Both base and total remain inside the calculator's representable output range.
+  const result = value("70298445713524.99", "0.1");
+  assert.equal(result.baseAmount, 70298445713524.99);
+  assert.equal(result.gstAmount, 70298445713.52);
+  assert.equal(result.totalAmount, 70368744159238.51);
+});
+
 test("rounds input amounts down to the nearest paise when appropriate", () => {
   assert.equal(value("12.344", 0).baseAmount, 12.34);
 });
