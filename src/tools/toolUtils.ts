@@ -24,5 +24,12 @@ export function formatBytes(bytes: number): string {
     value /= 1024;
     unitIndex += 1;
   } while (value >= 1024 && unitIndex < units.length - 1);
-  return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[unitIndex]}`;
+
+  let precision = value >= 100 ? 0 : 1;
+  if (Number(value.toFixed(precision)) >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+    precision = value >= 100 ? 0 : 1;
+  }
+  return `${value.toFixed(precision)} ${units[unitIndex]}`;
 }
