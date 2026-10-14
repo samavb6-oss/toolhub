@@ -15,13 +15,14 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 export function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return "—";
   if (bytes < 1024) return `${bytes} B`;
-  const units = ["KB", "MB", "GB"];
-  let value = bytes / 1024;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
+  const units = ["KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unitIndex = -1;
+  do {
     value /= 1024;
     unitIndex += 1;
-  }
+  } while (value >= 1024 && unitIndex < units.length - 1);
   return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[unitIndex]}`;
 }
