@@ -1,0 +1,22 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { getToolTestId } from "../src/tools/toolTestIds.ts";
+
+test("category-scoped tool IDs distinguish repeated More Tools cards", () => {
+  const categories = ["Finance", "PDF Tools", "Image Tools", "Writing Tools"];
+  const ids = categories.map((category) => getToolTestId("tool", category, "More Tools"));
+
+  assert.equal(new Set(ids).size, categories.length);
+});
+
+test("category-scoped favorite IDs distinguish repeated More Tools controls", () => {
+  const categories = ["Finance", "PDF Tools", "Image Tools", "Writing Tools"];
+  const ids = categories.map((category) => getToolTestId("favorite", category, "More Tools"));
+
+  assert.equal(new Set(ids).size, categories.length);
+});
+
+test("tool test IDs remain readable and deterministic", () => {
+  assert.equal(getToolTestId("tool", "Finance", "SIP Calculator"), "tool-finance-sip-calculator");
+  assert.equal(getToolTestId("favorite", "PDF Tools", "More Tools"), "favorite-pdf-tools-more-tools");
+});
