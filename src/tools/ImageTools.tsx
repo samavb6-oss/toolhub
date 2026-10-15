@@ -186,8 +186,23 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         bitmap.close();
       }
       if (requestId !== selectionId.current) return;
-      if (dimensions.width !== headerDimensions.width || dimensions.height !== headerDimensions.height) {
+      // EXIF orientations 5–8 can swap the displayed width and height. The
+      // pixel count and maximum side are unchanged, so accept either orientation
+      // while using the browser's decoded dimensions for the actual canvas.
+      const dimensionsMatch =
+        (dimensions.width === headerDimensions.width && dimensions.height === headerDimensions.height) ||
+        (dimensions.width === headerDimensions.height && dimensions.height === headerDimensions.width);
+      if (!dimensionsMatch) {
         setError("The image dimensions did not match its file header. Try exporting the image again.");
+        return;
+      }
+      const decodedDimensionsValid = isResize
+        ? isValidImageDimensions(dimensions)
+        : isValidCanvasDimensions(dimensions);
+      if (!decodedDimensionsValid) {
+        setError(isResize
+          ? "This image exceeds the 40,000-pixel side or 80-megapixel processing limit."
+          : "This image exceeds the 80-megapixel processing limit.");
         return;
       }
       setImageDimensions(dimensions);
