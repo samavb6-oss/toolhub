@@ -121,6 +121,7 @@ function roundRationalHalfUp(numerator: bigint, denominator: bigint): bigint {
 }
 
 const toPaise = (rupees: number): number => {
+  if (rupees < 0) return -toPaise(-rupees);
   const fraction = decimalFraction(rupees);
   const rounded = roundRationalHalfUp(fraction.numerator * 100n, fraction.denominator);
   return Number(rounded);
