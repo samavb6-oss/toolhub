@@ -9,7 +9,7 @@ import {
   fitRectangle, isValidCanvasDimensions, isValidImageDimensions, ratioForPreset,
   type AspectPreset, type ImageDimensions, type ResizeFitMode,
 } from "./imageResizeLogic";
-import { readImageDimensionsFromHeader } from "./imageHeaderDimensions";
+import { dimensionsMatchHeader, readImageDimensionsFromHeader } from "./imageHeaderDimensions";
 
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
 type ProcessingMode = "compress" | "resize";
@@ -189,10 +189,7 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
       // EXIF orientations 5–8 can swap the displayed width and height. The
       // pixel count and maximum side are unchanged, so accept either orientation
       // while using the browser's decoded dimensions for the actual canvas.
-      const dimensionsMatch =
-        (dimensions.width === headerDimensions.width && dimensions.height === headerDimensions.height) ||
-        (dimensions.width === headerDimensions.height && dimensions.height === headerDimensions.width);
-      if (!dimensionsMatch) {
+      if (!dimensionsMatchHeader(headerDimensions, dimensions)) {
         setError("The image dimensions did not match its file header. Try exporting the image again.");
         return;
       }
