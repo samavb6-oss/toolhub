@@ -26,6 +26,13 @@ export function parseImageDimensions(bytes: Uint8Array, totalLength = bytes.leng
 }
 
 /** Reads at most 1 MiB of metadata, never decoded image pixels. */
+
+/** Browser-decoded dimensions may be swapped by JPEG EXIF orientation 5–8. */
+export function dimensionsMatchHeader(header: ImageDimensions, decoded: ImageDimensions): boolean {
+  return (decoded.width === header.width && decoded.height === header.height) ||
+    (decoded.width === header.height && decoded.height === header.width);
+}
+
 export async function readImageDimensionsFromHeader(file: Blob): Promise<ImageDimensions | null> {
   const bytes = new Uint8Array(await file.slice(0, MAX_HEADER_BYTES).arrayBuffer());
   return parseImageDimensions(bytes, file.size);
