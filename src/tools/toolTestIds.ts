@@ -1,4 +1,4 @@
-/** Build stable, category-scoped selectors for homepage tool controls. */
+/** Build stable selectors; scope repeated “More Tools” controls by category. */
 export function getToolTestId(
   kind: "tool" | "favorite",
   categoryName: string,
@@ -6,5 +6,7 @@ export function getToolTestId(
 ): string {
   const slug = (value: string) =>
     value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  return `${kind}-${slug(categoryName)}-${slug(toolName)}`;
+  const toolSlug = slug(toolName);
+  if (toolName === "More Tools") return `${kind}-${slug(categoryName)}-${toolSlug}`;
+  return `${kind}-${toolSlug}`;
 }
