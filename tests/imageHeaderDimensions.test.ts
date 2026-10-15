@@ -1,0 +1,64 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
+
+function ascii(bytes: number[], offset: number, value: string): void {
+  [...value].forEach((character, index) => { bytes[offset + index] = character.charCodeAt(0); });
+}
+
+function pngHeader(width: number, height: number): Uint8Array {
+  const bytes = new Uint8Array(24);
+  bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  ascii(bytes, 12, "IHDR");
+  bytes.set([(width >>> 24) & 255, (width >>> 16) & 255, (width >>> 8) & 255, width & 255], 16);
+  bytes.set([(height >>> 24) & 255, (height >>> 16) & 255, (height >>> 8) & 255, height & 255], 20);
+  return bytes;
+}
+
+function webpHeader(chunk: "VP8X" | "VP8L" | "VP8 ", width: number, height: number): Uint8Array {
+  const payloadLength = chunk === "VP8X" ? 10 : chunk === "VP8L" ? 5 : 10;
+  const bytes = new Uint8Array(20 + payloadLength);
+  ascii(bytes, 0, "RIFF");
+  ascii(bytes, 8, "WEBP");
+  ascii(bytes, 12, chunk);
+  bytes[16] = payloadLength;
+  if (chunk === "VP8X") {
+    const w = width - 1, h = height - 1;
+    bytes[24] = w & 255; bytes[25] = (w >>> 8) & 255; bytes[26] = (w >>> 16) & 255;
+    bytes[27] = h & 255; bytes[28] = (h >>> 8) & 255; bytes[29] = (h >>> 16) & 255;
+  } else if (chunk === "VP8L") {
+    const w = width - 1, h = height - 1;
+    bytes[20] = 0x2f;
+    bytes[21] = w & 255;
+    bytes[22] = ((w >>> 8) & 0x3f) | ((h & 0x03) << 6);
+    bytes[23] = (h >>> 2) & 255;
+    bytes[24] = (h >>> 10) & 0x0f;
+  } else {
+    bytes[23] = 0x9d; bytes[24] = 0x01; bytes[25] = 0x2a;
+    bytes[26] = width & 255; bytes[27] = (width >>> 8) & 0x3f;
+    bytes[28] = height & 255; bytes[29] = (height >>> 8) & 0x3f;
+  }
+  return bytes;
+}
+
+test("reads PNG dimensions from IHDR without decoding pixel data", () => {
+  assert.deepEqual(parseImageDimensions(pngHeader(8944, 8944)), { width: 8944, height: 8944 });
+});
+
+test("reads JPEG dimensions from a Start Of Frame segment", () => {
+  const bytes = new Uint8Array(21);
+  bytes.set([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x23, 0x28, 0x23, 0x30]);
+  assert.deepEqual(parseImageDimensions(bytes), { width: 9008, height: 9000 });
+});
+
+test("reads WebP extended, lossless and lossy dimensions", () => {
+  assert.deepEqual(parseImageDimensions(webpHeader("VP8X", 1200, 800)), { width: 1200, height: 800 });
+  assert.deepEqual(parseImageDimensions(webpHeader("VP8L", 1200, 800)), { width: 1200, height: 800 });
+  assert.deepEqual(parseImageDimensions(webpHeader("VP8 ", 1200, 800)), { width: 1200, height: 800 });
+});
+
+test("returns null for unsupported or truncated image headers", () => {
+  assert.equal(parseImageDimensions(new Uint8Array([1, 2, 3, 4])), null);
+  assert.equal(parseImageDimensions(pngHeader(10, 10).slice(0, 16)), null);
+  assert.equal(parseImageDimensions(new Uint8Array([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x01])), null);
+});
