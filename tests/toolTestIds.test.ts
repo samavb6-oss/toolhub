@@ -16,7 +16,8 @@ test("category-scoped favorite IDs distinguish repeated More Tools controls", ()
   assert.equal(new Set(ids).size, categories.length);
 });
 
-test("tool test IDs remain readable and deterministic", () => {
-  assert.equal(getToolTestId("tool", "Finance", "SIP Calculator"), "tool-finance-sip-calculator");
+test("unique tool selectors retain their existing readable IDs", () => {
+  assert.equal(getToolTestId("tool", "Finance", "SIP Calculator"), "tool-sip-calculator");
+  assert.equal(getToolTestId("favorite", "PDF Tools", "Merge PDF"), "favorite-merge-pdf");
   assert.equal(getToolTestId("favorite", "PDF Tools", "More Tools"), "favorite-pdf-tools-more-tools");
 });
