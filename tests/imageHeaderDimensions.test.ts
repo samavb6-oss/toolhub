@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
+import { dimensionsMatchHeader, parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
 
 function ascii(bytes: number[], offset: number, value: string): void {
   [...value].forEach((character, index) => { bytes[offset + index] = character.charCodeAt(0); });
@@ -92,4 +92,11 @@ test("rejects WebP RIFF lengths larger than the actual file", () => {
 test("rejects a WebP chunk whose odd-size padding is missing", () => {
   const bytes = webpHeader("VP8L", 1200, 800);
   assert.equal(parseImageDimensions(bytes.slice(0, bytes.length - 1)), null);
+});
+
+
+test("accepts decoded dimensions swapped by JPEG EXIF orientation", () => {
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3024, height: 4032 }), true);
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 4032, height: 3024 }), true);
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3000, height: 4000 }), false);
 });
