@@ -94,8 +94,6 @@ export type LoanResult = {
 type PaiseRow = { month: number; payment: number; principal: number; interest: number; balance: number };
 type PaiseSchedule = { rows: PaiseRow[]; emi: number };
 
-const roundHalfUp = (value: number): number => Math.floor(value + 0.5);
-
 /** Convert a finite decimal number's shortest round-trip representation to an exact fraction. */
 function decimalFraction(value: number): { numerator: bigint; denominator: bigint } {
   if (!Number.isFinite(value)) throw new RangeError("Value must be finite.");
