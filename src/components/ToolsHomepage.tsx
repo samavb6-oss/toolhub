@@ -13,6 +13,7 @@ import {
   Unlock, UserRound, WandSparkles, Weight, X, Youtube, ZoomIn,
 } from "lucide-react";
 import { getToolPathByName, toolDefinitions } from "@/tools/toolRegistry";
+import { getToolTestId } from "@/tools/toolTestIds";
 
 type Tool = { name: string; icon: LucideIcon };
 type Category = {
@@ -130,7 +131,7 @@ function ToolTile({
     <div className="group relative min-w-0">
       <button
         type="button" onClick={onSelect} aria-current={isSelected ? "true" : undefined}
-        aria-label={`Select ${tool.name}`} data-testid={`tool-${tool.name.toLowerCase().replaceAll(" ", "-")}`}
+        aria-label={`Select ${tool.name}`} data-testid={getToolTestId("tool", category.name, tool.name)}
         className={`relative flex aspect-square w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-[20px] border p-3 text-center transition duration-300 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 ${
           isSelected
             ? "border-[#2d6cdf] bg-[#eef4ff] shadow-[0_16px_34px_rgba(45,108,223,0.16)] ring-2 ring-[#2d6cdf]/15 dark:bg-[#203452]"
@@ -146,7 +147,7 @@ function ToolTile({
       </button>
       <button
         type="button" onClick={onFavorite} aria-label={`${isFavorite ? "Remove" : "Add"} ${tool.name} ${isFavorite ? "from" : "to"} favorites`}
-        aria-pressed={isFavorite} data-testid={`favorite-${tool.name.toLowerCase().replaceAll(" ", "-")}`}
+        aria-pressed={isFavorite} data-testid={getToolTestId("favorite", category.name, tool.name)}
         className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 ${
           isFavorite ? "border-[#f0c86a] bg-[#fff8df] text-[#bb7b11] dark:border-[#806c35] dark:bg-[#3b321e] dark:text-[#f0c86a]" : "border-transparent bg-white/80 text-[#9ba8b7] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#1b2736]/85 dark:text-[#718197]"
         }`}
