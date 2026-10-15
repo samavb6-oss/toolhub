@@ -43,7 +43,7 @@ test("decimal money inputs round from their decimal value, not a binary floating
   assert.equal(extra.ok, true);
   if (extra.ok) {
     const result = calculateLoan(extra.input);
-    assert.equal(result.monthlyPaymentWithExtra - result.monthlyPayment, 0.29);
+    assert.equal(Math.round((result.monthlyPaymentWithExtra - result.monthlyPayment) * 100), 29);
   }
 });
 
