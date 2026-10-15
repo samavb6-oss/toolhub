@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
+import { dimensionsMatchHeader, parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
 
 function ascii(bytes: number[], offset: number, value: string): void {
   [...value].forEach((character, index) => { bytes[offset + index] = character.charCodeAt(0); });
@@ -17,8 +17,13 @@ function pngHeader(width: number, height: number): Uint8Array {
 
 function webpHeader(chunk: "VP8X" | "VP8L" | "VP8 ", width: number, height: number): Uint8Array {
   const payloadLength = chunk === "VP8X" ? 10 : chunk === "VP8L" ? 5 : 10;
-  const bytes = new Uint8Array(20 + payloadLength);
+  const bytes = new Uint8Array(20 + payloadLength + (payloadLength % 2));
   ascii(bytes, 0, "RIFF");
+  const riffSize = bytes.length - 8;
+  bytes[4] = riffSize & 255;
+  bytes[5] = (riffSize >>> 8) & 255;
+  bytes[6] = (riffSize >>> 16) & 255;
+  bytes[7] = (riffSize >>> 24) & 255;
   ascii(bytes, 8, "WEBP");
   ascii(bytes, 12, chunk);
   bytes[16] = payloadLength;
@@ -61,4 +66,37 @@ test("returns null for unsupported or truncated image headers", () => {
   assert.equal(parseImageDimensions(new Uint8Array([1, 2, 3, 4])), null);
   assert.equal(parseImageDimensions(pngHeader(10, 10).slice(0, 16)), null);
   assert.equal(parseImageDimensions(new Uint8Array([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x01])), null);
+});
+
+
+test("rejects WebP chunks that exceed the RIFF-declared boundary", () => {
+  const bytes = webpHeader("VP8X", 1200, 800);
+  // Forge a chunk size that extends beyond the RIFF container.
+  bytes[16] = 0xff;
+  bytes[17] = 0xff;
+  bytes[18] = 0xff;
+  bytes[19] = 0x7f;
+  assert.equal(parseImageDimensions(bytes), null);
+});
+
+test("rejects WebP RIFF lengths larger than the actual file", () => {
+  const bytes = webpHeader("VP8X", 1200, 800);
+  const declaredSize = bytes.length + 100;
+  bytes[4] = declaredSize & 255;
+  bytes[5] = (declaredSize >>> 8) & 255;
+  bytes[6] = (declaredSize >>> 16) & 255;
+  bytes[7] = (declaredSize >>> 24) & 255;
+  assert.equal(parseImageDimensions(bytes), null);
+});
+
+test("rejects a WebP chunk whose odd-size padding is missing", () => {
+  const bytes = webpHeader("VP8L", 1200, 800);
+  assert.equal(parseImageDimensions(bytes.slice(0, bytes.length - 1)), null);
+});
+
+
+test("accepts decoded dimensions swapped by JPEG EXIF orientation", () => {
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3024, height: 4032 }), true);
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 4032, height: 3024 }), true);
+  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3000, height: 4000 }), false);
 });
