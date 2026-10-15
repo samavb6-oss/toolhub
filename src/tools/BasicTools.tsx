@@ -16,7 +16,7 @@ import { copyText } from "./toolUtils";
 function ResultStat({ label, value, detail, testId }: { label: string; value: string; detail?: string; testId: string }) {
   return <div className="rounded-2xl border border-[#2d4058] bg-[#162336] p-4">
     <p className="text-xs font-semibold text-[#91a3b9]">{label}</p>
-    <p data-testid={testId} className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-white">{value}</p>
+    <p data-testid={testId} className="mt-2 min-w-0 break-words text-xl font-extrabold tracking-[-0.04em] text-white sm:text-2xl">{value}</p>
     {detail && <p className="mt-1 text-[11px] leading-4 text-[#8193a9]">{detail}</p>}
   </div>;
 }
