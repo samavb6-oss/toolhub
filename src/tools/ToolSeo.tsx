@@ -24,7 +24,8 @@ export function ToolSeo({ tool }: { tool: ToolDefinition }) {
     document.title = tool.title;
 
     const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-    const pageUrl = new URL(`${basePath}/tools/${tool.slug}`, window.location.origin).href;
+    const configuredOrigin = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/+$/, "");
+    const pageUrl = new URL(`${basePath}/tools/${tool.slug}`, configuredOrigin).href;
     const cleanups = [
       upsertMeta("name", "description", tool.description),
       upsertMeta("property", "og:title", tool.title),
@@ -32,7 +33,7 @@ export function ToolSeo({ tool }: { tool: ToolDefinition }) {
       upsertMeta("property", "og:url", pageUrl),
       upsertMeta("property", "og:type", "website"),
       upsertMeta("property", "og:site_name", "ToolHub"),
-      upsertMeta("name", "twitter:card", "summary"),
+      upsertMeta("name", "twitter:card", "summary_large_image"),
       upsertMeta("name", "twitter:title", tool.title),
       upsertMeta("name", "twitter:description", tool.description),
     ];
@@ -47,9 +48,20 @@ export function ToolSeo({ tool }: { tool: ToolDefinition }) {
     const previousCanonical = canonical.getAttribute("href");
     canonical.href = pageUrl;
 
-    const schema = document.createElement("script");
-    schema.id = "toolhub-active-tool-schema";
-    schema.type = "application/ld+json";
+    // Static tool HTML already contains the correct WebApplication schema. Update it
+    // in place rather than appending a duplicate entity after hydration.
+    const existingSchemas = [...document.head.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]')];
+    const existingToolSchema = existingSchemas.find((script) => {
+      try { return JSON.parse(script.textContent || "{}")["@type"] === "WebApplication"; }
+      catch { return false; }
+    });
+    const schema = existingToolSchema ?? document.createElement("script");
+    const previousSchemaText = existingToolSchema?.textContent ?? null;
+    if (!existingToolSchema) {
+      schema.id = "toolhub-active-tool-schema";
+      schema.type = "application/ld+json";
+      document.head.appendChild(schema);
+    }
     schema.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -62,12 +74,12 @@ export function ToolSeo({ tool }: { tool: ToolDefinition }) {
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       publisher: { "@type": "Organization", name: "ToolHub" },
     });
-    document.head.appendChild(schema);
 
     return () => {
       document.title = previousTitle;
       cleanups.reverse().forEach((cleanup) => cleanup());
-      schema.remove();
+      if (existingToolSchema) schema.textContent = previousSchemaText;
+      else schema.remove();
       if (wasCanonicalCreated) canonical?.remove();
       else if (previousCanonical !== null) canonical?.setAttribute("href", previousCanonical);
     };
