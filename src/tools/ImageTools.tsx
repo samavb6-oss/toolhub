@@ -9,7 +9,7 @@ import {
   fitRectangle, isValidCanvasDimensions, isValidImageDimensions, ratioForPreset,
   type AspectPreset, type ImageDimensions, type ResizeFitMode,
 } from "./imageResizeLogic";
-import { readImageDimensionsFromHeader } from "./imageHeaderDimensions";
+import { dimensionsMatchHeader, readImageDimensionsFromHeader } from "./imageHeaderDimensions";
 
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
 type ProcessingMode = "compress" | "resize";
@@ -186,8 +186,20 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         bitmap.close();
       }
       if (requestId !== selectionId.current) return;
-      if (dimensions.width !== headerDimensions.width || dimensions.height !== headerDimensions.height) {
+      // EXIF orientations 5–8 can swap the displayed width and height. The
+      // pixel count and maximum side are unchanged, so accept either orientation
+      // while using the browser's decoded dimensions for the actual canvas.
+      if (!dimensionsMatchHeader(headerDimensions, dimensions)) {
         setError("The image dimensions did not match its file header. Try exporting the image again.");
+        return;
+      }
+      const decodedDimensionsValid = isResize
+        ? isValidImageDimensions(dimensions)
+        : isValidCanvasDimensions(dimensions);
+      if (!decodedDimensionsValid) {
+        setError(isResize
+          ? "This image exceeds the 40,000-pixel side or 80-megapixel processing limit."
+          : "This image exceeds the 80-megapixel processing limit.");
         return;
       }
       setImageDimensions(dimensions);
