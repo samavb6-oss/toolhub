@@ -57,3 +57,13 @@ export function calculateAge(birthText: string, referenceText: string): AgeCalcu
     daysUntilBirthday: ordinal(nextBirthday) - ordinal(reference),
   };
 }
+
+/** Format an ISO calendar date without Date.UTC's special handling of years 0–99. */
+export function formatCalendarDate(value: string, locale?: string): string {
+  const parsed = parseDateOnly(value);
+  if (!parsed) return "";
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(parsed.year, parsed.month - 1, parsed.day);
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(date);
+}
