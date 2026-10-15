@@ -100,7 +100,7 @@ const roundHalfUp = (value: number): number => Math.floor(value + 0.5);
 function decimalFraction(value: number): { numerator: bigint; denominator: bigint } {
   if (!Number.isFinite(value)) throw new RangeError("Value must be finite.");
   const text = String(Math.abs(value)).toLowerCase();
-  const match = /^(\\d+)(?:\\.(\\d*))?(?:e([+-]?\\d+))?$/.exec(text);
+  const match = /^(\d+)(?:\.(\d*))?(?:e([+-]?\d+))?$/.exec(text);
   if (!match) throw new RangeError("Value cannot be represented as a decimal.");
   const fractionDigits = match[2] ?? "";
   const exponent = Number(match[3] ?? "0");
