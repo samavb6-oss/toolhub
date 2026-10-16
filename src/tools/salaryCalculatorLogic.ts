@@ -47,7 +47,7 @@ const PERIODS_PER_YEAR: Record<SalaryFrequency, number> = {
   weekly: 52,
 };
 
-const roundPaise = (rupees: number): number => Math.floor(rupees * 100 + 0.5);
+const roundPaise = (rupees: number): number => Math.floor((rupees + Number.EPSILON) * 100 + 0.5);
 const fromPaise = (paise: number): number => paise / 100;
 const averagePaise = (annualPaise: number, periods: number): number =>
   Math.floor(annualPaise / periods + 0.5);
@@ -79,7 +79,7 @@ export function validateSalaryForm(values: SalaryFormValues): SalaryValidation {
     errors.annualDeductions = "Deductions cannot exceed gross salary.";
   }
 
-  if (!(values.frequency in PERIODS_PER_YEAR)) {
+  if (!Object.hasOwn(PERIODS_PER_YEAR, values.frequency)) {
     errors.frequency = "Choose a supported pay frequency.";
   }
 
@@ -106,7 +106,7 @@ export function calculateSalary(input: SalaryInput): SalaryResult {
   if (!Number.isFinite(annualDeductions) || annualDeductions < 0 || annualDeductions > annualGross) {
     throw new RangeError("Annual deductions must be between zero and gross salary.");
   }
-  if (!(frequency in PERIODS_PER_YEAR)) throw new RangeError("Pay frequency is unsupported.");
+  if (!Object.hasOwn(PERIODS_PER_YEAR, frequency)) throw new RangeError("Pay frequency is unsupported.");
 
   const grossPaise = roundPaise(annualGross);
   const deductionPaise = roundPaise(annualDeductions);
