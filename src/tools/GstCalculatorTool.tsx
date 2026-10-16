@@ -52,7 +52,7 @@ export function GstCalculatorTool() {
           {supplyType === "intra-state" ? <>
             <ResultRow label="CGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? inr(result.value.cgst) : "—"} testId="result-gst-cgst" />
             <ResultRow label="SGST / UTGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? inr(result.value.sgst) : "—"} testId="result-gst-sgst" />
-          </> : <ResultRow label="IGST" detail={`${rate || "—"}%`} value={result.ok ? inr(result.value.igst) : "—"} testId="result-gst-igst" />}
+          </> : <ResultRow label="IGST" detail={`${result.ok ? result.value.rate.toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? inr(result.value.igst) : "—"} testId="result-gst-igst" />}
           <div className="border-t border-[#35506f] pt-3"><ResultRow label="Total payable" value={result.ok ? inr(result.value.totalAmount) : "—"} testId="result-gst-total" strong /></div>
         </div>
       </section>
