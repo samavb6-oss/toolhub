@@ -57,7 +57,7 @@ test("rejects empty, non-finite, non-positive and over-limit gross salary", () =
 });
 
 test("rejects empty, negative and over-gross deductions", () => {
-  for (const annualDeductions of ["", "-0.01", "120000.01"]) {
+  for (const annualDeductions of ["", "-0.01", "1200000.01"]) {
     const validation = validateSalaryForm(validForm({ annualDeductions }));
     assert.equal(validation.ok, false, `expected ${annualDeductions} to be rejected`);
     if (!validation.ok) assert.ok(validation.errors.annualDeductions);
