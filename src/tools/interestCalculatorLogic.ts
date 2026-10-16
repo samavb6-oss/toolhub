@@ -21,7 +21,7 @@ export type InterestResult = {
 // must not silently become valid numbers.
 export function parseInterestNumber(text: string): number {
   const trimmed = text.trim();
-  return /^-?(\\d+\\.?\\d*|\\.\\d+)$/.test(trimmed) ? Number(trimmed) : Number.NaN;
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(trimmed) ? Number(trimmed) : Number.NaN;
 }
 
 export function validateInterestInputs(principal: number, annualRate: number, years: number): InterestInputErrors {
