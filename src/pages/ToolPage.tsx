@@ -4,6 +4,7 @@ import {
 } from "@/tools/BasicTools";
 import { AgeCalculator } from "@/tools/AgeCalculator";
 import { BmiCalculator } from "@/tools/BmiCalculator";
+import { CaloriesCalculator } from "@/tools/CaloriesCalculator";
 import { GstCalculatorTool } from "@/tools/GstCalculatorTool";
 import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
 import { MergePdfTool } from "@/tools/MergePdfTool";
@@ -15,6 +16,7 @@ import NotFound from "./not-found";
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
+  "calories-calculator": CaloriesCalculator,
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
   "sip-calculator": SipCalculator,
