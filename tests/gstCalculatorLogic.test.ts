@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateGst } from "../src/tools/gstCalculatorLogic.ts";
+import { calculateGst, formatPaiseINR } from "../src/tools/gstCalculatorLogic.ts";
 
 function value(amount: number | string, rate: number | string, mode: "exclusive" | "inclusive" = "exclusive", type: "intra-state" | "inter-state" = "intra-state") {
   const result = calculateGst(amount, rate, mode, type);
@@ -171,4 +171,18 @@ test("rounds a non-even intra-state split while preserving the tax sum", () => {
   assert.equal(result.cgst, 0.01);
   assert.equal(result.sgst, 0.02);
   assert.equal(result.cgst + result.sgst, result.gstAmount);
+});
+
+
+test("formats large safe-integer paise without losing the final paisa", () => {
+  const result = value("90071992547400.01", 0, "exclusive", "inter-state");
+  assert.equal(result.basePaise, 9007199254740001);
+  assert.equal(result.totalPaise, 9007199254740001);
+  assert.equal(formatPaiseINR(result.basePaise), "₹9,00,71,99,25,47,400.01");
+  assert.equal(formatPaiseINR(result.totalPaise), "₹9,00,71,99,25,47,400.01");
+});
+
+test("formats ordinary paise with exactly two decimal digits", () => {
+  assert.equal(formatPaiseINR(100001), "₹1,000.01");
+  assert.equal(formatPaiseINR(100000), "₹1,000.00");
 });
