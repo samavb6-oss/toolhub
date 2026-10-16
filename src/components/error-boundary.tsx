@@ -1,3 +1,4 @@
+import { isChunkLoadError } from '@/utils/isChunkLoadError';
 import {
   Component,
   type ComponentType,
@@ -54,10 +55,10 @@ function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
         ) : null}
         <button
           type="button"
-          onClick={resetError}
+          onClick={isChunkLoadError(error) ? () => window.location.reload() : resetError}
           className="mt-4 rounded bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
         >
-          Try again
+          {isChunkLoadError(error) ? 'Reload page' : 'Try again'}
         </button>
       </div>
     </div>
