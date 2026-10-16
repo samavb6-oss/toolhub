@@ -90,6 +90,15 @@ test("extracts inclusive GST as IGST for inter-state supplies", () => {
   assert.equal(result.sgst, 0);
 });
 
+
+test("extracts inclusive GST exactly for large fractional-rate totals", () => {
+  // Exact base = round(7,036,874,417,680,349 * 1000 / 1001) paise.
+  const result = value("70368744176803.49", "0.1", "inclusive");
+  assert.equal(result.baseAmount, 70298445731072.42);
+  assert.equal(result.gstAmount, 70298445731.07);
+  assert.equal(result.totalAmount, 70368744176803.49);
+});
+
 test("extracts inclusive GST into CGST and SGST for intra-state supplies", () => {
   const result = value(112, 12, "inclusive", "intra-state");
   assert.equal(result.baseAmount, 100);
@@ -107,6 +116,16 @@ test("supports fractional percentage rates", () => {
   const result = value(1000, "2.5");
   assert.equal(result.gstAmount, 25);
   assert.equal(result.totalAmount, 1025);
+});
+
+
+test("rounds large fractional-rate calculations exactly to paise", () => {
+  // The exact tax is 7,029,844,571,352.499 paise: half-up must round down.
+  // Both base and total remain inside the calculator's representable output range.
+  const result = value("70298445713524.99", "0.1");
+  assert.equal(result.baseAmount, 70298445713524.99);
+  assert.equal(result.gstAmount, 70298445713.52);
+  assert.equal(result.totalAmount, 70368744159238.51);
 });
 
 test("rounds input amounts down to the nearest paise when appropriate", () => {
