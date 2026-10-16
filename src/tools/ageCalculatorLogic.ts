@@ -6,7 +6,7 @@ export type CalendarDate = { year: number; month: number; day: number };
 export type AgeBreakdown = { years: number; months: number; days: number };
 export type AgeCalculation = { age: AgeBreakdown; nextBirthday: string; daysUntilBirthday: number };
 
-const DATE_PATTERN = /^(\\d{4})-(\\d{2})-(\\d{2})$/;
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 export function parseDateOnly(value: string): CalendarDate | null {
   const match = DATE_PATTERN.exec(value);
@@ -62,7 +62,7 @@ export function calculateAge(birthText: string, referenceText: string): AgeCalcu
 export function formatCalendarDate(value: string, locale?: string): string {
   // Inputs remain restricted to four-digit years by parseDateOnly; calculations can
   // legitimately generate 10000-01-01 as the next birthday after 9999-12-31.
-  const match = /^(\\d{4,5})-(\\d{2})-(\\d{2})$/.exec(value);
+  const match = /^(\d{4,5})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) return "";
   const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
   if (year < 1 || year > 10000 || month < 1 || month > 12 || day < 1 || day > 31) return "";
