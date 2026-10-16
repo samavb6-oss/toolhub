@@ -20,9 +20,9 @@ test("homepage search focus border has 3:1 contrast in light and dark themes", (
   const input = source.match(/data-testid="input-tool-search"[^>]*className="([^"]+)"/)?.[1];
   assert.ok(input, "homepage search input and className should exist");
 
-  const lightFocus = input.match(/(?:^|\\s)focus:border-\\[#([0-9a-f]{6})\\]/i)?.[1];
-  const darkFocus = input.match(/(?:^|\\s)dark:focus:border-\\[#([0-9a-f]{6})\\]/i)?.[1];
-  const darkBackground = input.match(/(?:^|\\s)dark:bg-\\[#([0-9a-f]{6})\\]/i)?.[1];
+  const lightFocus = input.match(/(?:^|\s)focus:border-\[#([0-9a-f]{6})\]/i)?.[1];
+  const darkFocus = input.match(/(?:^|\s)dark:focus:border-\[#([0-9a-f]{6})\]/i)?.[1];
+  const darkBackground = input.match(/(?:^|\s)dark:bg-\[#([0-9a-f]{6})\]/i)?.[1];
 
   assert.ok(lightFocus, "light-theme focus border color should be explicit");
   assert.ok(darkFocus, "dark-theme focus border color should be explicit");
