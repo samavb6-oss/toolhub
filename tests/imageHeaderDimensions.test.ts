@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { dimensionsMatchHeader, parseImageDimensions } from "../src/tools/imageHeaderDimensions.ts";
+import { dimensionsMatchHeader, parseImageDimensions, readImageDimensionsFromHeader } from "../src/tools/imageHeaderDimensions.ts";
 
 function ascii(bytes: number[], offset: number, value: string): void {
   [...value].forEach((character, index) => { bytes[offset + index] = character.charCodeAt(0); });
@@ -99,4 +99,38 @@ test("accepts decoded dimensions swapped by JPEG EXIF orientation", () => {
   assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3024, height: 4032 }), true);
   assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 4032, height: 3024 }), true);
   assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3000, height: 4000 }), false);
+});
+
+
+function jpegWithLargeMetadata(): Uint8Array {
+  const segmentLength = 0xffff;
+  const metadataSegments = 17;
+  const sofLength = 17;
+  const bytes = new Uint8Array(2 + metadataSegments * (segmentLength + 2) + 2 + sofLength);
+  bytes.set([0xff, 0xd8], 0);
+  let offset = 2;
+  for (let index = 0; index < metadataSegments; index += 1) {
+    bytes[offset] = 0xff;
+    bytes[offset + 1] = 0xe1;
+    bytes[offset + 2] = (segmentLength >>> 8) & 255;
+    bytes[offset + 3] = segmentLength & 255;
+    offset += segmentLength + 2;
+  }
+  bytes[offset] = 0xff;
+  bytes[offset + 1] = 0xc0;
+  bytes[offset + 2] = 0;
+  bytes[offset + 3] = sofLength;
+  bytes[offset + 4] = 8;
+  bytes[offset + 5] = 0x03;
+  bytes[offset + 6] = 0x20;
+  bytes[offset + 7] = 0x04;
+  bytes[offset + 8] = 0x00;
+  return bytes;
+}
+
+test("finds JPEG dimensions when valid metadata extends beyond the initial 1 MiB prefix", async () => {
+  const bytes = jpegWithLargeMetadata();
+  assert.ok(bytes.length > 1024 * 1024);
+  const dimensions = await readImageDimensionsFromHeader(new Blob([bytes], { type: "image/jpeg" }));
+  assert.deepEqual(dimensions, { width: 1024, height: 800 });
 });
