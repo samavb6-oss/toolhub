@@ -108,6 +108,22 @@ function roundTaxPaise(amountPaise: number, rate: number): number | null {
   return Number(roundedPaise);
 }
 
+/**
+ * Exact decimal text for a GST rate, or for half of it (the CGST / SGST share), with no rounding and
+ * no trailing zeros: 18 -> "18", 2.5 halved -> "1.25", 0.00004 -> "0.00004". Display only; the tax
+ * itself is computed from the same exact decimal rate, so label and amount can never disagree.
+ */
+export function formatRatePercent(rate: number, half = false): string {
+  const fraction = parseRateFraction(rate);
+  if (fraction === null) return String(half ? rate / 2 : rate);
+  const decimals = fraction.scale.toString().length - 1 + (half ? 1 : 0);
+  // numerator / scale / 2 === numerator * 5 / (scale * 10)
+  const digits = (half ? fraction.numerator * 5n : fraction.numerator).toString().padStart(decimals + 1, "0");
+  const whole = digits.slice(0, digits.length - decimals);
+  const decimalPart = digits.slice(digits.length - decimals).replace(/0+$/, "");
+  return decimalPart ? `${whole}.${decimalPart}` : whole;
+}
+
 function fromPaise(paise: number): number {
   return paise / 100;
 }

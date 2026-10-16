@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ToolField, ToolPanel, primaryButtonClass, secondaryButtonClass, toolInputClass } from "./ToolPageFrame";
-import { calculateGst, formatPaiseINR, type GstMode, type SupplyType } from "./gstCalculatorLogic";
+import { calculateGst, formatPaiseINR, formatRatePercent, type GstMode, type SupplyType } from "./gstCalculatorLogic";
 
 export function GstCalculatorTool() {
   const [amount, setAmount] = useState("1000.00");
@@ -46,9 +46,9 @@ export function GstCalculatorTool() {
           <ResultRow label="Base price" value={result.ok ? formatPaiseINR(result.value.basePaise) : "—"} testId="result-gst-base" />
           <ResultRow label="GST amount" value={result.ok ? formatPaiseINR(result.value.gstPaise) : "—"} testId="result-gst-tax" />
           {supplyType === "intra-state" ? <>
-            <ResultRow label="CGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.cgstPaise) : "—"} testId="result-gst-cgst" />
-            <ResultRow label="SGST / UTGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.sgstPaise) : "—"} testId="result-gst-sgst" />
-          </> : <ResultRow label="IGST" detail={`${result.ok ? result.value.rate.toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.igstPaise) : "—"} testId="result-gst-igst" />}
+            <ResultRow label="CGST" detail={`${result.ok ? formatRatePercent(result.value.rate, true) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.cgstPaise) : "—"} testId="result-gst-cgst" />
+            <ResultRow label="SGST / UTGST" detail={`${result.ok ? formatRatePercent(result.value.rate, true) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.sgstPaise) : "—"} testId="result-gst-sgst" />
+          </> : <ResultRow label="IGST" detail={`${result.ok ? formatRatePercent(result.value.rate) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.igstPaise) : "—"} testId="result-gst-igst" />}
           <div className="border-t border-[#35506f] pt-3"><ResultRow label="Total payable" value={result.ok ? formatPaiseINR(result.value.totalPaise) : "—"} testId="result-gst-total" strong /></div>
         </div>
       </section>

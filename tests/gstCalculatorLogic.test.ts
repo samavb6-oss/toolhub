@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateGst, formatPaiseINR } from "../src/tools/gstCalculatorLogic.ts";
+import { calculateGst, formatPaiseINR, formatRatePercent } from "../src/tools/gstCalculatorLogic.ts";
 
 function value(amount: number | string, rate: number | string, mode: "exclusive" | "inclusive" = "exclusive", type: "intra-state" | "inter-state" = "intra-state") {
   const result = calculateGst(amount, rate, mode, type);
@@ -317,6 +317,48 @@ test("rejects negative-zero and non-decimal rate strings", () => {
   for (const rate of ["-0", "-0.0", "0x12", "0X1F", "0b11", "0o7", "1e", "1_0", "Infinity", "18abc"]) {
     assert.equal(calculateGst(100, rate).ok, false, `rate ${JSON.stringify(rate)} should be rejected`);
   }
+});
+
+// ---------------------------------------------------------------------------------------------
+// Rate labels (IGST, and half-rate for CGST / SGST): exact decimal text, never rounded to 4 places.
+// ---------------------------------------------------------------------------------------------
+
+test("formats standard GST rates and their CGST / SGST halves", () => {
+  const cases: [number, string, string][] = [
+    // rate, full label, half label
+    [0, "0", "0"],
+    [5, "5", "2.5"],
+    [12, "12", "6"],
+    [18, "18", "9"],
+    [28, "28", "14"],
+    [100, "100", "50"],
+    [2.5, "2.5", "1.25"],
+    [0.1, "0.1", "0.05"],
+    [99.99, "99.99", "49.995"],
+  ];
+  for (const [rate, full, half] of cases) {
+    assert.equal(formatRatePercent(rate), full, `rate ${rate}`);
+    assert.equal(formatRatePercent(rate, true), half, `half of rate ${rate}`);
+  }
+});
+
+test("rate labels keep every decimal place instead of rounding at four", () => {
+  assert.equal(formatRatePercent(0.00004), "0.00004"); // the old label showed "0%"
+  assert.equal(formatRatePercent(0.00004, true), "0.00002");
+  assert.equal(formatRatePercent(0.00003, true), "0.000015");
+  assert.equal(formatRatePercent(18.12345), "18.12345"); // the old label showed "18.1235%"
+  assert.equal(formatRatePercent(18.12345, true), "9.061725");
+  assert.equal(formatRatePercent(1e-7), "0.0000001");
+  assert.equal(formatRatePercent(1e-7, true), "0.00000005");
+});
+
+test("the displayed rate is the rate the tax was calculated with", () => {
+  const result = value("10000000000", "0.00004", "exclusive", "inter-state");
+  assert.equal(formatRatePercent(result.rate), "0.00004");
+  assert.equal(formatPaiseINR(result.igstPaise), "₹4,000.00"); // 1,000,000,000,000 paise * 0.00004%
+  const odd = value("10000000000", "0.00003", "exclusive", "intra-state");
+  assert.equal(formatRatePercent(odd.rate, true), "0.000015");
+  assert.equal(odd.cgstPaise + odd.sgstPaise, odd.gstPaise);
 });
 
 test("still accepts ordinary decimal rate strings", () => {
