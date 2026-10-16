@@ -78,3 +78,15 @@ test("rounds money to paise and formats Indian currency", () => {
   assert.equal(result.annualNet, 1000);
   assert.match(formatSalaryInr(123456.78), /₹\s?1,23,456\.78/u);
 });
+
+test("rounds half-paise ties correctly at large rupee magnitudes", () => {
+  const result = calculateSalary({
+    annualGross: 1_000_000.005,
+    annualDeductions: 0.005,
+    frequency: "monthly",
+  });
+  assert.equal(result.annualGross, 1_000_000.01);
+  assert.equal(result.annualDeductions, 0.01);
+  assert.equal(result.annualNet, 1_000_000);
+});
+
