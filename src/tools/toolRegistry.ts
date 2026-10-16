@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,6 +40,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free GST Calculator — Add or Extract GST | ToolHub",
     description: "Calculate Indian GST on a base price or extract GST from an inclusive total. Compare CGST and SGST/UTGST for intra-state supplies with IGST for inter-state supplies.",
     intro: "Add GST to a price or extract it from a total, with an explicit intra-state or inter-state calculation assumption.",
+  },
+  {
+    slug: "interest-calculator",
+    name: "Interest Calculator",
+    category: "Finance",
+    icon: Percent,
+    title: "Free Interest Calculator: Simple & Compound Interest | ToolHub",
+    description: "Calculate simple or compound interest with annual, half-yearly, quarterly or monthly compounding. Estimate interest earned and total value over time.",
+    intro: "Compare simple and compound interest for a principal, annual rate and duration, with selectable compounding frequency.",
   },
   {
     slug: "loan-calculator",
