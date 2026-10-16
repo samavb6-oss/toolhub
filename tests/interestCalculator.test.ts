@@ -11,7 +11,7 @@ test("compound interest matches annual, half-yearly, quarterly and monthly compo
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "annually")!.total - 1210) < 1e-9);
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "semi-annually")!.total - 1215.50625) < 1e-8);
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "quarterly")!.total - 1218.402896) < 0.001);
-  assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "monthly")!.total - 1220.390045) < 0.001);
+  assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "monthly")!.total - 1220.390961) < 0.001);
 });
 
 test("zero rate and zero duration preserve the principal", () => {
