@@ -47,7 +47,21 @@ const PERIODS_PER_YEAR: Record<SalaryFrequency, number> = {
   weekly: 52,
 };
 
-const roundPaise = (rupees: number): number => Math.floor((rupees + Number.EPSILON) * 100 + 0.5);
+function roundPaise(rupees: number): number {
+  if (!Number.isFinite(rupees) || rupees < 0) throw new RangeError("Money must be finite and non-negative.");
+  // Use the number's shortest decimal representation as an exact fraction. Adding
+  // Number.EPSILON before multiplying by 100 is not sufficient at large rupee values.
+  const match = /^(\\d+)(?:\\.(\\d*))?(?:e([+-]?\\d+))?$/.exec(String(rupees).toLowerCase());
+  if (!match) throw new RangeError("Money cannot be represented as a decimal.");
+  const fraction = match[2] ?? "";
+  const exponent = Number(match[3] ?? "0");
+  let numerator = BigInt(match[1] + fraction) * 100n;
+  const scale = fraction.length - exponent;
+  let denominator = 1n;
+  if (scale > 0) denominator = 10n ** BigInt(scale);
+  else if (scale < 0) numerator *= 10n ** BigInt(-scale);
+  return Number((2n * numerator + denominator) / (2n * denominator));
+}
 const fromPaise = (paise: number): number => paise / 100;
 const averagePaise = (annualPaise: number, periods: number): number =>
   Math.floor(annualPaise / periods + 0.5);
