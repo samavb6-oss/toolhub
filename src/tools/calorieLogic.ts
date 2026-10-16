@@ -3,7 +3,7 @@ export type CalorieSex = "female" | "male";
 export type CalorieActivity = "sedentary" | "light" | "moderate" | "active" | "very-active";
 export type CalorieGoal = "maintain" | "lose" | "gain";
 export interface CalorieInput { unit: CalorieUnit; sex: CalorieSex; age: string; height: string; weight: string; activity: CalorieActivity; goal: CalorieGoal }
-export type CalorieResult = { ok: true; bmr: number; maintenance: number; target: number; proteinGrams: number } | { ok: false; empty: boolean; errors: Partial<Record<"age"|"height"|"weight", string>> };
+export type CalorieResult = { ok: true; bmr: number; maintenance: number; target: number | null; proteinGrams: number } | { ok: false; empty: boolean; errors: Partial<Record<"age"|"height"|"weight", string>> };
 export const ACTIVITY_MULTIPLIERS: Record<CalorieActivity, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, "very-active": 1.9 };
 const DECIMAL = /^(?:\d+\.?\d*|\.\d+)$/;
 function parse(text: string): number | null { const s=text.trim(); if (!s || !DECIMAL.test(s)) return null; const n=Number(s); return Number.isFinite(n) ? n : null; }
@@ -23,6 +23,6 @@ export function calculateCalories(input: CalorieInput): CalorieResult {
  if(Object.keys(errors).length) return {ok:false,empty:false,errors};
  const bmr=10*weightKg!+6.25*heightCm!-5*age!+(input.sex==="male"?5:-161);
  const maintenance=Math.round(bmr*ACTIVITY_MULTIPLIERS[input.activity]);
- const target=Math.round(maintenance+(input.goal==="lose"?-500:input.goal==="gain"?300:0));
+ // Do not invent a weight-loss target when a fixed 500 kcal deficit would reach zero or below.\n const target=input.goal==="lose"&&maintenance<=500?null:Math.round(maintenance+(input.goal==="lose"?-500:input.goal==="gain"?300:0));
  return {ok:true,bmr:Math.round(bmr),maintenance,target,proteinGrams:Math.round(weightKg!*1.6)};
 }
