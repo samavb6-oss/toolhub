@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { BriefcaseBusiness } from "lucide-react";
 import {
-  ToolField, ToolPanel, primaryButtonClass, secondaryButtonClass, toolInputClass,
+  ToolField, ToolPanel, secondaryButtonClass, toolInputClass,
 } from "./ToolPageFrame";
 import {
   calculateSalary, formatSalaryInr, validateSalaryForm,
 } from "./salaryCalculatorLogic";
-import type { SalaryField, SalaryFormValues } from "./salaryCalculatorLogic";
+import type { SalaryFormValues } from "./salaryCalculatorLogic";
 
 const defaults: SalaryFormValues = {
   annualGross: "1200000",
@@ -30,7 +30,7 @@ export function SalaryCalculatorTool() {
   const result = useMemo(() => validation.ok ? calculateSalary(validation.input) : null, [validation]);
   const errors = validation.ok ? {} : validation.errors;
 
-  const update = (field: SalaryField) => (event: { target: { value: string } }) => {
+  const update = (field: "annualGross" | "annualDeductions") => (event: { target: { value: string } }) => {
     setValues((current) => ({
       ...current,
       [field]: event.target.value,
@@ -75,7 +75,7 @@ export function SalaryCalculatorTool() {
           <ToolField label="Pay frequency" htmlFor="salary-frequency">
             <select
               id="salary-frequency" data-testid="select-salary-frequency" value={values.frequency}
-              onChange={update("frequency")} className={toolInputClass} aria-describedby="salary-frequency-hint"
+              onChange={(event) => setValues((current) => ({ ...current, frequency: event.target.value as SalaryFormValues["frequency"] }))} className={toolInputClass} aria-describedby="salary-frequency-hint"
             >
               <option value="monthly">Monthly (12 periods/year)</option>
               <option value="fortnightly">Fortnightly (26 periods/year)</option>
