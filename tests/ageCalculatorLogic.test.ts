@@ -45,3 +45,11 @@ test("calculates exact age on a leap birthday and for future reference dates", (
   assert.deepEqual(age("2020-06-15", "2030-06-15"), { years: 10, months: 0, days: 0 });
   assert.deepEqual(age("2020-06-15", "2030-06-14"), { years: 9, months: 11, days: 30 });
 });
+
+test("formats a generated next birthday in year 10000", () => {
+  const result = calculateAge("9998-01-01", "9999-12-31");
+  assert.equal(result?.nextBirthday, "10000-01-01");
+  assert.equal(formatCalendarDate(result!.nextBirthday, "en-US"), "January 1, 10000");
+  assert.equal(formatCalendarDate("10000-02-30", "en-US"), "");
+  assert.equal(parseDateOnly("10000-01-01"), null);
+});
