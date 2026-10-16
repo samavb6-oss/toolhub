@@ -34,7 +34,20 @@ export function dimensionsMatchHeader(header: ImageDimensions, decoded: ImageDim
     (decoded.width === header.height && decoded.height === header.width);
 }
 
+function hasSupportedImageSignature(bytes: Uint8Array): boolean {
+  return (bytes.length >= PNG_SIGNATURE.length &&
+      PNG_SIGNATURE.every((value, index) => bytes[index] === value)) ||
+    (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xd8) ||
+    (bytes.length >= 12 && readAscii(bytes, 0, 4) === "RIFF" &&
+      readAscii(bytes, 8, 4) === "WEBP");
+}
+
 export async function readImageDimensionsFromHeader(file: Blob): Promise<ImageDimensions | null> {
+  // Reject unsupported formats after reading only their short signature, before
+  // allocating progressively larger prefixes. JPEGs still scan onward for late SOF.
+  const signature = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (!hasSupportedImageSignature(signature)) return null;
+
   const maxScanLength = Math.min(file.size, MAX_HEADER_SCAN_BYTES);
   let scanLength = Math.min(INITIAL_HEADER_BYTES, maxScanLength);
 
