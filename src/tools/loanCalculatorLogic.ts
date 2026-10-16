@@ -9,8 +9,9 @@
  * - Standard reducing-balance loan: fixed monthly payment, interest charged each
  *   month on the outstanding balance at (annual rate / 12).
  *     EMI = P * r / (1 - (1 + r)^-n),  r = annualRate / 1200
- *   evaluated as P * r / -expm1(-n * log1p(r)) for numerical stability.
- *   An explicit zero-rate branch is used: EMI = P / n.
+ *   is evaluated with exact rational arithmetic derived from the shortest decimal
+ *   representation of the entered rate, using integer exponentiation and half-up
+ *   rounding to paise. An explicit zero-rate branch uses EMI = P / n.
  * - Money is handled as whole paise (integers). The EMI and every month's interest
  *   are rounded to the nearest paisa (ties round up). Because each row is rounded,
  *   the figures always add up exactly: principal paid + interest paid = payment,
