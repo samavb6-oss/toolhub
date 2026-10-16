@@ -47,6 +47,7 @@ test("decimal money inputs round from their decimal value, not a binary floating
   }
 });
 
-test("negative extra payment remains invalid", () => {
+test("negative extra payment remains invalid, including amounts below half a paisa", () => {
   assert.throws(() => loan(1000, 8, 12, -1), RangeError);
+  assert.throws(() => loan(1000, 8, 12, -0.001), RangeError);
 });
