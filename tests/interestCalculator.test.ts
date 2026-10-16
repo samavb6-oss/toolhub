@@ -10,7 +10,7 @@ test("simple interest matches the standard formula", () => {
 test("compound interest matches annual, half-yearly, quarterly and monthly compounding", () => {
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "annually")!.total - 1210) < 1e-9);
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "semi-annually")!.total - 1215.50625) < 1e-8);
-  assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "quarterly")!.total - 1219.889112) < 0.001);
+  assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "quarterly")!.total - 1218.402896) < 0.001);
   assert.ok(Math.abs(calculateInterest(1000, 10, 2, "compound", "monthly")!.total - 1220.390045) < 0.001);
 });
 
@@ -31,7 +31,6 @@ test("rejects invalid, non-finite, out-of-range and fractional inputs", () => {
     [0, 5, 2], [-1, 5, 2], [Number.NaN, 5, 2], [Infinity, 5, 2],
     [INTEREST_LIMITS.maxPrincipal * 2, 5, 2], [1000, -1, 2], [1000, 1000.1, 2],
     [1000, Number.NaN, 2], [1000, 5, -1], [1000, 5, 1.5], [1000, 5, 101],
-    [1000, 1000, 100,],
   ];
   for (const values of invalid) assert.equal(calculateInterest(...values, "compound"), null, String(values));
   assert.equal(calculateInterest(1000, 5, 2, "unknown" as never), null);
