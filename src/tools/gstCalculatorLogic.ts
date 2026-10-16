@@ -15,6 +15,12 @@ export type GstCalculation = {
   cgst: number;
   sgst: number;
   igst: number;
+  basePaise: number;
+  gstPaise: number;
+  totalPaise: number;
+  cgstPaise: number;
+  sgstPaise: number;
+  igstPaise: number;
 };
 
 export type GstCalculationResult =
@@ -103,6 +109,18 @@ function fromPaise(paise: number): number {
   return paise / 100;
 }
 
+/** Format safe integer paise directly so large amounts never pass through imprecise rupees. */
+export function formatPaiseINR(paise: number): string {
+  if (!Number.isSafeInteger(paise) || paise < 0) throw new RangeError("Paise must be a non-negative safe integer.");
+  const exactPaise = BigInt(paise);
+  const rupees = exactPaise / 100n;
+  const cents = String(exactPaise % 100n).padStart(2, "0");
+  const whole = new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR", minimumFractionDigits: 0, maximumFractionDigits: 0,
+  }).format(rupees);
+  return whole + "." + cents;
+}
+
 export function calculateGst(
   amount: number | string,
   rate: number | string,
@@ -177,6 +195,12 @@ export function calculateGst(
       cgst: fromPaise(cgstPaise),
       sgst: fromPaise(sgstPaise),
       igst: fromPaise(igstPaise),
+      basePaise,
+      gstPaise: taxPaise,
+      totalPaise,
+      cgstPaise,
+      sgstPaise,
+      igstPaise,
     },
   };
 }
