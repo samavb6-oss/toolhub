@@ -6,7 +6,7 @@ export type CalendarDate = { year: number; month: number; day: number };
 export type AgeBreakdown = { years: number; months: number; days: number };
 export type AgeCalculation = { age: AgeBreakdown; nextBirthday: string; daysUntilBirthday: number };
 
-const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const DATE_PATTERN = /^(\\d{4})-(\\d{2})-(\\d{2})$/;
 
 export function parseDateOnly(value: string): CalendarDate | null {
   const match = DATE_PATTERN.exec(value);
@@ -58,13 +58,15 @@ export function calculateAge(birthText: string, referenceText: string): AgeCalcu
   };
 }
 
-
-/** Format an ISO calendar date without Date.UTC's special handling of years 0–99. */
+/** Format user dates and generated next birthdays, including the year-10000 boundary. */
 export function formatCalendarDate(value: string, locale?: string): string {
-  const parsed = parseDateOnly(value);
-  if (!parsed) return "";
-  const date = new Date(0);
-  date.setUTCHours(0, 0, 0, 0);
-  date.setUTCFullYear(parsed.year, parsed.month - 1, parsed.day);
+  // Inputs remain restricted to four-digit years by parseDateOnly; calculations can
+  // legitimately generate 10000-01-01 as the next birthday after 9999-12-31.
+  const match = /^(\\d{4,5})-(\\d{2})-(\\d{2})$/.exec(value);
+  if (!match) return "";
+  const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+  if (year < 1 || year > 10000 || month < 1 || month > 12 || day < 1 || day > 31) return "";
+  const date = utcCalendarDate(year, month - 1, day);
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return "";
   return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(date);
 }
