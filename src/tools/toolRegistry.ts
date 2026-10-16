@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, BriefcaseBusiness, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -49,6 +49,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free Loan Calculator: Repayment Schedule & Interest | ToolHub",
     description: "See your monthly payment, total interest and year-by-year loan repayment. Compare principal against interest and test the effect of paying extra each month.",
     intro: "Plan a loan repayment: see what you pay each month, how much of it is interest, and what an extra monthly payment could save.",
+  },
+  {
+    slug: "salary-calculator",
+    name: "Salary Calculator",
+    category: "Finance",
+    icon: BriefcaseBusiness,
+    title: "Free Salary Calculator: Gross to Net Pay Breakdown | ToolHub",
+    description: "Break down annual gross salary, user-entered deductions and estimated net pay. Compare monthly, fortnightly and weekly averages without assuming tax or statutory payroll rules.",
+    intro: "Estimate gross-to-net pay using the salary and deductions you enter. Tax and statutory deductions are not calculated automatically.",
   },
   {
     slug: "bmi-calculator",
