@@ -7,6 +7,9 @@ export type GstMode = "exclusive" | "inclusive";
 export type SupplyType = "intra-state" | "inter-state";
 
 export type GstCalculation = {
+  // The rupee-valued fields below are convenience approximations (paise / 100). Above 2^46 rupees
+  // (₹70,368,744,177,664) a JS number can no longer hold every paisa, so display and compare money
+  // with the exact *Paise fields and formatPaiseINR instead.
   baseAmount: number;
   gstAmount: number;
   totalAmount: number;
@@ -121,6 +124,18 @@ export function formatPaiseINR(paise: number): string {
   return whole + "." + cents;
 }
 
+/**
+ * Parse a GST rate. Strings must be plain decimal text (optionally scientific), matching the amount
+ * parser: Number() alone would also accept "0x12" as 18 and "-0" as negative zero. Returns null when
+ * the text is not a plain decimal; range checks stay with the caller.
+ */
+function parseRate(rate: number | string): number | null {
+  if (typeof rate === "number") return rate === 0 ? 0 : rate; // normalise -0 so it never reaches the UI
+  const text = rate.trim();
+  if (text === "" || expandDecimal(text) === null) return null;
+  return Number(text);
+}
+
 export function calculateGst(
   amount: number | string,
   rate: number | string,
@@ -132,11 +147,8 @@ export function calculateGst(
     return { ok: false, error: "Enter a valid, non-negative amount with a representable value." };
   }
 
-  if (typeof rate === "string" && rate.trim() === "") {
-    return { ok: false, error: "Enter a GST rate between 0% and 100%." };
-  }
-  const numericRate = typeof rate === "number" ? rate : Number(rate);
-  if (!Number.isFinite(numericRate) || numericRate < 0 || numericRate > 100) {
+  const numericRate = parseRate(rate);
+  if (numericRate === null || !Number.isFinite(numericRate) || numericRate < 0 || numericRate > 100) {
     return { ok: false, error: "Enter a GST rate between 0% and 100%." };
   }
   if (mode !== "exclusive" && mode !== "inclusive") {
