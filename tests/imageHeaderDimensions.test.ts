@@ -68,6 +68,20 @@ test("returns null for unsupported or truncated image headers", () => {
   assert.equal(parseImageDimensions(new Uint8Array([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x01])), null);
 });
 
+test("rejects unsupported signatures after reading only the 12-byte signature prefix", async () => {
+  const sliceEnds: number[] = [];
+  const unsupported = {
+    size: 50 * 1024 * 1024,
+    slice(start = 0, end?: number) {
+      sliceEnds.push(end ?? this.size);
+      return new Blob([new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])]).slice(start, end);
+    },
+  } as unknown as Blob;
+
+  assert.equal(await readImageDimensionsFromHeader(unsupported), null);
+  assert.deepEqual(sliceEnds, [12]);
+});
+
 
 test("rejects WebP chunks that exceed the RIFF-declared boundary", () => {
   const bytes = webpHeader("VP8X", 1200, 800);
