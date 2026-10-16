@@ -23,6 +23,7 @@ export function calculateCalories(input: CalorieInput): CalorieResult {
  if(Object.keys(errors).length) return {ok:false,empty:false,errors};
  const bmr=10*weightKg!+6.25*heightCm!-5*age!+(input.sex==="male"?5:-161);
  const maintenance=Math.round(bmr*ACTIVITY_MULTIPLIERS[input.activity]);
- // Do not invent a weight-loss target when a fixed 500 kcal deficit would reach zero or below.\n const target=input.goal==="lose"&&maintenance<=500?null:Math.round(maintenance+(input.goal==="lose"?-500:input.goal==="gain"?300:0));
+ // Do not invent a weight-loss target when a fixed 500 kcal deficit would reach zero or below.
+ const target=input.goal==="lose"&&maintenance<=500?null:Math.round(maintenance+(input.goal==="lose"?-500:input.goal==="gain"?300:0));
  return {ok:true,bmr:Math.round(bmr),maintenance,target,proteinGrams:Math.round(weightKg!*1.6)};
 }
