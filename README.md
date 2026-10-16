@@ -1,6 +1,6 @@
 # ToolHub
 
-ToolHub is a browser-based collection of practical online tools, including EMI, SIP, GST, loan and BMI calculators, Word Counter, Character Counter, Case Converter, PDF merging, image compression and resizing, password generation, QR generation, and AI prompt generation. These tools run locally in the browser; there is no application backend.
+ToolHub is a browser-based collection of practical online tools, including EMI, SIP, GST, loan, salary and BMI calculators, Word Counter, Character Counter, Case Converter, PDF merging, image compression and resizing, password generation, QR generation, and AI prompt generation. These tools run locally in the browser; there is no application backend.
 
 **Stack:** React 19, Vite 7, Tailwind CSS 4, wouter, TypeScript, pnpm.  
 **Deployment target:** Cloudflare Pages.
