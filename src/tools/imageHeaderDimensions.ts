@@ -1,6 +1,7 @@
 import type { ImageDimensions } from "./imageResizeLogic";
 
-const MAX_HEADER_BYTES = 1024 * 1024;
+const INITIAL_HEADER_BYTES = 1024 * 1024;
+const MAX_HEADER_SCAN_BYTES = 50 * 1024 * 1024;
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 /**
@@ -25,7 +26,7 @@ export function parseImageDimensions(bytes: Uint8Array, totalLength = bytes.leng
   return null;
 }
 
-/** Reads at most 1 MiB of metadata, never decoded image pixels. */
+/** Scans bounded prefixes of compressed image bytes; pixel data is never decoded here. */
 
 /** Browser-decoded dimensions may be swapped by JPEG EXIF orientation 5–8. */
 export function dimensionsMatchHeader(header: ImageDimensions, decoded: ImageDimensions): boolean {
@@ -34,8 +35,18 @@ export function dimensionsMatchHeader(header: ImageDimensions, decoded: ImageDim
 }
 
 export async function readImageDimensionsFromHeader(file: Blob): Promise<ImageDimensions | null> {
-  const bytes = new Uint8Array(await file.slice(0, MAX_HEADER_BYTES).arrayBuffer());
-  return parseImageDimensions(bytes, file.size);
+  const maxScanLength = Math.min(file.size, MAX_HEADER_SCAN_BYTES);
+  let scanLength = Math.min(INITIAL_HEADER_BYTES, maxScanLength);
+
+  while (scanLength > 0) {
+    const bytes = new Uint8Array(await file.slice(0, scanLength).arrayBuffer());
+    const dimensions = parseImageDimensions(bytes, file.size);
+    if (dimensions) return dimensions;
+    if (scanLength >= maxScanLength) return null;
+    scanLength = Math.min(scanLength * 2, maxScanLength);
+  }
+
+  return null;
 }
 
 function parseWebPDimensions(bytes: Uint8Array, totalLength: number): ImageDimensions | null {
