@@ -192,7 +192,7 @@ export function calculateLoan(input: LoanInput): LoanResult {
   if (!(principalPaise >= 1) || principal > LOAN_LIMITS.maxPrincipal) throw new RangeError("Loan amount is out of range.");
   if (!Number.isFinite(annualRate) || annualRate < 0 || annualRate > LOAN_LIMITS.maxAnnualRate) throw new RangeError("Interest rate is out of range.");
   if (!Number.isInteger(termMonths) || termMonths < 1 || termMonths > LOAN_LIMITS.maxTermMonths) throw new RangeError("Loan term is out of range.");
-  if (!(extraPaise >= 0) || extraPayment > LOAN_LIMITS.maxPrincipal) throw new RangeError("Extra payment is out of range.");
+  if (extraPayment < 0 || !(extraPaise >= 0) || extraPayment > LOAN_LIMITS.maxPrincipal) throw new RangeError("Extra payment is out of range.");
 
   const actual = buildSchedule(principalPaise, annualRate, termMonths, extraPaise);
   const base = extraPaise === 0 ? actual : buildSchedule(principalPaise, annualRate, termMonths, 0);
