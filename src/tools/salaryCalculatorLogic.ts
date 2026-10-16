@@ -51,7 +51,7 @@ function roundPaise(rupees: number): number {
   if (!Number.isFinite(rupees) || rupees < 0) throw new RangeError("Money must be finite and non-negative.");
   // Use the number's shortest decimal representation as an exact fraction. Adding
   // Number.EPSILON before multiplying by 100 is not sufficient at large rupee values.
-  const match = /^(\\d+)(?:\\.(\\d*))?(?:e([+-]?\\d+))?$/.exec(String(rupees).toLowerCase());
+  const match = /^(\d+)(?:\.(\d*))?(?:e([+-]?\d+))?$/.exec(String(rupees).toLowerCase());
   if (!match) throw new RangeError("Money cannot be represented as a decimal.");
   const fraction = match[2] ?? "";
   const exponent = Number(match[3] ?? "0");
