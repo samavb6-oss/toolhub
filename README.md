@@ -59,6 +59,8 @@ scripts/                 production build, React prebundle and output checks
 _diagnostics/            build investigation notes and reproduction configs
 index.html                homepage metadata and JSON-LD template
 vite.config.ts            Vite configuration
+package.json              scripts and dependencies
+pnpm-lock.yaml            locked dependency graph
 ```
 
 ## Current scope and future improvements
