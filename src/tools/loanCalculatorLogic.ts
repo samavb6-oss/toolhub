@@ -9,8 +9,9 @@
  * - Standard reducing-balance loan: fixed monthly payment, interest charged each
  *   month on the outstanding balance at (annual rate / 12).
  *     EMI = P * r / (1 - (1 + r)^-n),  r = annualRate / 1200
- *   evaluated as P * r / -expm1(-n * log1p(r)) for numerical stability.
- *   An explicit zero-rate branch is used: EMI = P / n.
+ *   is evaluated with exact rational arithmetic derived from the shortest decimal
+ *   representation of the entered rate, using integer exponentiation and half-up
+ *   rounding to paise. An explicit zero-rate branch uses EMI = P / n.
  * - Money is handled as whole paise (integers). The EMI and every month's interest
  *   are rounded to the nearest paisa (ties round up). Because each row is rounded,
  *   the figures always add up exactly: principal paid + interest paid = payment,
@@ -94,27 +95,70 @@ export type LoanResult = {
 type PaiseRow = { month: number; payment: number; principal: number; interest: number; balance: number };
 type PaiseSchedule = { rows: PaiseRow[]; emi: number };
 
-const roundHalfUp = (value: number): number => Math.floor(value + 0.5);
-const toPaise = (rupees: number): number => roundHalfUp(rupees * 100);
+/** Convert a finite decimal number's shortest round-trip representation to an exact fraction. */
+function decimalFraction(value: number): { numerator: bigint; denominator: bigint } {
+  if (!Number.isFinite(value)) throw new RangeError("Value must be finite.");
+  const text = String(Math.abs(value)).toLowerCase();
+  const match = /^(\d+)(?:\.(\d*))?(?:e([+-]?\d+))?$/.exec(text);
+  if (!match) throw new RangeError("Value cannot be represented as a decimal.");
+  const fractionDigits = match[2] ?? "";
+  const exponent = Number(match[3] ?? "0");
+  let numerator = BigInt(match[1] + fractionDigits);
+  const scale = fractionDigits.length - exponent;
+  let denominator = 1n;
+  if (scale > 0) denominator = 10n ** BigInt(scale);
+  else if (scale < 0) numerator *= 10n ** BigInt(-scale);
+  if (value < 0) numerator = -numerator;
+  return { numerator, denominator };
+}
+
+/** Exact non-negative rational rounding, with midpoint ties rounded up. */
+function roundRationalHalfUp(numerator: bigint, denominator: bigint): bigint {
+  const quotient = numerator / denominator;
+  const remainder = numerator % denominator;
+  return remainder * 2n >= denominator ? quotient + 1n : quotient;
+}
+
+const toPaise = (rupees: number): number => {
+  if (rupees < 0) return -toPaise(-rupees);
+  const fraction = decimalFraction(rupees);
+  const rounded = roundRationalHalfUp(fraction.numerator * 100n, fraction.denominator);
+  return Number(rounded);
+};
 const toRupees = (paise: number): number => paise / 100;
 
-function paiseEmi(principalPaise: number, annualRate: number, months: number): number {
-  const monthlyRate = annualRate / 1200;
-  const exact = monthlyRate === 0
-    ? principalPaise / months
-    : principalPaise * (monthlyRate / -Math.expm1(-months * Math.log1p(monthlyRate)));
+type RateFraction = { numerator: bigint; denominator: bigint };
+
+/** Monthly rate as an exact rational, based on the decimal rate supplied by the user. */
+function exactMonthlyRate(annualRate: number): RateFraction {
+  const annual = decimalFraction(annualRate);
+  return { numerator: annual.numerator, denominator: annual.denominator * 1200n };
+}
+
+function paiseEmi(principalPaise: number, monthlyRate: RateFraction, months: number): number {
+  if (monthlyRate.numerator === 0n) {
+    return Math.max(1, Number(roundRationalHalfUp(BigInt(principalPaise), BigInt(months))));
+  }
+  const a = monthlyRate.numerator;
+  const b = monthlyRate.denominator;
+  const growth = (a + b) ** BigInt(months);
+  const base = b ** BigInt(months);
+  const numerator = BigInt(principalPaise) * a * growth;
+  const denominator = b * (growth - base);
   // A payment of at least one paisa guarantees progress for very small loans.
-  return Math.max(1, roundHalfUp(exact));
+  return Math.max(1, Number(roundRationalHalfUp(numerator, denominator)));
 }
 
 function buildSchedule(principalPaise: number, annualRate: number, termMonths: number, extraPaise: number): PaiseSchedule {
-  const monthlyRate = annualRate / 1200;
-  const emi = paiseEmi(principalPaise, annualRate, termMonths);
+  const monthlyRate = exactMonthlyRate(annualRate);
+  const emi = paiseEmi(principalPaise, monthlyRate, termMonths);
   const rows: PaiseRow[] = [];
   let balance = principalPaise;
 
   for (let month = 1; balance > 0 && month <= termMonths; month += 1) {
-    const interest = monthlyRate === 0 ? 0 : roundHalfUp(balance * monthlyRate);
+    const interest = monthlyRate.numerator === 0n
+      ? 0
+      : Number(roundRationalHalfUp(BigInt(balance) * monthlyRate.numerator, monthlyRate.denominator));
     const owed = balance + interest;
     // Never pay less than the month's interest, so the balance cannot grow.
     const scheduled = Math.max(emi + extraPaise, interest);
@@ -148,7 +192,7 @@ export function calculateLoan(input: LoanInput): LoanResult {
   if (!(principalPaise >= 1) || principal > LOAN_LIMITS.maxPrincipal) throw new RangeError("Loan amount is out of range.");
   if (!Number.isFinite(annualRate) || annualRate < 0 || annualRate > LOAN_LIMITS.maxAnnualRate) throw new RangeError("Interest rate is out of range.");
   if (!Number.isInteger(termMonths) || termMonths < 1 || termMonths > LOAN_LIMITS.maxTermMonths) throw new RangeError("Loan term is out of range.");
-  if (!(extraPaise >= 0) || extraPayment > LOAN_LIMITS.maxPrincipal) throw new RangeError("Extra payment is out of range.");
+  if (extraPayment < 0 || !(extraPaise >= 0) || extraPayment > LOAN_LIMITS.maxPrincipal) throw new RangeError("Extra payment is out of range.");
 
   const actual = buildSchedule(principalPaise, annualRate, termMonths, extraPaise);
   const base = extraPaise === 0 ? actual : buildSchedule(principalPaise, annualRate, termMonths, 0);
