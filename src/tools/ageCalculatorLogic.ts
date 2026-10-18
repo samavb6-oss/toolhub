@@ -57,3 +57,16 @@ export function calculateAge(birthText: string, referenceText: string): AgeCalcu
     daysUntilBirthday: ordinal(nextBirthday) - ordinal(reference),
   };
 }
+
+/** Format user dates and generated next birthdays, including the year-10000 boundary. */
+export function formatCalendarDate(value: string, locale?: string): string {
+  // Inputs remain restricted to four-digit years by parseDateOnly; calculations can
+  // legitimately generate 10000-01-01 as the next birthday after 9999-12-31.
+  const match = /^(\d{4,5})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return "";
+  const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+  if (year < 1 || year > 10000 || month < 1 || month > 12 || day < 1 || day > 31) return "";
+  const date = utcCalendarDate(year, month - 1, day);
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return "";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(date);
+}
