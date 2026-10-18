@@ -1,18 +1,57 @@
+import { lazy, Suspense } from "react";
 import { useParams } from "wouter";
-import {
-  AiPromptGenerator, CaseConverter, CharacterCounter, EmiCalculator, PasswordGenerator, SipCalculator, WordCounter,
-} from "@/tools/BasicTools";
-import { AgeCalculator } from "@/tools/AgeCalculator";
-import { BmiCalculator } from "@/tools/BmiCalculator";
-import { GstCalculatorTool } from "@/tools/GstCalculatorTool";
-import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
-import { InterestCalculator } from "@/tools/InterestCalculator";
-import { MergePdfTool } from "@/tools/MergePdfTool";
-import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
-import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
 import { ToolPageFrame } from "@/tools/ToolPageFrame";
 import { toolDefinitions } from "@/tools/toolRegistry";
 import NotFound from "./not-found";
+
+const BmiCalculator = lazy(() =>
+  import("@/tools/BmiCalculator").then((module) => ({ default: module.BmiCalculator })),
+);
+const GstCalculatorTool = lazy(() =>
+  import("@/tools/GstCalculatorTool").then((module) => ({ default: module.GstCalculatorTool })),
+);
+const LoanCalculatorTool = lazy(() =>
+  import("@/tools/LoanCalculatorTool").then((module) => ({ default: module.LoanCalculatorTool })),
+);
+const InterestCalculator = lazy(() =>
+  import("@/tools/InterestCalculator").then((module) => ({ default: module.InterestCalculator })),
+);
+const SipCalculator = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.SipCalculator })),
+);
+const AgeCalculator = lazy(() =>
+  import("@/tools/AgeCalculator").then((module) => ({ default: module.AgeCalculator })),
+);
+const CaseConverter = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.CaseConverter })),
+);
+const CharacterCounter = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.CharacterCounter })),
+);
+const EmiCalculator = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.EmiCalculator })),
+);
+const MergePdfTool = lazy(() =>
+  import("@/tools/MergePdfTool").then((module) => ({ default: module.MergePdfTool })),
+);
+const CompressImageTool = lazy(() =>
+  import("@/tools/ImageTools").then((module) => ({ default: module.CompressImageTool })),
+);
+const ResizeImageTool = lazy(() =>
+  import("@/tools/ImageTools").then((module) => ({ default: module.ResizeImageTool })),
+);
+const WordCounter = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.WordCounter })),
+);
+const PasswordGenerator = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.PasswordGenerator })),
+);
+const QrGeneratorTool = lazy(() =>
+  import("@/tools/QrGeneratorTool").then((module) => ({ default: module.QrGeneratorTool })),
+);
+const AiPromptGenerator = lazy(() =>
+  import("@/tools/BasicTools").then((module) => ({ default: module.AiPromptGenerator })),
+);
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
@@ -40,5 +79,11 @@ export default function ToolPage() {
   const ToolComponent = toolComponents[tool.slug as keyof typeof toolComponents];
   if (!ToolComponent) return <NotFound />;
 
-  return <ToolPageFrame tool={tool}><ToolComponent /></ToolPageFrame>;
+  return (
+    <ToolPageFrame tool={tool}>
+      <Suspense fallback={<p role="status">Loading tool…</p>}>
+        <ToolComponent />
+      </Suspense>
+    </ToolPageFrame>
+  );
 }
