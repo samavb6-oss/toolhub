@@ -112,6 +112,15 @@ function decimalFraction(value: number): { numerator: bigint; denominator: bigin
   return { numerator, denominator };
 }
 
+/** True when parsing the entered decimal text as a Number preserves its exact decimal value. */
+function decimalTextMatchesNumber(text: string, value: number): boolean {
+  const [wholePart = "", fractionalPart = ""] = text.split(".");
+  const enteredNumerator = BigInt(`${wholePart || "0"}${fractionalPart}`);
+  const enteredDenominator = 10n ** BigInt(fractionalPart.length);
+  const parsed = decimalFraction(value);
+  return enteredNumerator * parsed.denominator === parsed.numerator * enteredDenominator;
+}
+
 /** Exact non-negative rational rounding, with midpoint ties rounded up. */
 function roundRationalHalfUp(numerator: bigint, denominator: bigint): bigint {
   const quotient = numerator / denominator;
@@ -256,7 +265,11 @@ function parseDecimal(text: string, label: string, required: boolean): ParsedNum
   if (trimmed.startsWith("-")) return { error: `${capitalise(label)} cannot be negative.` };
   if (!DECIMAL_PATTERN.test(trimmed)) return { error: `${capitalise(label)} must be a plain number such as 500000 or 8.5.` };
   const value = Number(trimmed);
-  return Number.isFinite(value) ? { value } : { error: `${capitalise(label)} is too large.` };
+  if (!Number.isFinite(value)) return { error: `${capitalise(label)} is too large.` };
+  if (!decimalTextMatchesNumber(trimmed, value)) {
+    return { error: `${capitalise(label)} has more decimal precision than can be represented safely. Please enter a rounded value.` };
+  }
+  return { value };
 }
 
 function parseWhole(text: string, label: string): ParsedNumber {
