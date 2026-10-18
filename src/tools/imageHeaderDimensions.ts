@@ -11,7 +11,7 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
  */
 export function parseImageDimensions(bytes: Uint8Array, totalLength = bytes.length): ImageDimensions | null {
   if (bytes.length >= 24 && PNG_SIGNATURE.every((value, index) => bytes[index] === value)) {
-    if (readAscii(bytes, 12, 4) !== "IHDR") return null;
+    if (readUint32BE(bytes, 8) !== 13 || readAscii(bytes, 12, 4) !== "IHDR") return null;
     return positiveDimensions(readUint32BE(bytes, 16), readUint32BE(bytes, 20));
   }
 
@@ -29,9 +29,13 @@ export function parseImageDimensions(bytes: Uint8Array, totalLength = bytes.leng
 /** Scans bounded prefixes of compressed image bytes; pixel data is never decoded here. */
 
 /** Browser-decoded dimensions may be swapped by JPEG EXIF orientation 5–8. */
-export function dimensionsMatchHeader(header: ImageDimensions, decoded: ImageDimensions): boolean {
+export function dimensionsMatchHeader(
+  header: ImageDimensions,
+  decoded: ImageDimensions,
+  allowSwappedOrientation = false,
+): boolean {
   return (decoded.width === header.width && decoded.height === header.height) ||
-    (decoded.width === header.height && decoded.height === header.width);
+    (allowSwappedOrientation && decoded.width === header.height && decoded.height === header.width);
 }
 
 function hasSupportedImageSignature(bytes: Uint8Array): boolean {
@@ -125,7 +129,11 @@ function parseJpegDimensions(bytes: Uint8Array): ImageDimensions | null {
     const segmentLength = (bytes[offset] << 8) | bytes[offset + 1];
     if (segmentLength < 2 || offset + segmentLength > bytes.length) return null;
     if (isJpegStartOfFrame(marker)) {
-      if (segmentLength < 7) return null;
+      // SOF length = 2-byte length + precision + dimensions + component count
+      // + three bytes per component descriptor.
+      if (segmentLength < 8) return null;
+      const componentCount = bytes[offset + 7];
+      if (componentCount < 1 || segmentLength !== 8 + componentCount * 3) return null;
       return positiveDimensions(
         (bytes[offset + 5] << 8) | bytes[offset + 6],
         (bytes[offset + 3] << 8) | bytes[offset + 4],

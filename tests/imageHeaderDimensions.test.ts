@@ -9,6 +9,7 @@ function ascii(bytes: number[], offset: number, value: string): void {
 function pngHeader(width: number, height: number): Uint8Array {
   const bytes = new Uint8Array(24);
   bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  bytes.set([0, 0, 0, 13], 8);
   ascii(bytes, 12, "IHDR");
   bytes.set([(width >>> 24) & 255, (width >>> 16) & 255, (width >>> 8) & 255, width & 255], 16);
   bytes.set([(height >>> 24) & 255, (height >>> 16) & 255, (height >>> 8) & 255, height & 255], 20);
@@ -50,10 +51,25 @@ test("reads PNG dimensions from IHDR without decoding pixel data", () => {
   assert.deepEqual(parseImageDimensions(pngHeader(8944, 8944)), { width: 8944, height: 8944 });
 });
 
-test("reads JPEG dimensions from a Start Of Frame segment", () => {
-  const bytes = new Uint8Array(21);
-  bytes.set([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x23, 0x28, 0x23, 0x30]);
+test("reads JPEG dimensions from a structurally valid Start Of Frame segment", () => {
+  const bytes = new Uint8Array([
+    0xff, 0xd8, 0xff, 0xc0, 0x00, 0x0b, 0x08,
+    0x23, 0x28, 0x23, 0x30, 0x01, 0x01, 0x11, 0x00,
+  ]);
   assert.deepEqual(parseImageDimensions(bytes), { width: 9008, height: 9000 });
+});
+
+test("rejects a PNG IHDR chunk whose declared length is not 13", () => {
+  const bytes = pngHeader(10, 10);
+  bytes.set([0, 0, 0, 0], 8);
+  assert.equal(parseImageDimensions(bytes), null);
+});
+
+test("rejects a JPEG SOF segment with a missing component descriptor", () => {
+  const bytes = new Uint8Array([
+    0xff, 0xd8, 0xff, 0xc0, 0x00, 0x07, 0x08, 0x00, 0x10, 0x00, 0x20,
+  ]);
+  assert.equal(parseImageDimensions(bytes), null);
 });
 
 test("reads WebP extended, lossless and lossy dimensions", () => {
@@ -109,17 +125,20 @@ test("rejects a WebP chunk whose odd-size padding is missing", () => {
 });
 
 
-test("accepts decoded dimensions swapped by JPEG EXIF orientation", () => {
-  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3024, height: 4032 }), true);
-  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 4032, height: 3024 }), true);
-  assert.equal(dimensionsMatchHeader({ width: 4032, height: 3024 }, { width: 3000, height: 4000 }), false);
+test("accepts swapped dimensions only when JPEG orientation is allowed", () => {
+  const header = { width: 4032, height: 3024 };
+  const swapped = { width: 3024, height: 4032 };
+  assert.equal(dimensionsMatchHeader(header, swapped), false);
+  assert.equal(dimensionsMatchHeader(header, swapped, true), true);
+  assert.equal(dimensionsMatchHeader(header, header), true);
+  assert.equal(dimensionsMatchHeader(header, { width: 3000, height: 4000 }, true), false);
 });
 
 
 function jpegWithLargeMetadata(): Uint8Array {
   const segmentLength = 0xffff;
   const metadataSegments = 17;
-  const sofLength = 17;
+  const sofLength = 11;
   const bytes = new Uint8Array(2 + metadataSegments * (segmentLength + 2) + 2 + sofLength);
   bytes.set([0xff, 0xd8], 0);
   let offset = 2;
@@ -139,6 +158,10 @@ function jpegWithLargeMetadata(): Uint8Array {
   bytes[offset + 6] = 0x20;
   bytes[offset + 7] = 0x04;
   bytes[offset + 8] = 0x00;
+  bytes[offset + 9] = 0x01;
+  bytes[offset + 10] = 0x01;
+  bytes[offset + 11] = 0x11;
+  bytes[offset + 12] = 0x00;
   return bytes;
 }
 
