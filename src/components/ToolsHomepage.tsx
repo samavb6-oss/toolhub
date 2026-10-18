@@ -13,6 +13,7 @@ import {
   Unlock, UserRound, WandSparkles, Weight, X, Youtube, ZoomIn,
 } from "lucide-react";
 import { getToolPathByName, toolDefinitions } from "@/tools/toolRegistry";
+import { getToolTestId } from "@/tools/toolTestIds";
 
 type Tool = { name: string; icon: LucideIcon };
 type Category = {
@@ -130,8 +131,8 @@ function ToolTile({
     <div className="group relative min-w-0">
       <button
         type="button" onClick={onSelect} aria-current={isSelected ? "true" : undefined}
-        aria-label={`Select ${tool.name}`} data-testid={`tool-${tool.name.toLowerCase().replaceAll(" ", "-")}`}
-        className={`relative flex aspect-square w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-[20px] border p-3 text-center transition duration-300 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 ${
+        aria-label={`Select ${tool.name}`} data-testid={getToolTestId("tool", category.name, tool.name)}
+        className={`relative flex aspect-square w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-[20px] border p-3 text-center transition duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] ${
           isSelected
             ? "border-[#2d6cdf] bg-[#eef4ff] shadow-[0_16px_34px_rgba(45,108,223,0.16)] ring-2 ring-[#2d6cdf]/15 dark:bg-[#203452]"
             : "border-[#e6eaf0] bg-white shadow-[0_7px_24px_rgba(28,44,70,0.055)] hover:-translate-y-1 hover:border-[#cbd8eb] hover:shadow-[0_15px_30px_rgba(28,44,70,0.11)] dark:border-[#2c3a4c] dark:bg-[#1b2736] dark:hover:border-[#48617f]"
@@ -146,8 +147,8 @@ function ToolTile({
       </button>
       <button
         type="button" onClick={onFavorite} aria-label={`${isFavorite ? "Remove" : "Add"} ${tool.name} ${isFavorite ? "from" : "to"} favorites`}
-        aria-pressed={isFavorite} data-testid={`favorite-${tool.name.toLowerCase().replaceAll(" ", "-")}`}
-        className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 ${
+        aria-pressed={isFavorite} data-testid={getToolTestId("favorite", category.name, tool.name)}
+        className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full border transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] ${
           isFavorite ? "border-[#f0c86a] bg-[#fff8df] text-[#bb7b11] dark:border-[#806c35] dark:bg-[#3b321e] dark:text-[#f0c86a]" : "border-transparent bg-white/80 text-[#9ba8b7] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#1b2736]/85 dark:text-[#718197]"
         }`}
       >
@@ -237,7 +238,7 @@ export function ToolsHomepage() {
     setSelectedTool({ tool, category });
   }
   function scrollToCategory(name: string) {
-    document.getElementById(`category-${name.toLowerCase().replaceAll(" ", "-")}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById(`category-${name.toLowerCase().replaceAll(" ", "-")}`)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     setMenuOpen(false);
   }
   function clearFilters() {
@@ -258,23 +259,23 @@ export function ToolsHomepage() {
       <div className="relative isolate min-h-[100dvh]">
         <header className="sticky top-0 z-40 border-b border-[#e5eaf0]/90 bg-[#f5f7fa]/90 backdrop-blur-xl dark:border-[#172235]/90 dark:bg-[#070b14]/90">
           <div className="mx-auto flex h-[72px] max-w-[1500px] items-center gap-3 px-4 sm:px-7 lg:h-[80px] lg:px-10">
-            <button type="button" onClick={() => { setFavoritesOnly(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-label="Go to tools home" className="group flex shrink-0 items-center gap-2.5 rounded-xl px-1 py-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20">
+            <button type="button" onClick={() => { setFavoritesOnly(false); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }} aria-label="Go to tools home" className="group flex shrink-0 items-center gap-2.5 rounded-xl px-1 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff]">
               <span className="flex h-9 w-9 items-center justify-center rounded-[13px] bg-[linear-gradient(135deg,#3b82f6,#7c3aed)] text-white shadow-[0_8px_18px_rgba(59,130,246,0.26)] transition duration-300 group-hover:rotate-[-5deg]"><Sparkles aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.4} /></span>
               <span className="text-[15px] font-extrabold tracking-[-0.04em] text-[#203149] dark:text-[#eff4fc]">ToolHub</span>
             </button>
             <nav aria-label="Primary navigation" className="hidden items-center gap-6 text-[11px] font-semibold text-[#9aa8b7] lg:flex">
-              <button type="button" onClick={() => { setFavoritesOnly(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-[#dce7f8] transition hover:text-white">All Tools</button>
+              <button type="button" onClick={() => { setFavoritesOnly(false); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }} className="text-[#dce7f8] transition hover:text-white">All Tools</button>
               <button type="button" onClick={() => setFavoritesOnly((current) => !current)} className="transition hover:text-white">Favorites</button>
             </nav>
             <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-              <button type="button" onClick={() => setDarkMode((current) => !current)} aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={darkMode} className="flex h-10 w-10 items-center justify-center rounded-xl text-[#68798d] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]">
+              <button type="button" onClick={() => setDarkMode((current) => !current)} aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={darkMode} className="flex h-10 w-10 items-center justify-center rounded-xl text-[#68798d] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]">
                 {darkMode ? <Sun aria-hidden="true" className="h-[18px] w-[18px]" /> : <Moon aria-hidden="true" className="h-[18px] w-[18px]" />}
               </button>
-              <button type="button" onClick={() => setFavoritesOnly((current) => !current)} aria-label={`${favoritesOnly ? "Show all tools" : "Show favorite tools"}${favorites.length ? `, ${favorites.length} saved` : ""}`} aria-pressed={favoritesOnly} className={`hidden h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 sm:flex ${favoritesOnly ? "bg-[#fff5d9] text-[#a27013] dark:bg-[#3b321e] dark:text-[#f0c86a]" : "text-[#68798d] hover:bg-white hover:text-[#2d6cdf] dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]"}`}>
+              <button type="button" onClick={() => setFavoritesOnly((current) => !current)} aria-label={`${favoritesOnly ? "Show all tools" : "Show favorite tools"}${favorites.length ? `, ${favorites.length} saved` : ""}`} aria-pressed={favoritesOnly} className={`hidden h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] sm:flex ${favoritesOnly ? "bg-[#fff5d9] text-[#a27013] dark:bg-[#3b321e] dark:text-[#f0c86a]" : "text-[#68798d] hover:bg-white hover:text-[#2d6cdf] dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]"}`}>
                 <Star aria-hidden="true" className="h-[17px] w-[17px]" fill={favoritesOnly ? "currentColor" : "none"} /><span>Favorites</span>
                 {favorites.length > 0 && <span className="rounded-full bg-current/10 px-1.5 py-0.5 text-[10px]">{favorites.length}</span>}
               </button>
-              <button type="button" onClick={() => setMenuOpen((current) => !current)} aria-label={menuOpen ? "Close category menu" : "Open category menu"} aria-expanded={menuOpen} className="flex h-10 w-10 items-center justify-center rounded-xl text-[#68798d] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]">
+              <button type="button" onClick={() => setMenuOpen((current) => !current)} aria-label={menuOpen ? "Close category menu" : "Open category menu"} aria-expanded={menuOpen} className="flex h-10 w-10 items-center justify-center rounded-xl text-[#68798d] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:hover:bg-[#1d2a3b] dark:hover:text-[#96b7ef]">
                 {menuOpen ? <X aria-hidden="true" className="h-[19px] w-[19px]" /> : <Menu aria-hidden="true" className="h-[19px] w-[19px]" />}
               </button>
             </div>
@@ -283,14 +284,14 @@ export function ToolsHomepage() {
             <div className="border-t border-[#e5eaf0] bg-[#f5f7fa] px-4 pb-5 pt-4 dark:border-[#2a3748] dark:bg-[#111b29] sm:hidden">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#9aa8b7]">Browse by category</span>
-                <button type="button" onClick={() => setFavoritesOnly((current) => !current)} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-bold text-[#a27013] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:text-[#f0c86a]">
+                <button type="button" onClick={() => setFavoritesOnly((current) => !current)} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-bold text-[#a27013] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:text-[#f0c86a]">
                   <Star aria-hidden="true" className="h-3.5 w-3.5" fill={favoritesOnly ? "currentColor" : "none"} />{favoritesOnly ? "All tools" : "Favorites"}
                 </button>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {categories.map((category) => {
                   const Icon = category.icon;
-                  return <a href={`#category-${category.name.toLowerCase().replaceAll(" ", "-")}`} key={category.name} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-xl border border-[#e1e7ee] bg-white px-2.5 py-2 text-left text-xs font-bold text-[#3e5068] transition hover:border-[#b9ccee] hover:text-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#314055] dark:bg-[#1a2636] dark:text-[#b5c2d3]">
+                  return <a href={`#category-${category.name.toLowerCase().replaceAll(" ", "-")}`} key={category.name} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-xl border border-[#e1e7ee] bg-white px-2.5 py-2 text-left text-xs font-bold text-[#3e5068] transition hover:border-[#b9ccee] hover:text-[#2d6cdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:border-[#314055] dark:bg-[#1a2636] dark:text-[#b5c2d3]">
                     <Icon aria-hidden="true" className="h-4 w-4 shrink-0" style={{ color: category.accent }} /><span className="truncate">{category.name}</span>
                   </a>;
                 })}
@@ -316,7 +317,7 @@ export function ToolsHomepage() {
                 </p>
                 <label className="group relative mt-8 flex w-full max-w-2xl items-center">
                   <Search aria-hidden="true" className="pointer-events-none absolute left-5 h-5 w-5 text-[#8b9bad] transition group-focus-within:text-[#3b82f6]" />
-                  <input type="search" value={query} onChange={(event) => updateSearch(event.target.value)} placeholder="Search calculators, PDF tools, image tools, AI tools..." aria-label="Search calculators, PDF tools, image tools, AI tools" data-testid="input-tool-search" className="h-14 w-full rounded-[20px] border border-[#dfe6ee] bg-white/90 pl-14 pr-5 text-sm font-semibold text-[#26364a] outline-none transition placeholder:text-[#9aa8b7] focus:border-[#8ab0f0] focus:ring-4 focus:ring-[#3b82f6]/15 focus:shadow-[0_0_34px_rgba(59,130,246,0.18)] dark:border-[#33455c] dark:bg-[#1a2332] dark:text-white dark:placeholder:text-[#94a3b8] dark:focus:border-[#3b82f6] dark:focus:ring-[#3b82f6]/20 dark:focus:shadow-[0_0_42px_rgba(59,130,246,0.22)] sm:h-16 sm:text-base" />
+                  <input type="search" value={query} onChange={(event) => updateSearch(event.target.value)} placeholder="Search calculators, PDF tools, image tools, AI tools..." aria-label="Search calculators, PDF tools, image tools, AI tools" data-testid="input-tool-search" className="h-14 w-full rounded-[20px] border border-[#dfe6ee] bg-white/90 pl-14 pr-5 text-sm font-semibold text-[#26364a] outline-none transition placeholder:text-[#9aa8b7] focus:border-[#2d6cdf] focus:ring-4 focus:ring-[#3b82f6]/15 focus:shadow-[0_0_34px_rgba(59,130,246,0.18)] dark:border-[#33455c] dark:bg-[#1a2332] dark:text-white dark:placeholder:text-[#94a3b8] dark:focus:border-[#3b82f6] dark:focus:ring-[#3b82f6]/20 dark:focus:shadow-[0_0_42px_rgba(59,130,246,0.22)] sm:h-16 sm:text-base" />
                 </label>
               </div>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-[#7d8c9e] dark:text-[#94a3b8]">
@@ -331,7 +332,7 @@ export function ToolsHomepage() {
               <nav aria-label="Tool categories" className="flex min-w-max items-center justify-center gap-2">
                 {categories.map((category) => {
                   const Icon = category.icon;
-                  return <a href={`#category-${category.name.toLowerCase().replaceAll(" ", "-")}`} key={category.name} className="flex items-center gap-2 rounded-xl border border-[#e1e7ee] bg-white/80 px-3.5 py-2 text-xs font-bold text-[#8291a3] transition hover:-translate-y-0.5 hover:border-[#b9ccee] hover:text-[#3d5f95] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#1a2a3e] dark:bg-[#101827] dark:text-[#cbd5e1] dark:hover:border-[#3b82f6]/50 dark:hover:bg-[#151f30] dark:hover:text-white">
+                  return <a href={`#category-${category.name.toLowerCase().replaceAll(" ", "-")}`} key={category.name} className="flex items-center gap-2 rounded-xl border border-[#e1e7ee] bg-white/80 px-3.5 py-2 text-xs font-bold text-[#8291a3] transition hover:-translate-y-0.5 hover:border-[#b9ccee] hover:text-[#3d5f95] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:border-[#1a2a3e] dark:bg-[#101827] dark:text-[#cbd5e1] dark:hover:border-[#3b82f6]/50 dark:hover:bg-[#151f30] dark:hover:text-white">
                     <Icon aria-hidden="true" className="h-3.5 w-3.5" style={{ color: category.accent }} />{category.name}
                   </a>;
                 })}
@@ -349,7 +350,7 @@ export function ToolsHomepage() {
                 {trendingTools.map((tool, index) => {
                   const category = categories.find((item) => item.tools.some((entry) => entry.name === tool.name)) ?? categories[0];
                   const Icon = tool.icon;
-                  return <button type="button" key={tool.name} onClick={() => selectTool(tool, category)} data-testid={`trending-${tool.name.toLowerCase().replaceAll(" ", "-")}`} style={{ animationDelay: `${index * 60}ms` }} className="group flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-[20px] border border-[#e2e8ef] bg-white/75 px-3 py-4 text-center shadow-[0_7px_24px_rgba(28,44,70,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#c6d6ee] hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#2d3b4d] dark:bg-[#1a2332] dark:shadow-[0_14px_30px_rgba(0,0,0,0.16)] dark:hover:border-[#48617f] dark:hover:bg-[#243244]">
+                  return <button type="button" key={tool.name} onClick={() => selectTool(tool, category)} data-testid={`trending-${tool.name.toLowerCase().replaceAll(" ", "-")}`} style={{ animationDelay: `${index * 60}ms` }} className="group flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-[20px] border border-[#e2e8ef] bg-white/75 px-3 py-4 text-center shadow-[0_7px_24px_rgba(28,44,70,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#c6d6ee] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:border-[#2d3b4d] dark:bg-[#1a2332] dark:shadow-[0_14px_30px_rgba(0,0,0,0.16)] dark:hover:border-[#48617f] dark:hover:bg-[#243244]">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition duration-300 group-hover:scale-105" style={{ backgroundColor: darkMode ? `${category.accent}25` : category.tint, color: category.accent }}><Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} /></span>
                     <span className="line-clamp-2 max-w-[9rem] text-[12px] font-bold leading-[1.2] text-[#35485f] dark:text-[#f1f5fb]">{tool.name}</span>
                     <span className="rounded-full bg-[#e5f7ec] px-2 py-1 text-[9px] font-extrabold tracking-wide text-[#167447] dark:bg-[#173b2b] dark:text-[#91e0b2]">LIVE</span>
@@ -369,7 +370,7 @@ export function ToolsHomepage() {
                     {selectedTool.tool.name !== "More Tools" && <p className="mt-1 text-xs font-medium text-[#7086a3] dark:text-[#aabbd1]">{getToolPathByName(selectedTool.tool.name) ? `Open the live ${selectedTool.tool.name} tool from this tile.` : `${selectedTool.tool.name} is planned but is not available yet. The eight LIVE tools in Trending tools are ready to use.`}</p>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => setSelectedTool(null)} aria-label="Close selected tool panel" className="flex h-10 w-10 items-center justify-center rounded-xl text-[#7e96b6] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:hover:bg-[#263e60]"><X aria-hidden="true" className="h-[18px] w-[18px]" /></button>
+                    <button type="button" onClick={() => setSelectedTool(null)} aria-label="Close selected tool panel" className="flex h-10 w-10 items-center justify-center rounded-xl text-[#7e96b6] transition hover:bg-white hover:text-[#2d6cdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:hover:bg-[#263e60]"><X aria-hidden="true" className="h-[18px] w-[18px]" /></button>
                   </div>
                 </div>
                 {selectedTool.tool.name === "More Tools" && <ul aria-label={`${selectedTool.category.name} tools`} className="relative mt-5 grid gap-2 border-t border-[#cfe0fa] pt-4 dark:border-[#385780] sm:grid-cols-2 lg:grid-cols-3">
@@ -385,14 +386,14 @@ export function ToolsHomepage() {
 
             {favoritesOnly && favorites.length > 0 && <div className="mb-8 flex items-center justify-between gap-3 rounded-2xl border border-[#f0dfae] bg-[#fff9e7] px-4 py-3 dark:border-[#5a4d2c] dark:bg-[#2b281d]">
               <div className="flex items-center gap-2.5 text-xs font-bold text-[#8d6b20] dark:text-[#e3c778]"><Star aria-hidden="true" className="h-4 w-4" fill="currentColor" />Showing your {favorites.length} saved {favorites.length === 1 ? "tool" : "tools"}.</div>
-              <button type="button" onClick={() => setFavoritesOnly(false)} className="text-xs font-extrabold text-[#a27013] underline decoration-[#d7b85f] underline-offset-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:text-[#f0c86a]">Show all</button>
+              <button type="button" onClick={() => setFavoritesOnly(false)} className="text-xs font-extrabold text-[#a27013] underline decoration-[#d7b85f] underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:text-[#f0c86a]">Show all</button>
             </div>}
 
             {totalVisibleTools === 0 ? <section className="mx-auto flex max-w-xl flex-col items-center rounded-[28px] border border-dashed border-[#cad5e2] bg-white/65 px-6 py-16 text-center dark:border-[#3a4b61] dark:bg-[#172333]">
               <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-[#edf3fc] text-[#5f84c4] dark:bg-[#243957] dark:text-[#a8c3ef]"><Search aria-hidden="true" className="h-7 w-7" /></span>
               <h2 className="text-xl font-extrabold tracking-[-0.04em] text-[#253851] dark:text-[#eff4fc]">Nothing matched that search</h2>
               <p className="mt-2 max-w-sm text-sm leading-6 text-[#7d8da1] dark:text-[#9daec2]">Try a broader phrase, or clear your filters to browse all the small tools in the library.</p>
-              <button type="button" onClick={clearFilters} className="mt-6 flex h-10 items-center gap-2 rounded-xl bg-[#203a64] px-4 text-xs font-extrabold text-white transition hover:bg-[#2d6cdf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:bg-[#dbe8fc] dark:text-[#203452] dark:hover:bg-white"><RefreshCw aria-hidden="true" className="h-4 w-4" />Clear search</button>
+              <button type="button" onClick={clearFilters} className="mt-6 flex h-10 items-center gap-2 rounded-xl bg-[#203a64] px-4 text-xs font-extrabold text-white transition hover:bg-[#2d6cdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:bg-[#dbe8fc] dark:text-[#203452] dark:hover:bg-white"><RefreshCw aria-hidden="true" className="h-4 w-4" />Clear search</button>
             </section> : <div className="space-y-12 sm:space-y-14">
               {filteredCategories.map((category) => <section key={category.name} id={`category-${category.name.toLowerCase().replaceAll(" ", "-")}`} aria-labelledby={`heading-${category.name.toLowerCase().replaceAll(" ", "-")}`} className="scroll-mt-[130px]">
                 <div className="rounded-[28px] border border-[#e7ebf0] bg-white/35 p-4 sm:p-5 lg:p-6 dark:border-[#2a394d] dark:bg-[#1a2332]">
@@ -413,7 +414,7 @@ export function ToolsHomepage() {
               <h2 id="available-tools-heading" className="text-base font-extrabold tracking-tight text-[#203149] dark:text-[#f0f4fb]">All available tools</h2>
               <p className="mt-1 text-xs leading-5 text-[#718198] dark:text-[#aab7cb]">Open any live calculator or utility directly.</p>
               <nav aria-label="Available tools" className="mt-4 flex flex-wrap gap-2">
-                {toolDefinitions.map((tool) => <Link key={tool.slug} href={`/tools/${tool.slug}`} className="inline-flex min-h-9 items-center rounded-full border border-[#d9e3ef] bg-white px-3 py-2 text-xs font-bold text-[#315276] transition hover:border-[#9dbbe2] hover:text-[#2258ba] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2d6cdf]/20 dark:border-[#31445d] dark:bg-[#172538] dark:text-[#d4e3f7] dark:hover:border-[#6385b4]">{tool.name}</Link>)}
+                {toolDefinitions.map((tool) => <Link key={tool.slug} href={`/tools/${tool.slug}`} className="inline-flex min-h-9 items-center rounded-full border border-[#d9e3ef] bg-white px-3 py-2 text-xs font-bold text-[#315276] transition hover:border-[#9dbbe2] hover:text-[#2258ba] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6cdf] dark:focus-visible:outline-[#8db7ff] dark:border-[#31445d] dark:bg-[#172538] dark:text-[#d4e3f7] dark:hover:border-[#6385b4]">{tool.name}</Link>)}
               </nav>
             </div>
           </section>
