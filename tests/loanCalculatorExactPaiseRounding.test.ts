@@ -72,7 +72,7 @@ test("rejects decimal text when Number parsing would move it across a paise-roun
   if (!rate.ok) assert.ok(rate.errors.annualRate);
 
   const extra = validateLoanForm({
-    principal: "100", annualRate: "0", years: "0", months: "1", extraPayment: "0.004999999999999999",
+    principal: "100", annualRate: "0", years: "0", months: "1", extraPayment: "0.0049999999999999999",
   });
   assert.equal(extra.ok, false);
   if (!extra.ok) assert.ok(extra.errors.extraPayment);
