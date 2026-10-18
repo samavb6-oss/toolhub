@@ -13,6 +13,9 @@ const GstCalculatorTool = lazy(() =>
 const LoanCalculatorTool = lazy(() =>
   import("@/tools/LoanCalculatorTool").then((module) => ({ default: module.LoanCalculatorTool })),
 );
+const InterestCalculator = lazy(() =>
+  import("@/tools/InterestCalculator").then((module) => ({ default: module.InterestCalculator })),
+);
 const SipCalculator = lazy(() =>
   import("@/tools/BasicTools").then((module) => ({ default: module.SipCalculator })),
 );
@@ -54,6 +57,7 @@ const toolComponents = {
   "bmi-calculator": BmiCalculator,
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
+  "interest-calculator": InterestCalculator,
   "sip-calculator": SipCalculator,
   "age-calculator": AgeCalculator,
   "case-converter": CaseConverter,
