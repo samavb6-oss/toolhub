@@ -7,7 +7,7 @@ function ascii(bytes: number[], offset: number, value: string): void {
 }
 
 function pngHeader(width: number, height: number): Uint8Array {
-  const bytes = new Uint8Array(24);
+  const bytes = new Uint8Array(33);
   bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   bytes.set([0, 0, 0, 13], 8);
   ascii(bytes, 12, "IHDR");
@@ -81,6 +81,7 @@ test("reads WebP extended, lossless and lossy dimensions", () => {
 test("returns null for unsupported or truncated image headers", () => {
   assert.equal(parseImageDimensions(new Uint8Array([1, 2, 3, 4])), null);
   assert.equal(parseImageDimensions(pngHeader(10, 10).slice(0, 16)), null);
+  assert.equal(parseImageDimensions(pngHeader(10, 10).slice(0, 24)), null);
   assert.equal(parseImageDimensions(new Uint8Array([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x01])), null);
 });
 

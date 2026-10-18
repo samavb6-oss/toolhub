@@ -10,7 +10,8 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
  * Returns null for unsupported, malformed, or incomplete headers.
  */
 export function parseImageDimensions(bytes: Uint8Array, totalLength = bytes.length): ImageDimensions | null {
-  if (bytes.length >= 24 && PNG_SIGNATURE.every((value, index) => bytes[index] === value)) {
+  // A complete IHDR chunk is 8 signature bytes + 4 length + 4 type + 13 data + 4 CRC.
+  if (bytes.length >= 33 && PNG_SIGNATURE.every((value, index) => bytes[index] === value)) {
     if (readUint32BE(bytes, 8) !== 13 || readAscii(bytes, 12, 4) !== "IHDR") return null;
     return positiveDimensions(readUint32BE(bytes, 16), readUint32BE(bytes, 20));
   }
