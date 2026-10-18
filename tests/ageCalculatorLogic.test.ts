@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateAge, parseDateOnly } from "../src/tools/ageCalculatorLogic.ts";
+import { calculateAge, formatCalendarDate, parseDateOnly } from "../src/tools/ageCalculatorLogic.ts";
 
 const age = (birth: string, on: string) => calculateAge(birth, on)?.age;
 test("validates strict calendar dates", () => {
@@ -30,4 +30,26 @@ test("rejects invalid inputs and future birth dates", () => {
 });
 test("same-day birth and reference dates return zero age", () => {
   assert.deepEqual(calculateAge("2026-10-12", "2026-10-12"), { age: { years: 0, months: 0, days: 0 }, nextBirthday: "2026-10-12", daysUntilBirthday: 0 });
+});
+
+
+test("formats years below 100 without Date.UTC's 1900 offset", () => {
+  assert.equal(formatCalendarDate("0001-01-01", "en-US"), "January 1, 1");
+  assert.equal(formatCalendarDate("0099-12-31", "en-US"), "December 31, 99");
+  assert.equal(formatCalendarDate("0100-01-01", "en-US"), "January 1, 100");
+  assert.equal(formatCalendarDate("0000-01-01", "en-US"), "");
+});
+
+test("calculates exact age on a leap birthday and for future reference dates", () => {
+  assert.deepEqual(age("2000-02-29", "2024-02-29"), { years: 24, months: 0, days: 0 });
+  assert.deepEqual(age("2020-06-15", "2030-06-15"), { years: 10, months: 0, days: 0 });
+  assert.deepEqual(age("2020-06-15", "2030-06-14"), { years: 9, months: 11, days: 30 });
+});
+
+test("formats a generated next birthday in year 10000", () => {
+  const result = calculateAge("9998-01-01", "9999-12-31");
+  assert.equal(result?.nextBirthday, "10000-01-01");
+  assert.equal(formatCalendarDate(result!.nextBirthday, "en-US"), "January 1, 10000");
+  assert.equal(formatCalendarDate("10000-02-30", "en-US"), "");
+  assert.equal(parseDateOnly("10000-01-01"), null);
 });
