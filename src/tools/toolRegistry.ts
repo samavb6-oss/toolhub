@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FileImage, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -85,6 +85,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Merge PDF Files Online — Free & Private | ToolHub",
     description: "Combine multiple PDF files into one document in your browser. Reorder files before merging and download the finished PDF without uploading your documents.",
     intro: "Combine PDFs in the order you choose. Your files stay on this device.",
+  },
+  {
+    slug: "jpg-to-pdf",
+    name: "JPG to PDF",
+    category: "PDF Tools",
+    icon: FileImage,
+    title: "JPG to PDF Converter — Free & Private | ToolHub",
+    description: "Turn JPG images into a PDF in your browser. Put several photos in order, choose page size and margins, keep phone photos upright, and download without uploading your images.",
+    intro: "Turn one or more JPG images into a single PDF, one image per page. Your images stay on this device.",
   },
   {
     slug: "compress-image",
