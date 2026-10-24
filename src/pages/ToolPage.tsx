@@ -8,6 +8,7 @@ import { GstCalculatorTool } from "@/tools/GstCalculatorTool";
 import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
 import { InterestCalculator } from "@/tools/InterestCalculator";
 import { MergePdfTool } from "@/tools/MergePdfTool";
+import { PdfToWordTool } from "@/tools/PdfToWordTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
 import { ToolPageFrame } from "@/tools/ToolPageFrame";
@@ -25,6 +26,7 @@ const toolComponents = {
   "character-counter": CharacterCounter,
   "emi-calculator": EmiCalculator,
   "merge-pdf": MergePdfTool,
+  "pdf-to-word": PdfToWordTool,
   "compress-image": CompressImageTool,
   "word-counter": WordCounter,
   "password-generator": PasswordGenerator,
