@@ -97,6 +97,7 @@ export function readJpegInfo(bytes: Uint8Array): JpegReadResult {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let orientation = 1;
   let sawExif = false;
+  let frame: Omit<JpegInfo, "orientation"> | null = null;
   let position = 2;
   while (position < bytes.length) {
     if (bytes[position] !== 0xff) return { ok: false, problem: "invalid" };
@@ -105,7 +106,8 @@ export function readJpegInfo(bytes: Uint8Array): JpegReadResult {
     position += 1;
     if (marker === undefined) break;
     if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd8)) continue; // markers without a length
-    if (marker === 0xd9 || marker === 0xda) return { ok: false, problem: "invalid" }; // end or pixel data before a frame header
+    if (marker === 0xd9) return { ok: false, problem: frame ? "truncated" : "invalid" }; // end of image before any pixel data
+    if (marker === 0xda && !frame) return { ok: false, problem: "invalid" }; // pixel data before a frame header
     if (position + 2 > bytes.length) return { ok: false, problem: "truncated" };
     const length = view.getUint16(position, false);
     const segmentEnd = position + length;
@@ -116,8 +118,17 @@ export function readJpegInfo(bytes: Uint8Array): JpegReadResult {
       orientation = readExifOrientation(bytes, position + 8, segmentEnd);
     }
 
+    if (marker === 0xda && frame) {
+      // Start of scan: the frame header is only useful if the pixel data and the end-of-image marker follow it.
+      // Inside scan data every 0xFF is followed by 0x00 or a restart marker, so the first 0xFFD9 is the real end.
+      for (let index = segmentEnd; index + 1 < bytes.length; index += 1) {
+        if (bytes[index] === 0xff && bytes[index + 1] === 0xd9) return { ok: true, info: { ...frame, orientation } };
+      }
+      return { ok: false, problem: "truncated" };
+    }
+
     const isFrame = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
-    if (isFrame) {
+    if (isFrame && !frame) {
       // Baseline (C0), extended sequential (C1) and progressive (C2) are the codings PDF viewers decode.
       if (marker > 0xc2) return { ok: false, problem: "unsupported-coding" };
       if (length < 8) return { ok: false, problem: "truncated" };
@@ -129,7 +140,7 @@ export function readJpegInfo(bytes: Uint8Array): JpegReadResult {
       if (width === 0 || height === 0) return { ok: false, problem: "invalid" };
       if (components === 4) return { ok: false, problem: "cmyk" };
       if (components !== 1 && components !== 3) return { ok: false, problem: "invalid" };
-      return { ok: true, info: { width, height, components, orientation } };
+      frame = { width, height, components };
     }
     position = segmentEnd;
   }

@@ -121,6 +121,25 @@ test("rejects data that is not a usable JPEG, with a reason", () => {
   assert.deepEqual(readJpegInfo(zeroWidth), { ok: false, problem: "invalid" });
 });
 
+test("rejects JPEGs that end before their pixel data is complete", () => {
+  const sos = QUAD.findIndex((byte, index) => byte === 0xff && QUAD[index + 1] === 0xda);
+  const sosEnd = sos + 2 + ((QUAD[sos + 2] << 8) | QUAD[sos + 3]);
+  assert.ok(sos > 0 && sosEnd < QUAD.length - 2, "fixture should have scan data");
+  assert.deepEqual(readJpegInfo(QUAD.subarray(0, sos)), { ok: false, problem: "truncated" }, "frame header but no scan");
+  assert.deepEqual(readJpegInfo(QUAD.subarray(0, sosEnd)), { ok: false, problem: "truncated" }, "scan header but no pixel data");
+  assert.deepEqual(readJpegInfo(QUAD.subarray(0, sosEnd + 20)), { ok: false, problem: "truncated" }, "cut in the middle of the pixel data");
+  assert.deepEqual(readJpegInfo(QUAD.subarray(0, QUAD.length - 2)), { ok: false, problem: "truncated" }, "complete scan but no end-of-image marker");
+  // An end-of-image marker straight after the frame header means there is no image either.
+  const noScan = new Uint8Array([...QUAD.subarray(0, sos), 0xff, 0xd9]);
+  assert.deepEqual(readJpegInfo(noScan), { ok: false, problem: "truncated" });
+});
+
+test("accepts complete JPEGs with trailing bytes after the end-of-image marker", () => {
+  const padded = new Uint8Array([...QUAD, 0, 0, 0, 0x41, 0x42]);
+  assert.deepEqual(readJpegInfo(padded), { ok: true, info: { width: 16, height: 8, components: 3, orientation: 1 } });
+  assert.ok(readJpegInfo(withOrientation(PROGRESSIVE, 3, true)).ok, "progressive files with several scans are complete");
+});
+
 test("image-sized pages use 0.75 points per pixel and honour margins", () => {
   const plain = layoutPage({ width: 800, height: 400, orientation: 1 }, { pageSize: "image", margin: "none" });
   assert.deepEqual([plain.pageWidth, plain.pageHeight], [600, 300]);
@@ -238,6 +257,8 @@ test("conversion errors name the file and explain the fix", async () => {
   assert.match(await message([new File([toArrayBuffer(QUAD)], "photo.png", { type: "image/png" })]), /photo\.png is not a JPG/);
   assert.match(await message([jpgFile("fake.jpg", new Uint8Array([1, 2, 3, 4, 5, 6]))]), /fake\.jpg does not look like a JPG/);
   assert.match(await message([jpgFile("cut.jpg", QUAD.subarray(0, 40))]), /cut\.jpg could not be read as a JPG/);
+  const scanStart = QUAD.findIndex((byte, index) => byte === 0xff && QUAD[index + 1] === 0xda);
+  assert.match(await message([jpgFile("halfway.jpg", QUAD.subarray(0, scanStart + 30))]), /halfway\.jpg could not be read as a JPG/);
   assert.match(await message([jpgFile("print.jpg", CMYK)]), /print\.jpg uses CMYK/);
   // One bad file stops the whole conversion, and it is the bad file that is named.
   assert.match(await message([jpgFile("good.jpg"), jpgFile("bad.jpg", new Uint8Array([0xff, 0xd8, 0x00, 0x00]))]), /bad\.jpg/);
