@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FileOutput, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -85,6 +85,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Merge PDF Files Online — Free & Private | ToolHub",
     description: "Combine multiple PDF files into one document in your browser. Reorder files before merging and download the finished PDF without uploading your documents.",
     intro: "Combine PDFs in the order you choose. Your files stay on this device.",
+  },
+  {
+    slug: "pdf-to-word",
+    name: "PDF to Word",
+    category: "PDF Tools",
+    icon: FileOutput,
+    title: "PDF to Word Converter — Free Text Extraction to DOCX | ToolHub",
+    description: "Convert a text-based PDF into an editable Word (.docx) file in your browser. Copies the text only; layout, images and tables are not reproduced. Your file is not uploaded.",
+    intro: "Turn a PDF with selectable text into an editable Word document. Text only; your file stays on this device.",
   },
   {
     slug: "compress-image",
