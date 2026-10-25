@@ -90,3 +90,25 @@ test("rounds half-paise ties correctly at large rupee magnitudes", () => {
   assert.equal(result.annualNet, 1_000_000);
 });
 
+
+test("rejects sub-paisa gross salary instead of producing NaN percentages", () => {
+  for (const annualGross of ["0.0001", "0.004", "0.0049", "1e-7"]) {
+    const validation = validateSalaryForm(validForm({ annualGross, annualDeductions: "0" }));
+    assert.equal(validation.ok, false, annualGross);
+    if (!validation.ok) assert.ok(validation.errors.annualGross, annualGross);
+  }
+  assert.throws(() => calculateSalary({ annualGross: 0.004, annualDeductions: 0, frequency: "monthly" }), RangeError);
+  assert.throws(() => calculateSalary({ annualGross: 0.004, annualDeductions: 0.004, frequency: "monthly" }), RangeError);
+});
+
+test("accepts the smallest whole-paisa gross with a finite deduction percentage", () => {
+  for (const annualGross of ["0.005", "0.01"]) {
+    const validation = validateSalaryForm(validForm({ annualGross, annualDeductions: "0" }));
+    assert.equal(validation.ok, true, annualGross);
+    if (validation.ok) {
+      const result = calculateSalary(validation.input);
+      assert.equal(result.annualGross, 0.01);
+      assert.ok(Number.isFinite(result.deductionPercent));
+    }
+  }
+});

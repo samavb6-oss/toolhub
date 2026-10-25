@@ -81,6 +81,8 @@ export function validateSalaryForm(values: SalaryFormValues): SalaryValidation {
     errors.annualGross = "Enter your annual gross salary.";
   } else if (annualGross <= 0) {
     errors.annualGross = "Gross salary must be greater than ₹0.";
+  } else if (annualGross <= SALARY_LIMITS.maxAnnualGross && roundPaise(annualGross) < 1) {
+    errors.annualGross = "Gross salary must be at least ₹0.01.";
   } else if (annualGross > SALARY_LIMITS.maxAnnualGross) {
     errors.annualGross = "Gross salary exceeds the supported limit of ₹1,000,000,000 per year.";
   }
@@ -123,6 +125,7 @@ export function calculateSalary(input: SalaryInput): SalaryResult {
   if (!Object.hasOwn(PERIODS_PER_YEAR, frequency)) throw new RangeError("Pay frequency is unsupported.");
 
   const grossPaise = roundPaise(annualGross);
+  if (grossPaise < 1) throw new RangeError("Gross salary must be at least ₹0.01.");
   const deductionPaise = roundPaise(annualDeductions);
   if (!Number.isSafeInteger(grossPaise) || !Number.isSafeInteger(deductionPaise) || deductionPaise > grossPaise) {
     throw new RangeError("Salary values exceed safe calculation limits.");
