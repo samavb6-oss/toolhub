@@ -72,4 +72,18 @@
   <url>
     <loc>https://samstoolhub.pages.dev/tools/sip-calculator</loc>
   </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/crop-image</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/rotate-image</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/png-to-jpg</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/jpg-to-png</loc>
+  </url>
 </urlset>
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
