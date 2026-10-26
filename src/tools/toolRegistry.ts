@@ -240,6 +240,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Fix image orientation or create a mirror image with 90-degree rotation and horizontal or vertical flips.",
   },
   {
+    slug: "remove-background",
+    name: "Remove Background",
+    category: "Image Tools",
+    icon: ImageMinus,
+    title: "Remove Image Background Online — Free Transparent PNG | ToolHub",
+    description: "Remove an image background in your browser and download a transparent PNG. Local AI processing keeps your image on your device.",
+    intro: "Create a transparent PNG cutout with local AI. The first use downloads a model; your image stays on this device.",
+  },
+  {
     slug: "qr-generator",
     name: "QR Code Generator",
     category: "Utilities",
