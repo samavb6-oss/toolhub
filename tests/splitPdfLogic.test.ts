@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parsePageRanges, SplitPdfError } from "../src/tools/splitPdfLogic.ts";
+import { MAX_SPLIT_OUTPUTS, parsePageRanges, SplitPdfError } from "../src/tools/splitPdfLogic.ts";
 
 test("single page", () => {
   assert.deepEqual(parsePageRanges("5", 10), [[5]]);
@@ -8,6 +8,14 @@ test("single page", () => {
 
 test("single range", () => {
   assert.deepEqual(parsePageRanges("1-3", 10), [[1, 2, 3]]);
+});
+
+test("caps output groups to keep large split jobs manageable", () => {
+  const ranges = Array.from({ length: MAX_SPLIT_OUTPUTS + 1 }, (_, index) => String(index + 1)).join(", ");
+  assert.throws(
+    () => parsePageRanges(ranges, MAX_SPLIT_OUTPUTS + 1),
+    new RegExp(`no more than ${MAX_SPLIT_OUTPUTS} output files`),
+  );
 });
 
 test("multiple ranges and singles", () => {
@@ -112,6 +120,15 @@ test("sanitizes output filenames", async () => {
   const source = await makeSplitPdf("../my\\report.pdf", [100, 110]);
   const result = await splitPdfFile(source, "1-2");
   assert.equal(result.files[0].fileName, ".._my_report_pages_1-2.pdf");
+});
+
+test("split rejects excessive output count before reading the PDF", async () => {
+  const ranges = Array.from({ length: MAX_SPLIT_OUTPUTS + 1 }, (_, index) => String(index + 1)).join(", ");
+  const invalidPdf = new File(["not a pdf"], "broken.pdf", { type: "application/pdf" });
+  await assert.rejects(
+    splitPdfFile(invalidPdf, ranges),
+    new RegExp(`no more than ${MAX_SPLIT_OUTPUTS} output files`),
+  );
 });
 
 test("split rejects non-PDF, empty, oversized, and corrupt inputs safely", async () => {
