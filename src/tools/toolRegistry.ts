@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Scissors, Type, WandSparkles, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, Type, WandSparkles, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -202,6 +202,42 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Resize Images Online — Free Image Resizer | ToolHub",
     description: "Resize an image by pixels or scale while keeping its aspect ratio. Convert to PNG, JPEG or WebP and download the result directly from your browser.",
     intro: "Set precise pixel dimensions, preserve the aspect ratio, and download a resized image.",
+  },
+  {
+    slug: "png-to-jpg",
+    name: "PNG to JPG",
+    category: "Image Tools",
+    icon: FileImage,
+    title: "PNG to JPG Converter — Free Online Image Converter | ToolHub",
+    description: "Convert PNG images to JPEG files in your browser. Choose the source image, preview the result and download a smaller photo-friendly JPG without uploading your file.",
+    intro: "Convert a PNG image to a JPEG file locally. Transparent areas become white because JPEG does not support transparency.",
+  },
+  {
+    slug: "jpg-to-png",
+    name: "JPG to PNG",
+    category: "Image Tools",
+    icon: FileImage,
+    title: "JPG to PNG Converter — Free Online Image Converter | ToolHub",
+    description: "Convert JPG or JPEG images to PNG in your browser. Preview and download the converted image without uploading your file.",
+    intro: "Convert a JPG or JPEG image to PNG locally. The PNG output may be larger because it uses lossless encoding.",
+  },
+  {
+    slug: "crop-image",
+    name: "Crop Image",
+    category: "Image Tools",
+    icon: Crop,
+    title: "Crop Images Online — Free Image Cropper | ToolHub",
+    description: "Crop PNG, JPEG and WebP images by dragging a selection or entering exact pixel coordinates. Preview and download the cropped image in your browser without uploading it.",
+    intro: "Select the part of an image you want to keep, fine-tune the crop in pixels, and save it in PNG, JPEG or WebP format.",
+  },
+  {
+    slug: "rotate-image",
+    name: "Rotate Image",
+    category: "Image Tools",
+    icon: RotateCw,
+    title: "Rotate and Flip Images Online — Free Image Rotator | ToolHub",
+    description: "Rotate images left or right by 90 degrees, flip horizontally or vertically, and download as PNG, JPEG or WebP. All processing happens in your browser.",
+    intro: "Fix image orientation or create a mirror image with 90-degree rotation and horizontal or vertical flips.",
   },
   {
     slug: "qr-generator",

@@ -72,4 +72,16 @@
   <url>
     <loc>https://samstoolhub.pages.dev/tools/sip-calculator</loc>
   </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/crop-image</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/rotate-image</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/png-to-jpg</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/jpg-to-png</loc>
+  </url>
 </urlset>
