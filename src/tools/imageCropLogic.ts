@@ -30,5 +30,3 @@ export function isValidCropRectangle(rect: CropRectangle, image: ImageDimensions
     rect.x + rect.width <= image.width && rect.y + rect.height <= image.height &&
     isValidImageDimensions({ width: rect.width, height: rect.height });
 }
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
