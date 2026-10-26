@@ -31,6 +31,7 @@ const PngToJpgTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ defa
 const JpgToPngTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ default: m.JpgToPngTool })));
 const CropImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) => ({ default: m.CropImageTool })));
 const RotateImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) => ({ default: m.RotateImageTool })));
+const RemoveBackgroundTool = lazy(() => import("@/tools/RemoveBackgroundTool").then((m) => ({ default: m.RemoveBackgroundTool })));
 const QrGeneratorTool = lazy(() => import("@/tools/QrGeneratorTool").then((m) => ({ default: m.QrGeneratorTool })));
 const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
 
@@ -60,6 +61,7 @@ const toolComponents = {
   "png-to-jpg": PngToJpgTool,
   "jpg-to-png": JpgToPngTool,
   "rotate-image": RotateImageTool,
+  "remove-background": RemoveBackgroundTool,
   "qr-generator": QrGeneratorTool,
   "ai-prompt-generator": AiPromptGenerator,
 };
