@@ -27,6 +27,10 @@ const WordToPdfTool = lazy(() => import("@/tools/DocumentConversionTools").then(
 const UnlockPdfTool = lazy(() => import("@/tools/UnlockPdfTool"));
 const CompressImageTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ default: m.CompressImageTool })));
 const ResizeImageTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ default: m.ResizeImageTool })));
+const PngToJpgTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ default: m.PngToJpgTool })));
+const JpgToPngTool = lazy(() => import("@/tools/ImageTools").then((m) => ({ default: m.JpgToPngTool })));
+const CropImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) => ({ default: m.CropImageTool })));
+const RotateImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) => ({ default: m.RotateImageTool })));
 const QrGeneratorTool = lazy(() => import("@/tools/QrGeneratorTool").then((m) => ({ default: m.QrGeneratorTool })));
 const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
 
@@ -52,6 +56,10 @@ const toolComponents = {
   "word-counter": WordCounter,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
+  "crop-image": CropImageTool,
+  "png-to-jpg": PngToJpgTool,
+  "jpg-to-png": JpgToPngTool,
+  "rotate-image": RotateImageTool,
   "qr-generator": QrGeneratorTool,
   "ai-prompt-generator": AiPromptGenerator,
 };
@@ -71,3 +79,5 @@ export default function ToolPage() {
     </ToolPageFrame>
   );
 }
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
