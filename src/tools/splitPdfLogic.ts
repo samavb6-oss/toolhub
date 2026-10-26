@@ -1,6 +1,7 @@
 import { PDFDocument } from "pdf-lib";
 
 export const MAX_SPLIT_BYTES = 100 * 1024 * 1024;
+export const MAX_SPLIT_OUTPUTS = 100;
 
 export class SplitPdfError extends Error {
   constructor(message: string) {
@@ -9,9 +10,18 @@ export class SplitPdfError extends Error {
   }
 }
 
+function validateOutputGroupCount(input: string): void {
+  if (input.split(",").length > MAX_SPLIT_OUTPUTS) {
+    throw new SplitPdfError(
+      `Choose no more than ${MAX_SPLIT_OUTPUTS} output files at once. Combine adjacent pages into ranges or split in smaller batches.`,
+    );
+  }
+}
+
 export function parsePageRanges(input: string, totalPages: number): number[][] {
   if (!Number.isInteger(totalPages) || totalPages < 1) throw new SplitPdfError("This PDF has no pages to split.");
   if (input.trim() === "") throw new SplitPdfError("Enter page numbers or ranges, for example 1-3, 5, 7-9.");
+  validateOutputGroupCount(input);
 
   const result: number[][] = [];
   const seen = new Set<number>();
@@ -46,6 +56,7 @@ export async function splitPdfFile(file: File, ranges: string): Promise<{ files:
   }
   if (file.size === 0) throw new SplitPdfError(`${file.name} is empty (0 bytes).`);
   if (file.size > MAX_SPLIT_BYTES) throw new SplitPdfError(`${file.name} is larger than 100 MB. Choose a smaller PDF.`);
+  validateOutputGroupCount(ranges);
 
   let sourceBytes: ArrayBuffer;
   try {
