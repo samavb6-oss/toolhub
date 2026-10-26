@@ -352,5 +352,3 @@ export function PngToJpgTool() {
 export function JpgToPngTool() {
   return <ImageProcessor mode="jpg-to-png" />;
 }
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
