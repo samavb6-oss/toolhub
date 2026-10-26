@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, Scissors, Type, WandSparkles, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -87,6 +87,60 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Combine PDFs in the order you choose. Your files stay on this device.",
   },
   {
+    slug: "split-pdf",
+    name: "Split PDF",
+    category: "PDF Tools",
+    icon: Scissors,
+    title: "Split PDF Online — Extract Pages into Separate PDFs | ToolHub",
+    description: "Split a PDF into separate PDF files by page numbers or ranges. Choose ranges such as 1-3, 5, 7-9 and download each result. Files stay in your browser.",
+    intro: "Extract selected pages into separate PDFs with simple page ranges. Your files stay on this device.",
+  },
+  {
+    slug: "jpg-to-pdf",
+    name: "JPG to PDF",
+    category: "PDF Tools",
+    icon: FileImage,
+    title: "JPG to PDF Converter — Combine Images into a PDF | ToolHub",
+    description: "Convert multiple JPG or JPEG images into a single PDF with one image per page. Reorder images and download the PDF; files stay in your browser.",
+    intro: "Turn your JPG images into one PDF, choose their page order, and keep your files on this device.",
+  },
+  {
+    slug: "compress-pdf",
+    name: "Compress PDF",
+    category: "PDF Tools",
+    icon: FileArchive,
+    title: "Compress PDF Online — Free Lossless PDF Optimizer | ToolHub",
+    description: "Try lossless PDF optimization in your browser. Reduce file size where possible without resampling image quality; your PDF stays on this device.",
+    intro: "Try lossless stream and object compression. If it cannot reduce the file size, the original is kept.",
+  },
+  {
+    slug: "pdf-to-word",
+    name: "PDF to Word",
+    category: "PDF Tools",
+    icon: FileOutput,
+    title: "PDF to Word Converter — Convert PDF to DOCX | ToolHub",
+    description: "Convert PDFs into editable Word documents in your browser. Scanned PDFs need OCR separately and complex formatting may change.",
+    intro: "Convert a PDF to an editable DOCX document locally. Scanned image-only pages are not OCR'd.",
+  },
+  {
+    slug: "word-to-pdf",
+    name: "Word to PDF",
+    category: "PDF Tools",
+    icon: FileText,
+    title: "Word to PDF Converter — Convert DOCX to PDF | ToolHub",
+    description: "Convert Word DOCX documents to PDF in your browser. Complex formatting may change; document content is not uploaded.",
+    intro: "Turn a DOCX document into a PDF in your browser, with a note about possible layout differences.",
+  },
+  {
+    slug: "unlock-pdf",
+    name: "Unlock PDF",
+    category: "PDF Tools",
+    icon: Unlock,
+    title: "Unlock PDF Online — Remove Password Protection | ToolHub",
+    description: "Remove PDF password protection with a password you know. Processing happens locally in your browser; no brute-force attempts or uploads.",
+    intro: "Use a password you know to create an unlocked PDF copy on this device.",
+  },
+  {
     slug: "compress-image",
     name: "Compress Image",
     category: "Image Tools",
@@ -103,6 +157,15 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free Character Counter — Count Characters, Words & Spaces | ToolHub",
     description: "Count characters with and without spaces, words, letters, numbers and lines instantly. Useful for social media limits, titles and descriptions; text stays in your browser.",
     intro: "Count characters, words, letters, numbers, whitespace and lines instantly as you type.",
+  },
+  {
+    slug: "text-cleaner",
+    name: "Text Cleaner",
+    category: "Writing Tools",
+    icon: WandSparkles,
+    title: "Free Text Cleaner — Remove Extra Spaces & Duplicate Lines | ToolHub",
+    description: "Clean pasted text by trimming lines, collapsing repeated spaces and tabs, removing blank or duplicate lines, and normalizing line endings. Everything runs locally in your browser.",
+    intro: "Tidy copied text in seconds with selectable cleanup options, a live preview and one-click copying. Your text stays in your browser.",
   },
   {
     slug: "case-converter",

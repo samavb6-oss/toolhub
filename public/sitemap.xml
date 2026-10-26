@@ -10,6 +10,24 @@
     <loc>https://samstoolhub.pages.dev/tools/merge-pdf</loc>
   </url>
   <url>
+    <loc>https://samstoolhub.pages.dev/tools/split-pdf</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/jpg-to-pdf</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/compress-pdf</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/pdf-to-word</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/word-to-pdf</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/unlock-pdf</loc>
+  </url>
+  <url>
     <loc>https://samstoolhub.pages.dev/tools/compress-image</loc>
   </url>
   <url>
@@ -20,6 +38,9 @@
   </url>
   <url>
     <loc>https://samstoolhub.pages.dev/tools/case-converter</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/text-cleaner</loc>
   </url>
   <url>
     <loc>https://samstoolhub.pages.dev/tools/password-generator</loc>
