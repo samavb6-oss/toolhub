@@ -34,5 +34,3 @@ test("crop validation accepts an in-bounds rectangle and rejects invalid edges",
 test("crop validation rejects an image outside processing limits", () => {
   assert.equal(isValidCropRectangle({ x: 0, y: 0, width: 1, height: 1 }, { width: 100_000, height: 1 }), false);
 });
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
