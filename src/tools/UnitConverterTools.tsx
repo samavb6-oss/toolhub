@@ -89,7 +89,7 @@ export function CurrencyConverterTool() {
   const [status, setStatus] = useState("");
 
   const numericAmount = amount.trim() === "" ? Number.NaN : Number(amount);
-  const result = rate && Number.isFinite(numericAmount) ? numericAmount * rate.rate : Number.NaN;
+  const result = rate && Number.isFinite(numericAmount) && numericAmount >= 0 ? numericAmount * rate.rate : Number.NaN;
   const formattedResult = Number.isFinite(result)
     ? new Intl.NumberFormat(undefined, { style: "currency", currency: to, maximumFractionDigits: 4 }).format(result)
     : "";
@@ -105,7 +105,7 @@ export function CurrencyConverterTool() {
       return;
     }
     if (from === to) {
-      setRate({ date: new Date().toISOString().slice(0, 10), base: from, quote: to, rate: 1 });
+      setRate({ date: "Not applicable", base: from, quote: to, rate: 1 });
       setStatus("Same currency selected; no exchange-rate request was needed.");
       return;
     }
