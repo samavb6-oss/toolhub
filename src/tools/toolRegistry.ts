@@ -276,6 +276,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Convert common durations from milliseconds through weeks in your browser.",
   },
   {
+    slug: "currency-converter",
+    name: "Currency",
+    category: "Converters",
+    icon: BadgeDollarSign,
+    title: "Free Currency Converter — Daily Reference Exchange Rates | ToolHub",
+    description: "Convert major world currencies using dated daily reference rates from Frankfurter. No API key is required; rates are estimates, not bank or trading quotes.",
+    intro: "Convert common currencies with a dated daily reference rate. Rates may differ from your bank or card provider.",
+  },
+  {
     slug: "password-generator",
     name: "Password Generator",
     category: "Utilities",
