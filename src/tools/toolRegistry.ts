@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, BookOpen, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Flame, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, Timer, Type, WandSparkles, ZoomIn,
+  BadgeDollarSign, BarChart3, BookOpen, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Flame, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, ShieldCheck, Timer, Type, WandSparkles, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -202,6 +202,24 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free Lorem Ipsum Generator — Placeholder Text | ToolHub",
     description: "Generate Lorem Ipsum placeholder paragraphs with adjustable paragraph and word counts. Text is created locally in your browser for mockups and layouts.",
     intro: "Create adjustable Latin placeholder text for page layouts, prototypes and design mockups.",
+  },
+  {
+    slug: "grammar-checker",
+    name: "Grammar Checker",
+    category: "Writing Tools",
+    icon: ShieldCheck,
+    title: "Free Grammar Checker — Common Writing Errors | ToolHub",
+    description: "Check text for common typos, repeated words, spacing, capitalization and selected grammar patterns. A lightweight private writing aid, not a full proofreader; text stays in your browser.",
+    intro: "Catch common writing slips with transparent rule-based checks. Review every suggestion; this is not a full grammar engine.",
+  },
+  {
+    slug: "text-summarizer",
+    name: "Text Summarizer",
+    category: "Writing Tools",
+    icon: FileText,
+    title: "Free Text Summarizer — Extract Key Sentences Privately | ToolHub",
+    description: "Create a quick extractive summary by selecting sentences with recurring key terms. No AI model, upload or account required; summaries keep the original sentences and may miss nuance.",
+    intro: "Shorten a passage by selecting high-scoring original sentences. This local extractive summary is a starting point, not an AI-written paraphrase.",
   },
   {
     slug: "password-generator",
