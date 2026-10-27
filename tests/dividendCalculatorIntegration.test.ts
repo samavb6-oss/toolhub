@@ -18,7 +18,7 @@ test("Dividend Calculator is registered as a Finance tool with a stable route", 
 });
 
 test("Dividend Calculator has a route component and a homepage Finance tile", () => {
-  assert.match(toolPage, /import \{ DividendCalculatorTool \} from "@\/tools\/DividendCalculatorTool";/u);
+  assert.match(toolPage, /import\("@\/tools\/DividendCalculatorTool"\)/u);
   assert.match(toolPage, /"dividend-calculator": DividendCalculatorTool/u);
   assert.match(homepage, /name: "Dividend Calculator", icon: BadgeDollarSign/u);
   assert.match(sitemap, /\/tools\/dividend-calculator/u);
