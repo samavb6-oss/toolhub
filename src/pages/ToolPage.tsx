@@ -6,7 +6,7 @@ import { AgeCalculator } from "@/tools/AgeCalculator";
 import { BmiCalculator } from "@/tools/BmiCalculator";
 import { GstCalculatorTool } from "@/tools/GstCalculatorTool";
 import { LoanCalculatorTool } from "@/tools/LoanCalculatorTool";
-import { SalaryCalculatorTool } from "@/tools/SalaryCalculatorTool";
+import { DividendCalculatorTool } from "@/tools/DividendCalculatorTool";
 import { MergePdfTool } from "@/tools/MergePdfTool";
 import { CompressImageTool, ResizeImageTool } from "@/tools/ImageTools";
 import { QrGeneratorTool } from "@/tools/QrGeneratorTool";
@@ -19,7 +19,7 @@ const toolComponents = {
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
   "sip-calculator": SipCalculator,
-  "salary-calculator": SalaryCalculatorTool,
+  "dividend-calculator": DividendCalculatorTool,
   "age-calculator": AgeCalculator,
   "case-converter": CaseConverter,
   "character-counter": CharacterCounter,
