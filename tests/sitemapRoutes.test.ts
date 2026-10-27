@@ -17,6 +17,21 @@ test("sitemap includes every registered tool route", () => {
   assert.deepEqual(missing, [], `Missing sitemap routes: ${missing.join(", ")}`);
 });
 
+test("Grammar Checker and Text Summarizer are registered, routed and available from the homepage", () => {
+  assert.equal(getToolPathByName("Grammar Checker"), "/tools/grammar-checker");
+  assert.equal(getToolPathByName("Text Summarizer"), "/tools/text-summarizer");
+  assert.match(toolPage, /"grammar-checker":\s*GrammarCheckerTool/u);
+  assert.match(toolPage, /"text-summarizer":\s*TextSummarizerTool/u);
+  assert.match(homepage, /name:\s*"Grammar Checker"/u);
+  assert.match(homepage, /name:\s*"Text Summarizer"/u);
+  for (const slug of ["grammar-checker", "text-summarizer"]) {
+    const tool = toolDefinitions.find((item) => item.slug === slug);
+    assert.ok(tool, `${slug} must be registered`);
+    assert.ok(tool.title && tool.description && tool.intro, `${slug} must have complete SEO metadata`);
+    assert.ok(sitemapPaths.has(`/tools/${slug}`), `${slug} must be in the sitemap`);
+  }
+});
+
 test("Read Time and Lorem Ipsum are registered, routed and available from the homepage", () => {
   assert.equal(getToolPathByName("Read Time"), "/tools/read-time");
   assert.equal(getToolPathByName("Lorem Ipsum Generator"), "/tools/lorem-ipsum");
