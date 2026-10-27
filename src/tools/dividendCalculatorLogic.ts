@@ -52,7 +52,7 @@ function roundMoney(value: number): number {
   if (!Number.isFinite(value) || value < 0) throw new RangeError("Money must be finite and non-negative.");
   // Round the shortest decimal representation to paise with integer arithmetic.
   // This avoids relying on Number.EPSILON at large rupee magnitudes.
-  const match = /^(\\d+)(?:\\.(\\d*))?(?:e([+-]?\\d+))?$/.exec(String(value).toLowerCase());
+  const match = /^(\d+)(?:\.(\d*))?(?:e([+-]?\d+))?$/.exec(String(value).toLowerCase());
   if (!match) throw new RangeError("Money cannot be represented as a decimal.");
   const fraction = match[2] ?? "";
   const exponent = Number(match[3] ?? "0");
