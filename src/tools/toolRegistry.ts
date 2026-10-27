@@ -33,6 +33,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Project what a monthly SIP could grow to under an assumed return. An estimate, not a guarantee.",
   },
   {
+    slug: "dividend-calculator",
+    name: "Dividend Calculator",
+    category: "Finance",
+    icon: BadgeDollarSign,
+    title: "Free Dividend Calculator: Estimate Stock Dividend Income | ToolHub",
+    description: "Estimate dividend income from the number of shares you own and the dividend per share. Calculate payment totals, annualized income and dividend yield using an optional share price.",
+    intro: "Estimate how much a declared or hypothetical dividend could pay based on your share count. Add a share price to estimate dividend yield; this is not a forecast or investment advice.",
+  },
+  {
     slug: "gst-calculator",
     name: "GST Calculator",
     category: "Finance",
