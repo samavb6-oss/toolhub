@@ -50,7 +50,20 @@ function readAmount(value: string): number | null {
 
 function roundMoney(value: number): number {
   if (!Number.isFinite(value) || value < 0) throw new RangeError("Money must be finite and non-negative.");
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+  // Round the shortest decimal representation to paise with integer arithmetic.
+  // This avoids relying on Number.EPSILON at large rupee magnitudes.
+  const match = /^(\\d+)(?:\\.(\\d*))?(?:e([+-]?\\d+))?$/.exec(String(value).toLowerCase());
+  if (!match) throw new RangeError("Money cannot be represented as a decimal.");
+  const fraction = match[2] ?? "";
+  const exponent = Number(match[3] ?? "0");
+  let numerator = BigInt(match[1] + fraction) * 100n;
+  const scale = fraction.length - exponent;
+  let denominator = 1n;
+  if (scale > 0) denominator = 10n ** BigInt(scale);
+  else if (scale < 0) numerator *= 10n ** BigInt(-scale);
+  const paise = Number((2n * numerator + denominator) / (2n * denominator));
+  if (!Number.isSafeInteger(paise)) throw new RangeError("Money exceeds safe calculation limits.");
+  return paise / 100;
 }
 
 export function validateDividendForm(values: DividendFormValues): DividendValidation {
