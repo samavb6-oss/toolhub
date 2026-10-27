@@ -59,8 +59,9 @@ async function processImage(
       : "Enter whole-number dimensions from 1 to 40,000 pixels per side, with a maximum of 80 megapixels.");
   }
   const bitmap = await createImageBitmap(file);
+  let canvas: HTMLCanvasElement | null = null;
   try {
-    const canvas = document.createElement("canvas");
+    canvas = document.createElement("canvas");
     canvas.width = dimensions.width;
     canvas.height = dimensions.height;
     const context = canvas.getContext("2d");
@@ -82,6 +83,10 @@ async function processImage(
     return await canvasToBlob(canvas, mime, quality);
   } finally {
     bitmap.close();
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   }
 }
 
@@ -305,16 +310,16 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
           </label>
         </div>}
         {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions from 1 to 40,000 px per side, with a maximum of 80 megapixels.</p>}
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {!isConverter && <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <ToolField label="Output format" htmlFor={`${mode}-format`}>
-            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy || Boolean(fixedMime)} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
+            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
               {imageFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
             </select>
           </ToolField>
           <ToolField label={`Quality — ${quality}%`} htmlFor={`${mode}-quality`} hint={mime === "image/png" ? "PNG is lossless; quality is not applied." : "Lower quality generally means a smaller file."}>
             <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={busy || mime === "image/png"} onChange={(event) => { setQuality(Number(event.target.value)); setOutput(null); setStatus(""); }} />
           </ToolField>
-        </div>
+        </div>}
         <div className="mt-6 flex flex-wrap gap-2">
           <button type="button" data-testid={`button-${mode}-image`} aria-busy={busy} className={primaryButtonClass} disabled={!file || !validDimensions || busy} onClick={runProcessing}>{busy ? <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" /> : <RefreshCw aria-hidden="true" className="h-4 w-4" />}{busy ? "Processing…" : isResize ? "Resize image" : isConverter ? "Convert image" : "Compress image"}</button>
           {output && <button type="button" data-testid={`button-download-${mode}-image`} className={secondaryButtonClass} onClick={downloadResult}><Download aria-hidden="true" className="h-4 w-4" />Download</button>}

@@ -140,6 +140,9 @@ export function RemoveBackgroundTool() {
       sourceBitmap = await createImageBitmap(file);
       const matte = await remover.alpha(sourceBitmap);
       if (requestId !== operationIdRef.current || !mountedRef.current) return;
+      if (matte.w !== sourceBitmap.width || matte.h !== sourceBitmap.height) {
+        throw new Error("The background-removal model returned an unexpected mask size.");
+      }
       // Composite the documented raw matte ourselves. The library's GPU render output can
       // be an empty bitmap on some browser/backend combinations even when inference succeeds.
       maskCanvas = document.createElement("canvas");
