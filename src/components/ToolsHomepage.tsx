@@ -59,7 +59,7 @@ const categories: Category[] = [
       { name: "Case Converter", icon: Languages }, { name: "Text Cleaner", icon: WandSparkles },
       { name: "Grammar Checker", icon: ShieldCheck },
       { name: "Text Summarizer", icon: FileText }, { name: "Read Time", icon: Timer },
-      { name: "Lorem Ipsum", icon: BookOpen }, { name: "More Tools", icon: MoreHorizontal },
+      { name: "Lorem Ipsum Generator", icon: BookOpen }, { name: "More Tools", icon: MoreHorizontal },
     ],
   },
   {
@@ -430,3 +430,5 @@ export function ToolsHomepage() {
     </div>
   );
 }
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
