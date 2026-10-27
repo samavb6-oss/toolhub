@@ -281,5 +281,3 @@ export function getToolPathByName(name: string): string | undefined {
   const definition = toolDefinitions.find((tool) => tool.name === name);
   return definition ? `/tools/${definition.slug}` : undefined;
 }
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
