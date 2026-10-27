@@ -35,6 +35,8 @@ const QrGeneratorTool = lazy(() => import("@/tools/QrGeneratorTool").then((m) =>
 const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
 const ReadTimeTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.ReadTimeTool })));
 const LoremIpsumTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.LoremIpsumTool })));
+const GrammarCheckerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.GrammarCheckerTool })));
+const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
@@ -58,6 +60,8 @@ const toolComponents = {
   "word-counter": WordCounter,
   "read-time": ReadTimeTool,
   "lorem-ipsum": LoremIpsumTool,
+  "grammar-checker": GrammarCheckerTool,
+  "text-summarizer": TextSummarizerTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
