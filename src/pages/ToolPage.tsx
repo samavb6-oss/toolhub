@@ -17,6 +17,7 @@ const AgeCalculator = lazy(() => import("@/tools/AgeCalculator").then((m) => ({ 
 const BmiCalculator = lazy(() => import("@/tools/BmiCalculator").then((m) => ({ default: m.BmiCalculator })));
 const GstCalculatorTool = lazy(() => import("@/tools/GstCalculatorTool").then((m) => ({ default: m.GstCalculatorTool })));
 const LoanCalculatorTool = lazy(() => import("@/tools/LoanCalculatorTool").then((m) => ({ default: m.LoanCalculatorTool })));
+const DividendCalculatorTool = lazy(() => import("@/tools/DividendCalculatorTool").then((m) => ({ default: m.DividendCalculatorTool })));
 const InterestCalculator = lazy(() => import("@/tools/InterestCalculator").then((m) => ({ default: m.InterestCalculator })));
 const MergePdfTool = lazy(() => import("@/tools/MergePdfTool").then((m) => ({ default: m.MergePdfTool })));
 const SplitPdfTool = lazy(() => import("@/tools/SplitPdfTool"));
@@ -42,6 +43,7 @@ const toolComponents = {
   "bmi-calculator": BmiCalculator,
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
+  "dividend-calculator": DividendCalculatorTool,
   "interest-calculator": InterestCalculator,
   "sip-calculator": SipCalculator,
   "age-calculator": AgeCalculator,
