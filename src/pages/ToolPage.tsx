@@ -42,6 +42,7 @@ const TemperatureConverterTool = lazy(() => import("@/tools/UnitConverterTools")
 const AreaConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.AreaConverterTool })));
 const VolumeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.VolumeConverterTool })));
 const TimeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TimeConverterTool })));
+const CurrencyConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.CurrencyConverterTool })));
 const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
 
 const toolComponents = {
@@ -74,6 +75,7 @@ const toolComponents = {
   "area-converter": AreaConverterTool,
   "volume-converter": VolumeConverterTool,
   "time-converter": TimeConverterTool,
+  "currency-converter": CurrencyConverterTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
