@@ -38,7 +38,7 @@ export function parseCurrencyRate(data: unknown, expectedBase: string, expectedQ
   const base = typeof row.base === "string" ? row.base.toUpperCase() : "";
   const quote = typeof row.quote === "string" ? row.quote.toUpperCase() : "";
   const rate = row.rate;
-  if (!/^\d{4}-\d{2}-\d{2}$/u.test(date) || !Number.isFinite(Date.parse(date))) {
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(date) || !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date) {
     throw new Error("The exchange-rate service did not provide a valid rate date.");
   }
   if (base !== expectedBase.toUpperCase() || quote !== expectedQuote.toUpperCase()) {
