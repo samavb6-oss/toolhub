@@ -45,3 +45,23 @@ test("Read Time and Lorem Ipsum are registered, routed and available from the ho
     assert.ok(tool.title && tool.description && tool.intro, `${slug} must have complete SEO metadata`);
   }
 });
+
+test("six unit converters are registered, routed and discoverable from the homepage", () => {
+  const converters = [
+    ["Length", "length-converter", "LengthConverterTool"],
+    ["Weight", "weight-converter", "WeightConverterTool"],
+    ["Temperature", "temperature-converter", "TemperatureConverterTool"],
+    ["Area", "area-converter", "AreaConverterTool"],
+    ["Volume", "volume-converter", "VolumeConverterTool"],
+    ["Time", "time-converter", "TimeConverterTool"],
+  ] as const;
+  for (const [name, slug, component] of converters) {
+    assert.equal(getToolPathByName(name), `/tools/${slug}`);
+    assert.match(toolPage, new RegExp(`"${slug}":\\s*${component}`));
+    assert.match(homepage, new RegExp(`name:\\s*"${name}"`));
+    const tool = toolDefinitions.find((item) => item.slug === slug);
+    assert.ok(tool, `${slug} must be registered`);
+    assert.ok(tool.title && tool.description && tool.intro, `${slug} must have SEO metadata`);
+    assert.ok(sitemapPaths.has(`/tools/${slug}`), `${slug} must be in the sitemap`);
+  }
+});
