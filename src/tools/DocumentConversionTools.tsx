@@ -153,8 +153,12 @@ function DocumentConversionTool({ mode }: { mode: ConversionMode }) {
 
       <div className="mt-6 space-y-1 rounded-xl border border-[#28394e] bg-[#0c1522] p-4 text-xs leading-5 text-[#8193a9]" data-testid={`${mode}-privacy-note`}>
         <p><strong className="text-[#cbd5e1]">Privacy:</strong> Document content stays in your browser and is never uploaded.</p>
-        <p>PDF rendering may fetch font assets from external sources.</p>
-        <p>Scanned PDFs do not get OCR processing, and complex formatting may change during conversion.</p>
+        <p>Some conversion steps may fetch font assets from external sources; document content is not uploaded.</p>
+        {mode === 'pdf-to-word' ? (
+          <p>Scanned PDFs are not processed with OCR, so image-only pages will not become editable text. Complex formatting may change.</p>
+        ) : (
+          <p>Complex Word layouts, fonts and page breaks may look different in the converted PDF.</p>
+        )}
       </div>
     </ToolPanel>
   );
@@ -167,3 +171,4 @@ export function PdfToWordTool() {
 export function WordToPdfTool() {
   return <DocumentConversionTool mode="word-to-pdf" />;
 }
+

@@ -305,15 +305,24 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
           </label>
         </div>}
         {isResize && file && !validDimensions && <p role="alert" data-testid="status-resize-dimensions-error" className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">Enter whole-number dimensions from 1 to 40,000 px per side, with a maximum of 80 megapixels.</p>}
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <ToolField label="Output format" htmlFor={`${mode}-format`}>
-            <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy || Boolean(fixedMime)} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
-              {imageFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
-            </select>
-          </ToolField>
-          <ToolField label={`Quality — ${quality}%`} htmlFor={`${mode}-quality`} hint={mime === "image/png" ? "PNG is lossless; quality is not applied." : "Lower quality generally means a smaller file."}>
+        <div className={`mt-5 grid gap-4 ${isConverter ? "grid-cols-1" : "sm:grid-cols-2"}`}>
+          {isConverter ? (
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-[#dce6f3]">Output format</p>
+              <p className="rounded-xl border border-[#26364b] bg-[#0b1320] px-3 py-3 text-sm text-[#cbd5e1]" data-testid={`text-${mode}-fixed-format`}>
+                {fixedMime === "image/jpeg" ? "JPEG (.jpg)" : "PNG (.png)"} — fixed for this converter
+              </p>
+            </div>
+          ) : (
+            <ToolField label="Output format" htmlFor={`${mode}-format`}>
+              <select id={`${mode}-format`} data-testid={`select-${mode}-format`} className={toolInputClass} value={mime} disabled={busy} onChange={(event) => { setMime(event.target.value as ImageFormat); setOutput(null); setStatus(""); }}>
+                {imageFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
+              </select>
+            </ToolField>
+          )}
+          {mode !== "jpg-to-png" && <ToolField label={`Quality — ${quality}%`} htmlFor={`${mode}-quality`} hint={mime === "image/png" ? "PNG is lossless; quality is not applied." : "Lower quality generally means a smaller file."}>
             <input id={`${mode}-quality`} data-testid={`input-${mode}-quality`} className="mt-4 w-full accent-[#3b82f6] disabled:opacity-40" type="range" min="10" max="100" step="1" value={quality} disabled={busy || mime === "image/png"} onChange={(event) => { setQuality(Number(event.target.value)); setOutput(null); setStatus(""); }} />
-          </ToolField>
+          </ToolField>}
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
           <button type="button" data-testid={`button-${mode}-image`} aria-busy={busy} className={primaryButtonClass} disabled={!file || !validDimensions || busy} onClick={runProcessing}>{busy ? <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" /> : <RefreshCw aria-hidden="true" className="h-4 w-4" />}{busy ? "Processing…" : isResize ? "Resize image" : isConverter ? "Convert image" : "Compress image"}</button>
@@ -321,10 +330,10 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         </div>
         {error && <p role="alert" data-testid={`status-${mode}-error`} className="mt-4 rounded-xl border border-[#6e4149] bg-[#3b2429] px-4 py-3 text-xs leading-5 text-[#ffb9be]">{error}</p>}
       </div>
-      <section aria-label={`${isResize ? "Resized" : "Compressed"} image preview`} className="min-w-0">
+      <section aria-label={`${isResize ? "Resized" : isConverter ? "Converted" : "Compressed"} image preview`} className="min-w-0">
         <h2 className="text-base font-extrabold text-white">Preview</h2>
         <div className="mt-4 flex min-h-[280px] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#33455c] bg-[#0b1320] p-4">
-          {outputUrl ? <img data-testid={`result-${mode}-image`} src={outputUrl} alt={`${isResize ? "Resized" : "Compressed"} version of ${file?.name ?? "the selected image"}`} className="max-h-[420px] max-w-full rounded-lg object-contain" /> : sourceUrl ? <img src={sourceUrl} alt={`Original ${file?.name ?? "image"} preview`} className="max-h-[420px] max-w-full rounded-lg object-contain opacity-75" /> : <div className="flex flex-col items-center gap-3 text-center text-xs text-[#aab7c9]"><ImageDown aria-hidden="true" className="h-9 w-9" /><span>Your preview will appear here</span></div>}
+          {outputUrl ? <img data-testid={`result-${mode}-image`} src={outputUrl} alt={`${isResize ? "Resized" : isConverter ? "Converted" : "Compressed"} version of ${file?.name ?? "the selected image"}`} className="max-h-[420px] max-w-full rounded-lg object-contain" /> : sourceUrl ? <img src={sourceUrl} alt={`Original ${file?.name ?? "image"} preview`} className="max-h-[420px] max-w-full rounded-lg object-contain opacity-75" /> : <div className="flex flex-col items-center gap-3 text-center text-xs text-[#aab7c9]"><ImageDown aria-hidden="true" className="h-9 w-9" /><span>Your preview will appear here</span></div>}
         </div>
         {output && file && <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-[#26364b] bg-[#101a28] p-3"><p className="text-[11px] font-semibold text-[#8291a3]">Original</p><p data-testid={`text-${mode}-original-size`} className="mt-1 text-sm font-extrabold text-white">{formatBytes(file.size)}</p></div>
@@ -352,3 +361,4 @@ export function PngToJpgTool() {
 export function JpgToPngTool() {
   return <ImageProcessor mode="jpg-to-png" />;
 }
+
