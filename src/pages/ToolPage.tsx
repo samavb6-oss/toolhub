@@ -36,6 +36,12 @@ const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
 const ReadTimeTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.ReadTimeTool })));
 const LoremIpsumTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.LoremIpsumTool })));
 const GrammarCheckerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.GrammarCheckerTool })));
+const LengthConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.LengthConverterTool })));
+const WeightConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.WeightConverterTool })));
+const TemperatureConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TemperatureConverterTool })));
+const AreaConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.AreaConverterTool })));
+const VolumeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.VolumeConverterTool })));
+const TimeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TimeConverterTool })));
 const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
 
 const toolComponents = {
@@ -62,6 +68,12 @@ const toolComponents = {
   "lorem-ipsum": LoremIpsumTool,
   "grammar-checker": GrammarCheckerTool,
   "text-summarizer": TextSummarizerTool,
+  "length-converter": LengthConverterTool,
+  "weight-converter": WeightConverterTool,
+  "temperature-converter": TemperatureConverterTool,
+  "area-converter": AreaConverterTool,
+  "volume-converter": VolumeConverterTool,
+  "time-converter": TimeConverterTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
