@@ -54,6 +54,7 @@ test("six unit converters are registered, routed and discoverable from the homep
     ["Area", "area-converter", "AreaConverterTool"],
     ["Volume", "volume-converter", "VolumeConverterTool"],
     ["Time", "time-converter", "TimeConverterTool"],
+    ["Currency", "currency-converter", "CurrencyConverterTool"],
   ] as const;
   for (const [name, slug, component] of converters) {
     assert.equal(getToolPathByName(name), `/tools/${slug}`);
