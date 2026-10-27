@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, BriefcaseBusiness, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
+  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, FilePlus2, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, QrCode, Type, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -51,13 +51,13 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Plan a loan repayment: see what you pay each month, how much of it is interest, and what an extra monthly payment could save.",
   },
   {
-    slug: "salary-calculator",
-    name: "Salary Calculator",
+    slug: "dividend-calculator",
+    name: "Dividend Calculator",
     category: "Finance",
-    icon: BriefcaseBusiness,
-    title: "Free Salary Calculator: Gross to Net Pay Breakdown | ToolHub",
-    description: "Break down annual gross salary, user-entered deductions and estimated net pay. Compare monthly, fortnightly and weekly averages without assuming tax or statutory payroll rules.",
-    intro: "Estimate gross-to-net pay using the salary and deductions you enter. Tax and statutory deductions are not calculated automatically.",
+    icon: BadgeDollarSign,
+    title: "Free Dividend Calculator: Estimate Stock Dividend Income | ToolHub",
+    description: "Estimate dividend income from the number of shares you own and the dividend per share. Calculate payment totals, annualized income and dividend yield using an optional share price.",
+    intro: "Estimate how much a declared or hypothetical dividend could pay based on your share count. Add a share price to estimate dividend yield; this is not a forecast or investment advice."
   },
   {
     slug: "bmi-calculator",
