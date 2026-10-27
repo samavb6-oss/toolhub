@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { BackgroundRemover as BackgroundRemoverInstance } from "@katana-video/web-bg-removal";
 import { Download, ImageMinus, LoaderCircle, ShieldCheck, Trash2 } from "lucide-react";
-import { backgroundOutputBaseName, validateBackgroundImageDimensions, validateBackgroundImageFile } from "./removeBackgroundLogic";
+import { alphaMatteToRgba, backgroundOutputBaseName, validateBackgroundImageDimensions, validateBackgroundImageFile } from "./removeBackgroundLogic";
 import { downloadBlob, formatBytes } from "./toolUtils";
 import { primaryButtonClass, secondaryButtonClass, ToolField, ToolPanel, toolInputClass } from "./ToolPageFrame";
 
@@ -107,7 +107,7 @@ export function RemoveBackgroundTool() {
     setStatus("Preparing image…");
 
     let sourceBitmap: ImageBitmap | null = null;
-    let cutoutBitmap: ImageBitmap | null = null;
+    let maskCanvas: HTMLCanvasElement | null = null;
     let canvas: HTMLCanvasElement | null = null;
 
     try {
@@ -138,15 +138,29 @@ export function RemoveBackgroundTool() {
       setProgress(100);
       setStatus("Removing the background locally…");
       sourceBitmap = await createImageBitmap(file);
-      cutoutBitmap = await remover.removeBackground(sourceBitmap);
+      const matte = await remover.alpha(sourceBitmap);
       if (requestId !== operationIdRef.current || !mountedRef.current) return;
+      // Composite the documented raw matte ourselves. The library's GPU render output can
+      // be an empty bitmap on some browser/backend combinations even when inference succeeds.
+      maskCanvas = document.createElement("canvas");
+      maskCanvas.width = matte.w;
+      maskCanvas.height = matte.h;
+      const maskContext = maskCanvas.getContext("2d");
+      if (!maskContext) throw new Error("Canvas rendering is unavailable.");
+      const maskPixels = maskContext.createImageData(matte.w, matte.h);
+      maskPixels.data.set(alphaMatteToRgba(matte));
+      maskContext.putImageData(maskPixels, 0, 0);
 
       canvas = document.createElement("canvas");
-      canvas.width = cutoutBitmap.width;
-      canvas.height = cutoutBitmap.height;
+      canvas.width = sourceBitmap.width;
+      canvas.height = sourceBitmap.height;
       const context = canvas.getContext("2d");
       if (!context) throw new Error("Canvas rendering is unavailable.");
-      context.drawImage(cutoutBitmap, 0, 0);
+      context.drawImage(sourceBitmap, 0, 0);
+      context.globalCompositeOperation = "destination-in";
+      context.imageSmoothingEnabled = true;
+      context.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+      context.globalCompositeOperation = "source-over";
       const output = await new Promise<Blob>((resolve, reject) => {
         canvas!.toBlob((blob) => {
           if (blob) resolve(blob);
@@ -167,7 +181,10 @@ export function RemoveBackgroundTool() {
       }
     } finally {
       sourceBitmap?.close();
-      cutoutBitmap?.close();
+      if (maskCanvas) {
+        maskCanvas.width = 0;
+        maskCanvas.height = 0;
+      }
       if (canvas) {
         canvas.width = 0;
         canvas.height = 0;

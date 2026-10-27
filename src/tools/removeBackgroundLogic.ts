@@ -1,6 +1,29 @@
 export const MAX_BACKGROUND_FILE_BYTES = 25 * 1024 * 1024;
 export const MAX_BACKGROUND_IMAGE_PIXELS = 40_000_000;
 
+export type BackgroundAlphaMatte = {
+  data: ArrayLike<number>;
+  w: number;
+  h: number;
+};
+
+export function alphaMatteToRgba(matte: BackgroundAlphaMatte): Uint8ClampedArray {
+  if (!Number.isSafeInteger(matte.w) || !Number.isSafeInteger(matte.h) || matte.w <= 0 || matte.h <= 0 || matte.data.length !== matte.w * matte.h) {
+    throw new Error("The background-removal model returned an invalid alpha mask.");
+  }
+
+  const pixels = new Uint8ClampedArray(matte.data.length * 4);
+  for (let i = 0, pixel = 0; i < matte.data.length; i++, pixel += 4) {
+    const value = matte.data[i];
+    const alpha = Number.isFinite(value) ? Math.round(Math.max(0, Math.min(1, value)) * 255) : 0;
+    pixels[pixel] = 255;
+    pixels[pixel + 1] = 255;
+    pixels[pixel + 2] = 255;
+    pixels[pixel + 3] = alpha;
+  }
+  return pixels;
+}
+
 const SUPPORTED_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const SUPPORTED_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp"]);
 
