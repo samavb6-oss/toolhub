@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, Type, WandSparkles, ZoomIn,
+  BadgeDollarSign, BarChart3, BookOpen, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Flame, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, Timer, Type, WandSparkles, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -186,6 +186,24 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "See live word, character, sentence and reading-time counts for your text.",
   },
   {
+    slug: "read-time",
+    name: "Read Time",
+    category: "Writing Tools",
+    icon: Timer,
+    title: "Free Reading Time Calculator — Estimate Read Time | ToolHub",
+    description: "Estimate how long text may take to read using a selectable reading speed. Count words and get a rough reading-time estimate locally in your browser.",
+    intro: "Estimate reading time for an article, essay or script. Actual reading pace varies by person and content.",
+  },
+  {
+    slug: "lorem-ipsum",
+    name: "Lorem Ipsum Generator",
+    category: "Writing Tools",
+    icon: BookOpen,
+    title: "Free Lorem Ipsum Generator — Placeholder Text | ToolHub",
+    description: "Generate Lorem Ipsum placeholder paragraphs with adjustable paragraph and word counts. Text is created locally in your browser for mockups and layouts.",
+    intro: "Create adjustable Latin placeholder text for page layouts, prototypes and design mockups.",
+  },
+  {
     slug: "password-generator",
     name: "Password Generator",
     category: "Utilities",
@@ -263,3 +281,5 @@ export function getToolPathByName(name: string): string | undefined {
   const definition = toolDefinitions.find((tool) => tool.name === name);
   return definition ? `/tools/${definition.slug}` : undefined;
 }
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
