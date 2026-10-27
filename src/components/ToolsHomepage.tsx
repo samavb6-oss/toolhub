@@ -30,7 +30,7 @@ const categories: Category[] = [
     tint: "#e8f8ef", accent: "#16865a", tools: [
       { name: "EMI Calculator", icon: Calculator }, { name: "SIP Calculator", icon: BarChart3 },
       { name: "GST Calculator", icon: BadgeDollarSign }, { name: "Loan Calculator", icon: Landmark },
-      { name: "Income Tax Calculator", icon: FileText }, { name: "Salary Calculator", icon: BriefcaseBusiness },
+      { name: "Income Tax Calculator", icon: FileText }, { name: "Dividend Calculator", icon: BadgeDollarSign },
       { name: "Interest Calculator", icon: Activity }, { name: "More Tools", icon: MoreHorizontal },
     ],
   },
