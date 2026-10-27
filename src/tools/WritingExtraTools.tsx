@@ -90,5 +90,3 @@ export function LoremIpsumTool() {
     <p role="status" aria-live="polite" className="mt-3 min-h-5 text-xs text-[#91a3b9]">{status}</p>
   </ToolPanel>;
 }
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
