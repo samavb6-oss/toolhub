@@ -1,5 +1,5 @@
 import {
-  BadgeDollarSign, BarChart3, BookOpen, Bot, Calculator, CalendarDays, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Flame, Gauge, ImageMinus, Landmark, ListChecks, Percent, QrCode, RotateCw, Scissors, ShieldCheck, Timer, Type, WandSparkles, ZoomIn,
+  BadgeDollarSign, BarChart3, BookOpen, Bot, Calculator, CalendarDays, Clock3, Crop, FileArchive, FileImage, FileOutput, FilePlus2, FileText, Unlock, Fingerprint, Flame, Gauge, ImageMinus, Landmark, ListChecks, MoveHorizontal, MoveVertical, Percent, QrCode, RotateCw, Ruler, Scissors, ShieldCheck, Thermometer, Timer, Type, WandSparkles, Weight, ZoomIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -220,6 +220,60 @@ export const toolDefinitions: ToolDefinition[] = [
     title: "Free Text Summarizer — Extract Key Sentences Privately | ToolHub",
     description: "Create a quick extractive summary by selecting sentences with recurring key terms. No AI model, upload or account required; summaries keep the original sentences and may miss nuance.",
     intro: "Shorten a passage by selecting high-scoring original sentences. This local extractive summary is a starting point, not an AI-written paraphrase.",
+  },
+  {
+    slug: "length-converter",
+    name: "Length",
+    category: "Converters",
+    icon: Ruler,
+    title: "Free Length Converter — Metric and Imperial Units | ToolHub",
+    description: "Convert millimeters, centimeters, meters, kilometers, inches, feet, yards and miles instantly. All calculations run locally.",
+    intro: "Convert common metric and imperial length units with an instant, private calculation.",
+  },
+  {
+    slug: "weight-converter",
+    name: "Weight",
+    category: "Converters",
+    icon: Weight,
+    title: "Free Weight Converter — Kilograms, Pounds and More | ToolHub",
+    description: "Convert grams, kilograms, metric tonnes, ounces, pounds and stones with this free offline weight converter.",
+    intro: "Convert common metric and imperial mass units instantly in your browser.",
+  },
+  {
+    slug: "temperature-converter",
+    name: "Temperature",
+    category: "Converters",
+    icon: Thermometer,
+    title: "Free Temperature Converter — Celsius, Fahrenheit and Kelvin | ToolHub",
+    description: "Convert Celsius, Fahrenheit and Kelvin using standard temperature formulas, directly in your browser.",
+    intro: "Convert Celsius, Fahrenheit and Kelvin with standard formulas and no uploads.",
+  },
+  {
+    slug: "area-converter",
+    name: "Area",
+    category: "Converters",
+    icon: MoveHorizontal,
+    title: "Free Area Converter — Square Units, Hectares and Acres | ToolHub",
+    description: "Convert square meters, square feet, hectares, acres and other common area units instantly.",
+    intro: "Convert common metric and imperial area measurements, including hectares and acres.",
+  },
+  {
+    slug: "volume-converter",
+    name: "Volume",
+    category: "Converters",
+    icon: MoveVertical,
+    title: "Free Volume Converter — Liters, Cups and Gallons | ToolHub",
+    description: "Convert liters, milliliters, cubic meters, US cups, tablespoons, teaspoons and gallons.",
+    intro: "Convert metric volumes and US customary kitchen measures with clear unit labels.",
+  },
+  {
+    slug: "time-converter",
+    name: "Time",
+    category: "Converters",
+    icon: Clock3,
+    title: "Free Time Converter — Seconds, Minutes, Hours and Days | ToolHub",
+    description: "Convert milliseconds, seconds, minutes, hours, days and weeks with this free time converter.",
+    intro: "Convert common durations from milliseconds through weeks in your browser.",
   },
   {
     slug: "password-generator",
