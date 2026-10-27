@@ -33,6 +33,8 @@ const CropImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) =>
 const RotateImageTool = lazy(() => import("@/tools/ImageUtilityTools").then((m) => ({ default: m.RotateImageTool })));
 const QrGeneratorTool = lazy(() => import("@/tools/QrGeneratorTool").then((m) => ({ default: m.QrGeneratorTool })));
 const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
+const ReadTimeTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.ReadTimeTool })));
+const LoremIpsumTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.LoremIpsumTool })));
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
@@ -54,6 +56,8 @@ const toolComponents = {
   "unlock-pdf": UnlockPdfTool,
   "compress-image": CompressImageTool,
   "word-counter": WordCounter,
+  "read-time": ReadTimeTool,
+  "lorem-ipsum": LoremIpsumTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
@@ -79,3 +83,5 @@ export default function ToolPage() {
     </ToolPageFrame>
   );
 }
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
