@@ -43,6 +43,12 @@
     <loc>https://samstoolhub.pages.dev/tools/text-cleaner</loc>
   </url>
   <url>
+    <loc>https://samstoolhub.pages.dev/tools/read-time</loc>
+  </url>
+  <url>
+    <loc>https://samstoolhub.pages.dev/tools/lorem-ipsum</loc>
+  </url>
+  <url>
     <loc>https://samstoolhub.pages.dev/tools/password-generator</loc>
   </url>
   <url>
@@ -85,3 +91,5 @@
     <loc>https://samstoolhub.pages.dev/tools/jpg-to-png</loc>
   </url>
 </urlset>
+
+[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
