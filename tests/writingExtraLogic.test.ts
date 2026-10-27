@@ -60,5 +60,3 @@ test("Lorem Ipsum generator enforces words-per-paragraph boundaries", () => {
     assert.throws(() => generateLoremIpsum(1, words), RangeError);
   }
 });
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
