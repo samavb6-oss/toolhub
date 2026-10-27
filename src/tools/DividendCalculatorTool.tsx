@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BadgeIndianRupee, ChartNoAxesCombined } from "lucide-react";
+import { Coins } from "lucide-react";
 import {
   ToolField, ToolPanel, secondaryButtonClass, toolInputClass,
 } from "./ToolPageFrame";
@@ -94,7 +94,7 @@ export function DividendCalculatorTool() {
       </div>
       <section aria-label="Estimated dividend breakdown" className="min-w-0 rounded-2xl border border-[#28466b] bg-[linear-gradient(145deg,#152c49,#111b29)] p-5 sm:p-6">
         <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-[#8fb6ec]">
-          <BadgeIndianRupee aria-hidden="true" className="h-4 w-4" /> Estimated dividend income
+          <Coins aria-hidden="true" className="h-4 w-4" /> Estimated dividend income
         </div>
         <p data-testid="result-dividend-payment" aria-live="polite" className="mt-2 break-words text-4xl font-extrabold tracking-[-0.06em] text-white">{result ? formatDividendInr(result.dividendPerPayment) : "—"}</p>
         <p className="mt-2 text-xs text-[#91a3b9]">Estimated amount for one dividend payment.</p>
