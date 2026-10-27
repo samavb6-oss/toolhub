@@ -30,5 +30,3 @@ test("Read Time and Lorem Ipsum are registered, routed and available from the ho
     assert.ok(tool.title && tool.description && tool.intro, `${slug} must have complete SEO metadata`);
   }
 });
-
-[executed on device: n8n-nuc11 (0edb2ec4-460f-4079-a4de-ad338db1e4b4)]
