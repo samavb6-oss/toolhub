@@ -70,3 +70,27 @@ test("invalid and negative inputs are rejected instead of silently treated as ze
   }
   assert.throws(() => calculateIncomeTax({ ...base, salary: -1, regime: "new" }), RangeError);
 });
+
+// Regression checks for surcharge marginal relief just above the ₹1 crore, ₹2 crore and ₹5 crore thresholds.
+// Values are independently calculated from the published slabs and surcharge rates for ordinary income.
+const surchargeBoundaryCases = [
+  { regime: "new" as const, threshold: 10_000_000, deduction: 75_000, expectedSurcharge: 265_000, expectedTotalTax: 2_961_920 },
+  { regime: "new" as const, threshold: 20_000_000, deduction: 75_000, expectedSurcharge: 844_000, expectedTotalTax: 6_684_080 },
+  { regime: "old" as const, threshold: 10_000_000, deduction: 50_000, expectedSurcharge: 288_250, expectedTotalTax: 3_227_900 },
+  { regime: "old" as const, threshold: 20_000_000, deduction: 50_000, expectedSurcharge: 878_875, expectedTotalTax: 6_962_150 },
+  { regime: "old" as const, threshold: 50_000_000, deduction: 50_000, expectedSurcharge: 3_710_125, expectedTotalTax: 19_266_650 },
+];
+
+for (const boundary of surchargeBoundaryCases) {
+  test(`${boundary.regime} regime applies surcharge marginal relief just above ₹${boundary.threshold.toLocaleString("en-IN")}`, () => {
+    const result = calculateIncomeTax({
+      ...base,
+      salary: boundary.threshold + 10_000 + boundary.deduction,
+      oldRegimeDeductions: 0,
+      regime: boundary.regime,
+    });
+    assert.equal(result.taxableIncome, boundary.threshold + 10_000);
+    assert.equal(result.surcharge, boundary.expectedSurcharge);
+    assert.equal(result.totalTax, boundary.expectedTotalTax);
+  });
+}
