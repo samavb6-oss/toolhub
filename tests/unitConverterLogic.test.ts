@@ -28,4 +28,6 @@ test("temperature conversions use the correct formulas", () => {
 test("invalid values and unknown units return NaN", () => {
   assert.ok(Number.isNaN(convertUnitValue(Number.NaN, "length", "m", "ft")));
   assert.ok(Number.isNaN(convertUnitValue(1, "length", "unknown", "m")));
+  assert.ok(Number.isNaN(convertUnitValue(100, "temperature", "unknown", "c")));
+  assert.ok(Number.isNaN(convertUnitValue(100, "temperature", "c", "unknown")));
 });
