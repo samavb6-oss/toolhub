@@ -45,7 +45,7 @@ Cloudflare Pages serves this as a single-page application. The build emits a sta
 ## Search engine files
 
 - `public/robots.txt` permits crawling and points to the XML sitemap.
-- `public/sitemap.xml` lists the homepage and all thirty-two implemented tool routes.
+- `public/sitemap.xml` lists the homepage and all thirty-three implemented tool routes.
 - `scripts/verify-dist.mjs` checks that the sitemap, robots file, favicon and built assets are present.
 
 The build rewrites the generated `robots.txt` and `sitemap.xml` to use the same origin as `VITE_SITE_URL`. If the production hostname changes, set `VITE_SITE_URL` to that hostname.
@@ -65,4 +65,4 @@ pnpm-lock.yaml            locked dependency graph
 
 ## Current scope and future improvements
 
-The repository currently has thirty-two implemented tool routes. The homepage includes broader tool categories, but only implemented routes should be listed in the sitemap. The JavaScript bundle is relatively large; route-level lazy loading is a potential future performance improvement. Social sharing imagery can also be added later.
+The repository currently has thirty-three implemented tool routes. The homepage includes broader tool categories, but only implemented routes should be listed in the sitemap. The JavaScript bundle is relatively large; route-level lazy loading is a potential future performance improvement. Social sharing imagery can also be added later.

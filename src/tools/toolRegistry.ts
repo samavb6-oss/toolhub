@@ -42,6 +42,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Estimate how much a declared or hypothetical dividend could pay based on your share count. Add a share price to estimate dividend yield; this is not a forecast or investment advice.",
   },
   {
+    slug: "income-tax-calculator",
+    name: "Income Tax Calculator",
+    category: "Finance",
+    icon: FileText,
+    title: "Free India Income Tax Calculator: Compare Old vs New Regime | ToolHub",
+    description: "Estimate Indian income tax for Tax Year 2026–27 or FY 2025–26. Compare old and new tax regimes with standard deduction, eligible deductions, rebates, surcharge and cess.",
+    intro: "Compare estimated Indian income tax under the old and new regimes with transparent deductions, rebate, surcharge and cess calculations. For resident salaried individuals with ordinary income only.",
+  },
+  {
     slug: "gst-calculator",
     name: "GST Calculator",
     category: "Finance",
