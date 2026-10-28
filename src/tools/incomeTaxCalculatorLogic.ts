@@ -159,6 +159,7 @@ function breakdown(input: IncomeTaxInput, regime: TaxRegime): IncomeTaxBreakdown
   let remainingChapterVIIILimit = regime === "old" ? Math.max(0, grossIncome - standardDeduction) : 0;
   const section80CDeduction = Math.min(input.section80C, LIMITS.section80C, remainingChapterVIIILimit);
   remainingChapterVIIILimit -= section80CDeduction;
+  // The self/family limit rises when the taxpayer or a covered family member is a resident senior citizen.
   const section80DSelfDeduction = Math.min(
     input.section80DSelf,
     (input.ageBand !== "under60" || input.selfFamilySenior) ? LIMITS.section80DSenior : LIMITS.section80DRegular,
