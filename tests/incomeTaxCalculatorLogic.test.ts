@@ -36,7 +36,7 @@ test("old regime applies age-specific basic exemption for super-senior residents
   assert.equal(result.totalTax, 0);
 });
 
-test("Section 87A rebate is not applied to non-residents", () => {
+test("Section 156 rebate is not applied to non-residents for Tax Year 2026–27", () => {
   const resident = calculateIncomeTax({ ...base, salary: 1_275_000, oldRegimeDeductions: 0, regime: "new", residency: "resident" });
   const nonresident = calculateIncomeTax({ ...base, salary: 1_275_000, oldRegimeDeductions: 0, regime: "new", residency: "nonresident" });
   assert.equal(resident.totalTax, 0);
