@@ -4,7 +4,7 @@ import { calculateIncomeTax, validateIncomeTaxForm } from "../src/tools/incomeTa
 
 const base = { salary: 1_200_000, otherIncome: 0, oldRegimeDeductions: 150_000, ageGroup: "under60" as const, residency: "resident" as const };
 
-test("new regime applies ₹75,000 standard deduction and Section 87A rebate for TY 2026-27", () => {
+test("new regime applies ₹75,000 standard deduction and Section 156 rebate for Tax Year 2026-27", () => {
   const result = calculateIncomeTax({ ...base, regime: "new" });
   assert.equal(result.standardDeduction, 75_000);
   assert.equal(result.taxableIncome, 1_125_000);
