@@ -70,7 +70,7 @@ export function IncomeTaxCalculatorTool() {
             <select id="income-tax-residency" data-testid="select-income-tax-residency" value={values.residency} onChange={(event) => setValues((current) => ({ ...current, residency: event.target.value as TaxResidency }))} className={toolInputClass}>
               <option value="resident">Resident individual</option><option value="nonresident">Non-resident individual</option>
             </select>
-            <p className="mt-1.5 text-xs leading-5 text-[#8291a3]">Section 87A rebate is applied only for resident individuals.</p>
+            <p className="mt-1.5 text-xs leading-5 text-[#8291a3]">Section 156 rebate under the Income-tax Act, 2025 is available only to resident individuals.</p>
           </ToolField>
         </div>
         <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={reset} className={secondaryButtonClass}>Reset example</button></div>
