@@ -150,16 +150,28 @@ function roundFinalTaxToTen(amount: number): number {
 
 function breakdown(input: IncomeTaxInput, regime: TaxRegime): IncomeTaxBreakdown {
   const standardDeduction = Math.min(regime === "new" ? 75_000 : 50_000, input.grossSalary);
-  const section80CDeduction = regime === "old" ? Math.min(input.section80C, LIMITS.section80C) : 0;
-  const section80DSelfDeduction = regime === "old"
-    ? Math.min(input.section80DSelf, input.ageBand === "under60" ? LIMITS.section80DRegular : LIMITS.section80DSenior)
-    : 0;
-  const section80DParentsDeduction = regime === "old"
-    ? Math.min(input.section80DParents, input.parentsSenior ? LIMITS.section80DSenior : LIMITS.section80DRegular)
-    : 0;
-  const npsDeduction = regime === "old" ? Math.min(input.nps80CCD1B, LIMITS.nps80CCD1B) : 0;
-  const totalDeductions = standardDeduction + section80CDeduction + section80DSelfDeduction + section80DParentsDeduction + npsDeduction;
   const grossIncome = input.grossSalary + input.otherIncome;
+  // Chapter VIII deductions cannot exceed gross total income after the
+  // salary standard deduction. Allocate the remaining eligible amount in
+  // the same order as the calculator's deduction fields to keep the
+  // displayed itemized amounts consistent with the total deduction.
+  let remainingChapterVIIILimit = regime === "old" ? Math.max(0, grossIncome - standardDeduction) : 0;
+  const section80CDeduction = Math.min(input.section80C, LIMITS.section80C, remainingChapterVIIILimit);
+  remainingChapterVIIILimit -= section80CDeduction;
+  const section80DSelfDeduction = Math.min(
+    input.section80DSelf,
+    input.ageBand === "under60" ? LIMITS.section80DRegular : LIMITS.section80DSenior,
+    remainingChapterVIIILimit,
+  );
+  remainingChapterVIIILimit -= section80DSelfDeduction;
+  const section80DParentsDeduction = Math.min(
+    input.section80DParents,
+    input.parentsSenior ? LIMITS.section80DSenior : LIMITS.section80DRegular,
+    remainingChapterVIIILimit,
+  );
+  remainingChapterVIIILimit -= section80DParentsDeduction;
+  const npsDeduction = Math.min(input.nps80CCD1B, LIMITS.nps80CCD1B, remainingChapterVIIILimit);
+  const totalDeductions = standardDeduction + section80CDeduction + section80DSelfDeduction + section80DParentsDeduction + npsDeduction;
   const taxableIncome = roundIncomeToTen(Math.max(0, grossIncome - totalDeductions));
   const tax = taxAfterRebate(taxableIncome, regime, input.ageBand);
   const surcharge = surchargeWithMarginalRelief(taxableIncome, tax.afterRebate, regime, input.ageBand);
