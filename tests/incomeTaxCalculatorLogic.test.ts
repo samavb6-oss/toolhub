@@ -56,9 +56,9 @@ test("old-regime basic exemption changes with age band", () => {
   assert.equal(verySenior.oldRegime.taxBeforeRebate, 0);
 });
 
-test("old-regime deductions are capped and do not reduce taxable income below zero", () => {
+test("old-regime deductions respect individual caps and the aggregate income limit", () => {
   const result = calculateIncomeTax(base({
-    grossSalary: 100_000,
+    grossSalary: 300_000,
     section80C: 9_000_000,
     section80DSelf: 9_000_000,
     section80DParents: 9_000_000,
@@ -68,9 +68,29 @@ test("old-regime deductions are capped and do not reduce taxable income below ze
   assert.equal(result.oldRegime.section80CDeduction, 150_000);
   assert.equal(result.oldRegime.section80DSelfDeduction, 25_000);
   assert.equal(result.oldRegime.section80DParentsDeduction, 50_000);
-  assert.equal(result.oldRegime.npsDeduction, 50_000);
+  assert.equal(result.oldRegime.npsDeduction, 25_000);
+  assert.equal(result.oldRegime.totalDeductions, 300_000);
   assert.equal(result.oldRegime.taxableIncome, 0);
   assert.equal(result.oldRegime.totalTax, 0);
+});
+
+test("aggregate old-regime deductions cannot exceed income remaining after standard deduction", () => {
+  const result = calculateIncomeTax(base({
+    grossSalary: 100_000,
+    section80C: 150_000,
+    section80DSelf: 25_000,
+    section80DParents: 50_000,
+    parentsSenior: true,
+    nps80CCD1B: 50_000,
+  }));
+  assert.equal(result.oldRegime.standardDeduction, 50_000);
+  assert.equal(result.oldRegime.section80CDeduction, 50_000);
+  assert.equal(result.oldRegime.section80DSelfDeduction, 0);
+  assert.equal(result.oldRegime.section80DParentsDeduction, 0);
+  assert.equal(result.oldRegime.npsDeduction, 0);
+  assert.equal(result.oldRegime.totalDeductions, 100_000);
+  assert.ok(result.oldRegime.totalDeductions <= result.oldRegime.grossIncome);
+  assert.equal(result.oldRegime.taxableIncome, 0);
 });
 
 test("new regime ignores old-regime deductions", () => {
