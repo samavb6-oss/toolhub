@@ -48,7 +48,7 @@ function TaxStat({ label, value, testId, detail }: { label: string; value: strin
   </div>;
 }
 
-function RegimeResult({ result, title }: { result: ReturnType<typeof calculateIncomeTax>["newRegime"]; title: string }) {
+function RegimeResult({ result, title, taxYear }: { result: ReturnType<typeof calculateIncomeTax>["newRegime"]; title: string; taxYear: TaxYear }) {
   return <section className="min-w-0 rounded-2xl border border-[#28466b] bg-[linear-gradient(145deg,#152c49,#111b29)] p-4 sm:p-5" aria-label={title}>
     <h3 className="text-sm font-extrabold text-white">{title}</h3>
     <p className="mt-2 text-xs text-[#91a3b9]">Estimated annual tax payable</p>
@@ -65,7 +65,7 @@ function RegimeResult({ result, title }: { result: ReturnType<typeof calculateIn
       <dl className="mt-3 space-y-2 text-xs">
         {[
           ["Tax before rebate / relief", result.taxBeforeRebate],
-          ["87A rebate / marginal relief", result.rebate],
+          [taxYear === "ty2026-27" ? "Rebate / marginal relief (Income-tax Act, 2025)" : "Section 87A rebate / marginal relief", result.rebate],
           ["Tax after rebate / relief", result.taxAfterRebate],
           ["Surcharge (after marginal relief)", result.surcharge],
           ["Health & education cess (4%)", result.cess],
@@ -158,14 +158,14 @@ export function IncomeTaxCalculatorTool() {
             <h3 className="text-sm font-extrabold text-white">Old-regime deductions</h3>
             <p className="mt-1 text-xs leading-5 text-[#91a3b9]">These are ignored under the new regime. Enter only deductions you are eligible to claim.</p>
             <div className="mt-4 grid gap-4">
-              {amountField("section80C", "tax-80c", "Section 80C / 80CCC / 80CCD(1) (₹)", "Combined eligible amount; capped at ₹1,50,000.")}
-              {amountField("section80DSelf", "tax-80d-self", "Health insurance — self/family (80D) (₹)", "Capped at ₹25,000, or ₹50,000 if you are a senior citizen.")}
-              {amountField("section80DParents", "tax-80d-parents", "Health insurance — parents (80D) (₹)", "Capped at ₹25,000 or ₹50,000 for senior-citizen parents.")}
+              {amountField("section80C", "tax-80c", values.taxYear === "ty2026-27" ? "Eligible savings deductions (section 123 / Schedule XV) (₹)" : "Section 80C / 80CCC / 80CCD(1) (₹)", "Combined eligible amount; capped at ₹1,50,000.")}
+              {amountField("section80DSelf", "tax-80d-self", values.taxYear === "ty2026-27" ? "Health insurance — self/family (section 126) (₹)" : "Health insurance — self/family (80D) (₹)", "Capped at ₹25,000, or ₹50,000 if you are a senior citizen.")}
+              {amountField("section80DParents", "tax-80d-parents", values.taxYear === "ty2026-27" ? "Health insurance — parents (section 126) (₹)" : "Health insurance — parents (80D) (₹)", "Capped at ₹25,000 or ₹50,000 for senior-citizen parents.")}
               <label className="flex items-start gap-3 text-xs leading-5 text-[#cbd5e1]">
                 <input type="checkbox" data-testid="checkbox-tax-parents-senior" className="mt-0.5 h-4 w-4 accent-[#6da1ff]" checked={values.parentsSenior} onChange={(event) => setValues((current) => ({ ...current, parentsSenior: event.target.checked }))} />
-                At least one parent covered by this 80D amount is a senior citizen (60+).
+                At least one parent covered by this health deduction is a senior citizen (60+).
               </label>
-              {amountField("nps80CCD1B", "tax-nps", "Additional NPS contribution (80CCD(1B)) (₹)", "Capped at ₹50,000, separate from the 80C limit.")}
+              {amountField("nps80CCD1B", "tax-nps", values.taxYear === "ty2026-27" ? "Additional NPS contribution (section 124) (₹)" : "Additional NPS contribution (80CCD(1B)) (₹)", "Capped at ₹50,000, separate from the savings-deduction limit.")}
             </div>
           </div>
         </div>
@@ -186,8 +186,8 @@ export function IncomeTaxCalculatorTool() {
               : `The ${result.lowerTaxRegime === "new" ? "new" : "old"} regime has the lower estimated tax by ${money(Math.abs(result.oldRegime.totalTax - result.newRegime.totalTax))}.`}
             <p className="mt-1 text-[#a7cbb6]">This is a comparison estimate, not a recommendation to choose a regime without checking your full tax situation.</p>
           </div>
-          <RegimeResult result={result.newRegime} title="New tax regime" />
-          <RegimeResult result={result.oldRegime} title="Old tax regime" />
+          <RegimeResult result={result.newRegime} title="New tax regime" taxYear={values.taxYear} />
+          <RegimeResult result={result.oldRegime} title="Old tax regime" taxYear={values.taxYear} />
         </> : <div role="alert" data-testid="status-tax-validation" className="rounded-xl border border-[#6e4149] bg-[#3b2429] p-4 text-xs font-semibold leading-5 text-[#ffb9be]">
           {attempted ? "Correct the highlighted fields to calculate your estimate." : "Enter valid amounts to see the tax comparison."}
         </div>}
