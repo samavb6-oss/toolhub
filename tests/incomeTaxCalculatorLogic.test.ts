@@ -10,6 +10,7 @@ const base = (overrides: Partial<IncomeTaxInput> = {}): IncomeTaxInput => ({
   otherIncome: 0,
   section80C: 0,
   section80DSelf: 0,
+  selfFamilySenior: false,
   section80DParents: 0,
   parentsSenior: false,
   nps80CCD1B: 0,
@@ -54,6 +55,17 @@ test("old-regime basic exemption changes with age band", () => {
   assert.equal(under60.oldRegime.taxBeforeRebate, 2_500);
   assert.equal(senior.oldRegime.taxBeforeRebate, 0);
   assert.equal(verySenior.oldRegime.taxBeforeRebate, 0);
+});
+
+test("self/family health deduction uses the senior-citizen cap when a covered spouse is senior", () => {
+  const result = calculateIncomeTax(base({
+    grossSalary: 400_000,
+    section80DSelf: 50_000,
+    selfFamilySenior: true,
+  }));
+  assert.equal(result.oldRegime.section80DSelfDeduction, 50_000);
+  assert.equal(result.oldRegime.taxableIncome, 300_000);
+  assert.equal(result.newRegime.section80DSelfDeduction, 0);
 });
 
 test("old-regime deductions respect individual caps and the aggregate income limit", () => {
