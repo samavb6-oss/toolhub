@@ -116,3 +116,27 @@ test("rounds total taxable income to the nearest ₹10 before applying slabs", (
   assert.equal(roundsDown.newRegime.taxableIncome, 25_000);
   assert.equal(roundsUp.newRegime.taxableIncome, 25_010);
 });
+
+
+// Exact surcharge-boundary regression cases, adapted to the calculator's
+// itemized-deduction input model. These verify the returned surcharge and
+// final payable amount, not merely that the tax stays monotonic.
+const surchargeBoundaryCases = [
+  { regime: "new" as const, threshold: 10_000_000, expectedSurcharge: 265_000, expectedTotalTax: 2_961_920 },
+  { regime: "new" as const, threshold: 20_000_000, expectedSurcharge: 844_000, expectedTotalTax: 6_684_080 },
+  { regime: "old" as const, threshold: 10_000_000, expectedSurcharge: 288_250, expectedTotalTax: 3_227_900 },
+  { regime: "old" as const, threshold: 20_000_000, expectedSurcharge: 878_875, expectedTotalTax: 6_962_150 },
+  { regime: "old" as const, threshold: 50_000_000, expectedSurcharge: 3_710_125, expectedTotalTax: 19_266_650 },
+];
+
+for (const boundary of surchargeBoundaryCases) {
+  test(`${boundary.regime} regime applies exact surcharge marginal relief just above ₹${boundary.threshold.toLocaleString("en-IN")}`, () => {
+    const standardDeduction = boundary.regime === "new" ? 75_000 : 50_000;
+    const result = calculateIncomeTax(base({
+      grossSalary: boundary.threshold + 10_000 + standardDeduction,
+    }))[boundary.regime === "new" ? "newRegime" : "oldRegime"];
+    assert.equal(result.taxableIncome, boundary.threshold + 10_000);
+    assert.equal(Math.round(result.surcharge), boundary.expectedSurcharge);
+    assert.equal(result.totalTax, boundary.expectedTotalTax);
+  });
+}
