@@ -13,6 +13,7 @@ type FormValues = {
   otherIncome: string;
   section80C: string;
   section80DSelf: string;
+  selfFamilySenior: boolean;
   section80DParents: string;
   parentsSenior: boolean;
   nps80CCD1B: string;
@@ -25,6 +26,7 @@ const defaults: FormValues = {
   otherIncome: "0",
   section80C: "150000",
   section80DSelf: "25000",
+  selfFamilySenior: false,
   section80DParents: "0",
   parentsSenior: false,
   nps80CCD1B: "50000",
@@ -102,6 +104,7 @@ export function IncomeTaxCalculatorTool() {
       otherIncome: Number(values.otherIncome),
       section80C: Number(values.section80C),
       section80DSelf: Number(values.section80DSelf),
+      selfFamilySenior: values.selfFamilySenior,
       section80DParents: Number(values.section80DParents),
       parentsSenior: values.parentsSenior,
       nps80CCD1B: Number(values.nps80CCD1B),
@@ -159,7 +162,11 @@ export function IncomeTaxCalculatorTool() {
             <p className="mt-1 text-xs leading-5 text-[#91a3b9]">These are ignored under the new regime. Enter only deductions you are eligible to claim.</p>
             <div className="mt-4 grid gap-4">
               {amountField("section80C", "tax-80c", values.taxYear === "ty2026-27" ? "Eligible savings deductions (section 123 / Schedule XV) (₹)" : "Section 80C / 80CCC / 80CCD(1) (₹)", "Combined eligible amount; capped at ₹1,50,000.")}
-              {amountField("section80DSelf", "tax-80d-self", values.taxYear === "ty2026-27" ? "Health insurance — self/family (section 126) (₹)" : "Health insurance — self/family (80D) (₹)", "Capped at ₹25,000, or ₹50,000 if you are a senior citizen.")}
+              {amountField("section80DSelf", "tax-80d-self", values.taxYear === "ty2026-27" ? "Health insurance — self/family (section 126) (₹)" : "Health insurance — self/family (80D) (₹)", "Capped at ₹25,000, or ₹50,000 if you or a covered family member is a resident senior citizen.")}
+              <label className="flex items-start gap-3 text-xs leading-5 text-[#cbd5e1]">
+                <input type="checkbox" data-testid="checkbox-tax-self-family-senior" className="mt-0.5 h-4 w-4 accent-[#6da1ff]" checked={values.selfFamilySenior} onChange={(event) => setValues((current) => ({ ...current, selfFamilySenior: event.target.checked }))} />
+                My spouse or a dependent child covered by this policy is a resident senior citizen (60+).
+              </label>
               {amountField("section80DParents", "tax-80d-parents", values.taxYear === "ty2026-27" ? "Health insurance — parents (section 126) (₹)" : "Health insurance — parents (80D) (₹)", "Capped at ₹25,000 or ₹50,000 for senior-citizen parents.")}
               <label className="flex items-start gap-3 text-xs leading-5 text-[#cbd5e1]">
                 <input type="checkbox" data-testid="checkbox-tax-parents-senior" className="mt-0.5 h-4 w-4 accent-[#6da1ff]" checked={values.parentsSenior} onChange={(event) => setValues((current) => ({ ...current, parentsSenior: event.target.checked }))} />
