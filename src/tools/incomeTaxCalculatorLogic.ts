@@ -99,15 +99,23 @@ function slabTax(income: number, regime: TaxRegime, ageGroup: TaxAgeGroup, resid
 
 function taxAfterRebate(income: number, tax: number, regime: TaxRegime, residency: TaxResidency): { tax: number; rebate: number } {
   if (residency !== "resident") return { tax, rebate: 0 };
-  const threshold = regime === "new" ? 1_200_000 : 500_000;
-  const maxRebate = regime === "new" ? 60_000 : 12_500;
-  if (income <= threshold) {
-    const rebate = Math.min(tax, maxRebate);
+
+  if (regime === "old") {
+    // Under Section 156(1), the old-regime rebate applies only when total income
+    // does not exceed ₹5 lakh. Marginal rebate relief above ₹5 lakh is not provided.
+    if (income <= 500_000) {
+      const rebate = Math.min(tax, 12_500);
+      return { tax: Math.max(0, tax - rebate), rebate };
+    }
+    return { tax, rebate: 0 };
+  }
+
+  if (income <= 1_200_000) {
+    const rebate = Math.min(tax, 60_000);
     return { tax: Math.max(0, tax - rebate), rebate };
   }
-  // Marginal relief prevents a small increase above the rebate threshold from
-  // creating a larger increase in tax than the additional income.
-  const allowableTax = Math.max(0, income - threshold);
+  // Section 156(2)(b) provides marginal relief under the new regime above ₹12 lakh.
+  const allowableTax = income - 1_200_000;
   const finalTax = Math.min(tax, allowableTax);
   return { tax: finalTax, rebate: Math.max(0, tax - finalTax) };
 }
