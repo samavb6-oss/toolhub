@@ -14,6 +14,7 @@ export type IncomeTaxInput = {
   otherIncome: number;
   section80C: number;
   section80DSelf: number;
+  selfFamilySenior: boolean;
   section80DParents: number;
   parentsSenior: boolean;
   nps80CCD1B: number;
@@ -160,7 +161,7 @@ function breakdown(input: IncomeTaxInput, regime: TaxRegime): IncomeTaxBreakdown
   remainingChapterVIIILimit -= section80CDeduction;
   const section80DSelfDeduction = Math.min(
     input.section80DSelf,
-    input.ageBand === "under60" ? LIMITS.section80DRegular : LIMITS.section80DSenior,
+    (input.ageBand !== "under60" || input.selfFamilySenior) ? LIMITS.section80DSenior : LIMITS.section80DRegular,
     remainingChapterVIIILimit,
   );
   remainingChapterVIIILimit -= section80DSelfDeduction;
