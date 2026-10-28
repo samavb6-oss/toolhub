@@ -27,6 +27,8 @@ test("Income Tax Calculator is lazy-loaded and listed on the homepage and sitema
 test("calculator uses Act-specific deduction and rebate labels", () => {
   assert.match(calculator, /Eligible savings deductions \(section 123 \/ Schedule XV\)/u);
   assert.match(calculator, /Health insurance — self\/family \(section 126\)/u);
+  assert.match(calculator, /checkbox-tax-self-family-senior/u);
+  assert.match(calculator, /covered by this policy is a resident senior citizen/u);
   assert.match(calculator, /Additional NPS contribution \(section 124\)/u);
   assert.match(calculator, /Rebate \/ marginal relief \(Income-tax Act, 2025\)/u);
   assert.match(calculator, /Section 87A rebate \/ marginal relief/u);
