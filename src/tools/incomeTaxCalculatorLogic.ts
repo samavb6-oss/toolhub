@@ -75,6 +75,7 @@ export function validateIncomeTaxForm(values: IncomeTaxFormValues): IncomeTaxVal
 }
 
 function roundIncomeToTen(value: number): number { return Math.round(value / 10) * 10; }
+function roundPayableToTen(value: number): number { return Math.round(value / 10) * 10; }
 function roundRupee(value: number): number { return Math.round(value); }
 
 function slabTax(income: number, regime: TaxRegime, ageGroup: TaxAgeGroup, residency: TaxResidency): number {
@@ -151,8 +152,10 @@ export function calculateIncomeTax(input: { salary: number; otherIncome: number;
   const taxBeforeRebate = slabTax(taxableIncome, regime, ageGroup, residency);
   const rebateResult = taxAfterRebate(taxableIncome, taxBeforeRebate, regime, residency);
   const surchargeResult = taxWithSurcharge(taxableIncome, rebateResult.tax, regime, ageGroup, residency);
-  const cess = roundRupee(surchargeResult.tax * 0.04);
-  const totalTax = roundRupee(surchargeResult.tax + cess);
+  const cessAmount = surchargeResult.tax * 0.04;
+  const cess = roundRupee(cessAmount);
+  // Section 516 of the Income-tax Act, 2025 rounds the amount payable to the nearest ₹10.
+  const totalTax = roundPayableToTen(surchargeResult.tax + cessAmount);
   return {
     regime, salary, otherIncome, standardDeduction, otherDeductions, grossIncome,
     taxableIncome, taxBeforeRebate: roundRupee(taxBeforeRebate), rebate: roundRupee(rebateResult.rebate),
