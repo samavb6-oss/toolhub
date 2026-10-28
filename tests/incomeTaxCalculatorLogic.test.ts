@@ -106,3 +106,29 @@ test("total tax payable is rounded to the nearest ₹10 under Section 516 for Ta
   assert.equal(result.taxBeforeRebate, 120_002);
   assert.equal(result.totalTax, 124_800);
 });
+
+test("old-regime rebate fully offsets tax at ₹5 lakh taxable income", () => {
+  const result = calculateIncomeTax({
+    ...base,
+    salary: 550_000,
+    oldRegimeDeductions: 0,
+    regime: "old",
+  });
+  assert.equal(result.taxableIncome, 500_000);
+  assert.equal(result.taxBeforeRebate, 12_500);
+  assert.equal(result.rebate, 12_500);
+  assert.equal(result.totalTax, 0);
+});
+
+test("old regime does not get marginal rebate relief just above ₹5 lakh", () => {
+  const result = calculateIncomeTax({
+    ...base,
+    salary: 550_010,
+    oldRegimeDeductions: 0,
+    regime: "old",
+  });
+  assert.equal(result.taxableIncome, 500_010);
+  assert.equal(result.taxBeforeRebate, 12_502);
+  assert.equal(result.rebate, 0);
+  assert.equal(result.totalTax, 13_000);
+});
