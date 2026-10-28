@@ -58,6 +58,9 @@ export const unitOptions: Record<UnitKind, UnitOption[]> = {
 export function convertUnitValue(value: number, kind: UnitKind, from: string, to: string): number {
   if (!Number.isFinite(value)) return Number.NaN;
   if (kind === "temperature") {
+    const validTemperatureUnits = ["c", "f", "k"];
+    if (!validTemperatureUnits.includes(from) || !validTemperatureUnits.includes(to)) return Number.NaN;
+
     const celsius = from === "c" ? value : from === "f" ? (value - 32) * 5 / 9 : value - 273.15;
     return to === "c" ? celsius : to === "f" ? celsius * 9 / 5 + 32 : celsius + 273.15;
   }
