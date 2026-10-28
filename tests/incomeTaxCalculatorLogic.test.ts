@@ -94,3 +94,15 @@ for (const boundary of surchargeBoundaryCases) {
     assert.equal(result.totalTax, boundary.expectedTotalTax);
   });
 }
+
+test("total tax payable is rounded to the nearest ₹10 under Section 516 for Tax Year 2026-27", () => {
+  const result = calculateIncomeTax({
+    ...base,
+    salary: 1_675_010,
+    oldRegimeDeductions: 0,
+    regime: "new",
+  });
+  assert.equal(result.taxableIncome, 1_600_010);
+  assert.equal(result.taxBeforeRebate, 120_002);
+  assert.equal(result.totalTax, 124_800);
+});
