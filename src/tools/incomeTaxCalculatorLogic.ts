@@ -139,12 +139,12 @@ function surchargeWithMarginalRelief(income: number, taxAfterRebateAmount: numbe
 }
 
 function roundIncomeToTen(amount: number): number {
-  // Section 288A: total income is rounded to the nearest ₹10 before tax is computed.
+  // Total income is rounded to the nearest ₹10 before slab tax is computed.
   return Math.floor((amount + 5) / 10) * 10;
 }
 
 function roundFinalTaxToTen(amount: number): number {
-  // Section 288B: final tax payable is rounded to the nearest ₹10.
+  // Final tax payable is rounded to the nearest ₹10.
   return Math.round(amount / 10) * 10;
 }
 
