@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { ToolField, ToolPanel, primaryButtonClass, secondaryButtonClass, toolInputClass } from "./ToolPageFrame";
-import { calculateGst, type GstMode, type SupplyType } from "./gstCalculatorLogic";
-
-function inr(value: number): string {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
-}
+import { calculateGst, formatPaiseINR, formatRatePercent, type GstMode, type SupplyType } from "./gstCalculatorLogic";
 
 export function GstCalculatorTool() {
   const [amount, setAmount] = useState("1000.00");
@@ -45,15 +41,15 @@ export function GstCalculatorTool() {
       </div>
       <section aria-label="GST results" className="rounded-2xl border border-[#28466b] bg-[linear-gradient(145deg,#152c49,#111b29)] p-5 sm:p-6">
         <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#8fb6ec]">{mode === "exclusive" ? "Total including GST" : "Base price before GST"}</p>
-        <p data-testid="result-gst-primary" className="mt-2 break-words text-3xl font-extrabold tracking-[-0.05em] text-white">{result.ok ? inr(mode === "exclusive" ? result.value.totalAmount : result.value.baseAmount) : "—"}</p>
+        <p data-testid="result-gst-primary" className="mt-2 break-words text-3xl font-extrabold tracking-[-0.05em] text-white">{result.ok ? formatPaiseINR(mode === "exclusive" ? result.value.totalPaise : result.value.basePaise) : "—"}</p>
         <div className="mt-6 space-y-3">
-          <ResultRow label="Base price" value={result.ok ? inr(result.value.baseAmount) : "—"} testId="result-gst-base" />
-          <ResultRow label="GST amount" value={result.ok ? inr(result.value.gstAmount) : "—"} testId="result-gst-tax" />
+          <ResultRow label="Base price" value={result.ok ? formatPaiseINR(result.value.basePaise) : "—"} testId="result-gst-base" />
+          <ResultRow label="GST amount" value={result.ok ? formatPaiseINR(result.value.gstPaise) : "—"} testId="result-gst-tax" />
           {supplyType === "intra-state" ? <>
-            <ResultRow label="CGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? inr(result.value.cgst) : "—"} testId="result-gst-cgst" />
-            <ResultRow label="SGST / UTGST" detail={`${result.ok ? (result.value.rate / 2).toLocaleString("en-IN", { maximumFractionDigits: 4 }) : "—"}%`} value={result.ok ? inr(result.value.sgst) : "—"} testId="result-gst-sgst" />
-          </> : <ResultRow label="IGST" detail={`${rate || "—"}%`} value={result.ok ? inr(result.value.igst) : "—"} testId="result-gst-igst" />}
-          <div className="border-t border-[#35506f] pt-3"><ResultRow label="Total payable" value={result.ok ? inr(result.value.totalAmount) : "—"} testId="result-gst-total" strong /></div>
+            <ResultRow label="CGST" detail={`${result.ok ? formatRatePercent(result.value.rateText, true) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.cgstPaise) : "—"} testId="result-gst-cgst" />
+            <ResultRow label="SGST / UTGST" detail={`${result.ok ? formatRatePercent(result.value.rateText, true) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.sgstPaise) : "—"} testId="result-gst-sgst" />
+          </> : <ResultRow label="IGST" detail={`${result.ok ? formatRatePercent(result.value.rateText) : "—"}%`} value={result.ok ? formatPaiseINR(result.value.igstPaise) : "—"} testId="result-gst-igst" />}
+          <div className="border-t border-[#35506f] pt-3"><ResultRow label="Total payable" value={result.ok ? formatPaiseINR(result.value.totalPaise) : "—"} testId="result-gst-total" strong /></div>
         </div>
       </section>
     </div>
