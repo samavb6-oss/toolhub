@@ -17,6 +17,7 @@ const AgeCalculator = lazy(() => import("@/tools/AgeCalculator").then((m) => ({ 
 const BmiCalculator = lazy(() => import("@/tools/BmiCalculator").then((m) => ({ default: m.BmiCalculator })));
 const GstCalculatorTool = lazy(() => import("@/tools/GstCalculatorTool").then((m) => ({ default: m.GstCalculatorTool })));
 const LoanCalculatorTool = lazy(() => import("@/tools/LoanCalculatorTool").then((m) => ({ default: m.LoanCalculatorTool })));
+const DividendCalculatorTool = lazy(() => import("@/tools/DividendCalculatorTool").then((m) => ({ default: m.DividendCalculatorTool })));
 const InterestCalculator = lazy(() => import("@/tools/InterestCalculator").then((m) => ({ default: m.InterestCalculator })));
 const MergePdfTool = lazy(() => import("@/tools/MergePdfTool").then((m) => ({ default: m.MergePdfTool })));
 const SplitPdfTool = lazy(() => import("@/tools/SplitPdfTool"));
@@ -36,6 +37,8 @@ const TextCleanerTool = lazy(() => import("@/tools/TextCleanerTool"));
 const ReadTimeTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.ReadTimeTool })));
 const LoremIpsumTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.LoremIpsumTool })));
 const GrammarCheckerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.GrammarCheckerTool })));
+const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
+
 const LengthConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.LengthConverterTool })));
 const WeightConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.WeightConverterTool })));
 const TemperatureConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TemperatureConverterTool })));
@@ -43,12 +46,12 @@ const AreaConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((
 const VolumeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.VolumeConverterTool })));
 const TimeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TimeConverterTool })));
 const CurrencyConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.CurrencyConverterTool })));
-const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
+  "dividend-calculator": DividendCalculatorTool,
   "interest-calculator": InterestCalculator,
   "sip-calculator": SipCalculator,
   "age-calculator": AgeCalculator,
@@ -69,13 +72,6 @@ const toolComponents = {
   "lorem-ipsum": LoremIpsumTool,
   "grammar-checker": GrammarCheckerTool,
   "text-summarizer": TextSummarizerTool,
-  "length-converter": LengthConverterTool,
-  "weight-converter": WeightConverterTool,
-  "temperature-converter": TemperatureConverterTool,
-  "area-converter": AreaConverterTool,
-  "volume-converter": VolumeConverterTool,
-  "time-converter": TimeConverterTool,
-  "currency-converter": CurrencyConverterTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
@@ -84,6 +80,13 @@ const toolComponents = {
   "rotate-image": RotateImageTool,
   "qr-generator": QrGeneratorTool,
   "ai-prompt-generator": AiPromptGenerator,
+  "length-converter": LengthConverterTool,
+  "weight-converter": WeightConverterTool,
+  "temperature-converter": TemperatureConverterTool,
+  "area-converter": AreaConverterTool,
+  "volume-converter": VolumeConverterTool,
+  "time-converter": TimeConverterTool,
+  "currency-converter": CurrencyConverterTool,
 };
 
 export default function ToolPage() {
