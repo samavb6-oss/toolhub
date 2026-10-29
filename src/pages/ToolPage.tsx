@@ -15,6 +15,7 @@ const SipCalculator = lazy(() => import("@/tools/BasicTools").then((m) => ({ def
 const WordCounter = lazy(() => import("@/tools/BasicTools").then((m) => ({ default: m.WordCounter })));
 const AgeCalculator = lazy(() => import("@/tools/AgeCalculator").then((m) => ({ default: m.AgeCalculator })));
 const BmiCalculator = lazy(() => import("@/tools/BmiCalculator").then((m) => ({ default: m.BmiCalculator })));
+const CaloriesCalculator = lazy(() => import("@/tools/CaloriesCalculator").then((m) => ({ default: m.CaloriesCalculator })));
 const GstCalculatorTool = lazy(() => import("@/tools/GstCalculatorTool").then((m) => ({ default: m.GstCalculatorTool })));
 const LoanCalculatorTool = lazy(() => import("@/tools/LoanCalculatorTool").then((m) => ({ default: m.LoanCalculatorTool })));
 const DividendCalculatorTool = lazy(() => import("@/tools/DividendCalculatorTool").then((m) => ({ default: m.DividendCalculatorTool })));
@@ -41,6 +42,7 @@ const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").the
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
+  "calories-calculator": CaloriesCalculator,
   "gst-calculator": GstCalculatorTool,
   "loan-calculator": LoanCalculatorTool,
   "dividend-calculator": DividendCalculatorTool,

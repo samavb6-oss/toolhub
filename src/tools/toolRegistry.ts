@@ -78,6 +78,15 @@ export const toolDefinitions: ToolDefinition[] = [
     intro: "Work out your body mass index from your height and weight. It is a quick screening measure, not a diagnosis.",
   },
   {
+    slug: "calories-calculator",
+    name: "Calories Calculator",
+    category: "Health",
+    icon: Flame,
+    title: "Free Calories Calculator — Daily Calorie Needs | ToolHub",
+    description: "Estimate daily calorie needs from age, height, weight, sex and activity level using the Mifflin–St Jeor equation. Compare maintenance and goal-based targets.",
+    intro: "Estimate your daily calorie needs with a transparent equation, activity level and goal adjustment.",
+  },
+  {
     slug: "age-calculator",
     name: "Age Calculator",
     category: "Utilities",
