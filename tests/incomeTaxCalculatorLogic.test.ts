@@ -190,3 +190,20 @@ test("old-regime age bands use the correct exemption and tax rates above each ni
   assert.equal(verySenior.taxBeforeRebate, 2_000);
   assert.equal(verySenior.totalTax, 2_080);
 });
+
+
+test("old-regime surcharge marginal relief at ₹50 lakh limits the tax increase to the ₹10 excess", () => {
+  const atLimit = calculateIncomeTax(base({ taxYear: "fy2025-26", grossSalary: 5_050_000 })).oldRegime;
+  const justAbove = calculateIncomeTax(base({ taxYear: "fy2025-26", grossSalary: 5_050_010 })).oldRegime;
+
+  assert.equal(atLimit.taxableIncome, 5_000_000);
+  assert.equal(atLimit.taxBeforeRebate, 1_312_500);
+  assert.equal(atLimit.surcharge, 0);
+  assert.equal(atLimit.totalTax, 1_365_000);
+
+  assert.equal(justAbove.taxableIncome, 5_000_010);
+  assert.equal(justAbove.taxBeforeRebate, 1_312_503);
+  assert.equal(justAbove.surcharge, 7);
+  assert.equal(justAbove.totalTax, 1_365_010);
+  assert.equal(justAbove.totalTax - atLimit.totalTax, 10);
+});
