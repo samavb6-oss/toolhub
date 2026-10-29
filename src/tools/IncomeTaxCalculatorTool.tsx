@@ -156,7 +156,7 @@ export function IncomeTaxCalculatorTool() {
             <p className="mt-1.5 text-xs leading-5 text-[#8291a3]">Age changes the basic exemption limit under the old regime. The new-regime slabs are age-neutral.</p>
           </ToolField>
           {amountField("grossSalary", "tax-gross-salary", "Gross annual salary (₹)", "Enter your annual salary before the standard deduction.")}
-          {amountField("otherIncome", "tax-other-income", "Other ordinary taxable income (₹)", "For example, bank interest. Exclude capital gains and income taxed at special rates.")}
+          {amountField("otherIncome", "tax-other-income", "Other ordinary taxable income, excluding dividends (₹)", "For example, bank interest. Exclude dividends, capital gains and income taxed at special rates; surcharge treatment may differ.")}
           <div className="rounded-xl border border-[#2b405a] bg-[#101b2a] p-4">
             <h3 className="text-sm font-extrabold text-white">Old-regime deductions</h3>
             <p className="mt-1 text-xs leading-5 text-[#91a3b9]">These are ignored under the new regime. Enter only deductions you are eligible to claim.</p>
@@ -202,7 +202,7 @@ export function IncomeTaxCalculatorTool() {
     </div>
     <div className="mt-7 rounded-xl border border-[#344a65] bg-[#162336] p-4 text-xs leading-5 text-[#b9c7d8]">
       <h3 className="font-extrabold text-white">Important limitations</h3>
-      <p className="mt-1">For resident salaried individuals with ordinary income only. Does not calculate HRA or other salary exemptions, employer NPS contributions, house-property losses, business/professional income, capital gains, special-rate income, foreign income, non-resident cases or all possible deductions. Surcharge and marginal relief are estimated for ordinary income. Verify your figures with the official Income Tax Department calculator or a qualified tax professional before filing.</p>
+      <p className="mt-1">For resident salaried individuals with ordinary income only. Does not calculate HRA or other salary exemptions, employer NPS contributions, house-property losses, business/professional income, dividends (which can have different surcharge treatment), capital gains, special-rate income, foreign income, non-resident cases or all possible deductions. Surcharge and marginal relief are estimated only for the supported ordinary-income scope. Verify your figures with the official Income Tax Department calculator or a qualified tax professional before filing.</p>
     </div>
   </ToolPanel>;
 }
