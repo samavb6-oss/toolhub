@@ -24,6 +24,12 @@ test("Income Tax Calculator is lazy-loaded and listed on the homepage and sitema
   assert.match(sitemap, /\/tools\/income-tax-calculator/u);
 });
 
+test("calculator clearly excludes dividends because surcharge treatment can differ", () => {
+  assert.match(calculator, /Other ordinary taxable income, excluding dividends/u);
+  assert.match(calculator, /Exclude dividends, capital gains and income taxed at special rates/u);
+  assert.match(calculator, /dividends \(which can have different surcharge treatment\)/u);
+});
+
 test("calculator uses Act-specific deduction and rebate labels", () => {
   assert.match(calculator, /Eligible savings deductions \(section 123 \/ Schedule XV\)/u);
   assert.match(calculator, /Health insurance — self\/family \(section 126\)/u);
