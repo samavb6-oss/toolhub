@@ -9,6 +9,7 @@ import {
   fitRectangle, isValidCanvasDimensions, isValidImageDimensions, ratioForPreset,
   type AspectPreset, type ImageDimensions, type ResizeFitMode,
 } from "./imageResizeLogic";
+import { dimensionsMatchHeader, readImageDimensionsFromHeader } from "./imageHeaderDimensions";
 
 type ImageFormat = "image/webp" | "image/jpeg" | "image/png";
 type ProcessingMode = "compress" | "resize" | "png-to-jpg" | "jpg-to-png";
@@ -168,6 +169,23 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
       return;
     }
     try {
+      const headerDimensions = await readImageDimensionsFromHeader(nextFile);
+      if (requestId !== selectionId.current) return;
+      if (!headerDimensions) {
+        setError("The image dimensions could not be read safely. Try a standard PNG, JPEG or WebP image.");
+        return;
+      }
+      const headerDimensionsValid = isResize
+        ? isValidImageDimensions(headerDimensions)
+        : isValidCanvasDimensions(headerDimensions);
+      if (!headerDimensionsValid) {
+        setError(isResize
+          ? "This image exceeds the 40,000-pixel side or 80-megapixel processing limit."
+          : "This image exceeds the 80-megapixel processing limit.");
+        return;
+      }
+
+      // Check encoded dimensions before asking the browser to decode pixel data.
       const bitmap = await createImageBitmap(nextFile);
       let dimensions: ImageDimensions;
       try {
@@ -176,6 +194,19 @@ function ImageProcessor({ mode }: { mode: ProcessingMode }) {
         bitmap.close();
       }
       if (requestId !== selectionId.current) return;
+      if (!dimensionsMatchHeader(headerDimensions, dimensions, nextFile.type === "image/jpeg")) {
+        setError("The image dimensions did not match its file header. Try exporting the image again.");
+        return;
+      }
+      const decodedDimensionsValid = isResize
+        ? isValidImageDimensions(dimensions)
+        : isValidCanvasDimensions(dimensions);
+      if (!decodedDimensionsValid) {
+        setError(isResize
+          ? "This image exceeds the 40,000-pixel side or 80-megapixel processing limit."
+          : "This image exceeds the 80-megapixel processing limit.");
+        return;
+      }
       setImageDimensions(dimensions);
       setWidthText(String(dimensions.width));
       setHeightText(String(dimensions.height));
