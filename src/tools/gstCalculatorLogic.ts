@@ -7,14 +7,25 @@ export type GstMode = "exclusive" | "inclusive";
 export type SupplyType = "intra-state" | "inter-state";
 
 export type GstCalculation = {
+  // The rupee-valued fields below are convenience approximations (paise / 100). Above 2^46 rupees
+  // (₹70,368,744,177,664) a JS number can no longer hold every paisa, so display and compare money
+  // with the exact *Paise fields and formatPaiseINR instead.
   baseAmount: number;
   gstAmount: number;
   totalAmount: number;
   rate: number;
+  /** Exact normalized decimal text used for calculation and display. */
+  rateText: string;
   supplyType: SupplyType;
   cgst: number;
   sgst: number;
   igst: number;
+  basePaise: number;
+  gstPaise: number;
+  totalPaise: number;
+  cgstPaise: number;
+  sgstPaise: number;
+  igstPaise: number;
 };
 
 export type GstCalculationResult =
@@ -66,15 +77,89 @@ function parseMoneyToPaise(value: number | string): number | null {
   return Number(paise);
 }
 
-function roundTaxPaise(amountPaise: number, rate: number): number | null {
-  // Guard the multiplication before rounding to avoid silently losing paise precision.
-  if (rate === 0) return 0;
-  if (amountPaise > MAX_SAFE_PAISE / rate) return null;
-  return Math.round((amountPaise * rate) / 100 + Number.EPSILON);
+type RateFraction = { numerator: bigint; scale: bigint; text: string };
+
+function parseRateFraction(rate: number | string): RateFraction | null {
+  // Preserve the input text: Number("12.4999999999999999") becomes 12.5 and loses a meaningful digit.
+  const raw = typeof rate === "string" ? rate.trim() : String(rate);
+  const expandedRate = expandDecimal(raw);
+  if (expandedRate === null) return null;
+  const match = /^(\d*)(?:\.(\d*))?$/.exec(expandedRate);
+  if (!match) return null;
+
+  const whole = match[1] || "0";
+  const fraction = match[2] || "";
+  const normalizedWhole = whole.replace(/^0+(?=\d)/, "") || "0";
+  const normalizedFraction = fraction.replace(/0+$/, "");
+  return {
+    numerator: BigInt(whole + fraction),
+    scale: 10n ** BigInt(fraction.length),
+    text: normalizedFraction ? `${normalizedWhole}.${normalizedFraction}` : normalizedWhole,
+  };
+}
+
+/** Round a non-negative rational number to the nearest integer, with exact halves up. */
+function roundRatioHalfUp(numerator: bigint, denominator: bigint): bigint {
+  return (2n * numerator + denominator) / (2n * denominator);
+}
+
+function roundTaxPaise(amountPaise: number, rateFraction: RateFraction): number | null {
+  if (rateFraction.numerator === 0n) return 0;
+
+  // Integer arithmetic uses the original decimal rate, not its lossy Number approximation.
+  const denominator = 100n * rateFraction.scale;
+  const numerator = BigInt(amountPaise) * rateFraction.numerator;
+  const roundedPaise = roundRatioHalfUp(numerator, denominator);
+
+  if (roundedPaise > BigInt(MAX_SAFE_PAISE)) return null;
+  return Number(roundedPaise);
+}
+
+/**
+ * Exact decimal text for a GST rate, or for half of it (the CGST / SGST share), with no rounding and
+ * no trailing zeros: 18 -> "18", 2.5 halved -> "1.25", 0.00004 -> "0.00004". Display only; the tax
+ * itself is computed from the same exact decimal rate, so label and amount can never disagree.
+ */
+export function formatRatePercent(rate: number | string, half = false): string {
+  const fraction = parseRateFraction(rate);
+  if (fraction === null) {
+    const numericRate = typeof rate === "number" ? rate : Number(rate);
+    return String(half ? numericRate / 2 : numericRate);
+  }
+  const decimals = fraction.scale.toString().length - 1 + (half ? 1 : 0);
+  // numerator / scale / 2 === numerator * 5 / (scale * 10)
+  const digits = (half ? fraction.numerator * 5n : fraction.numerator).toString().padStart(decimals + 1, "0");
+  const whole = digits.slice(0, digits.length - decimals);
+  const decimalPart = digits.slice(digits.length - decimals).replace(/0+$/, "");
+  return decimalPart ? `${whole}.${decimalPart}` : whole;
 }
 
 function fromPaise(paise: number): number {
   return paise / 100;
+}
+
+/** Format safe integer paise directly so large amounts never pass through imprecise rupees. */
+export function formatPaiseINR(paise: number): string {
+  if (!Number.isSafeInteger(paise) || paise < 0) throw new RangeError("Paise must be a non-negative safe integer.");
+  const exactPaise = BigInt(paise);
+  const rupees = exactPaise / 100n;
+  const cents = String(exactPaise % 100n).padStart(2, "0");
+  const whole = new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR", minimumFractionDigits: 0, maximumFractionDigits: 0,
+  }).format(rupees);
+  return whole + "." + cents;
+}
+
+/**
+ * Parse a GST rate. Strings must be plain decimal text (optionally scientific), matching the amount
+ * parser: Number() alone would also accept "0x12" as 18 and "-0" as negative zero. Returns null when
+ * the text is not a plain decimal; range checks stay with the caller.
+ */
+function parseRate(rate: number | string): number | null {
+  if (typeof rate === "number") return rate === 0 ? 0 : rate; // normalise -0 so it never reaches the UI
+  const text = rate.trim();
+  if (text === "" || expandDecimal(text) === null) return null;
+  return Number(text);
 }
 
 export function calculateGst(
@@ -88,11 +173,9 @@ export function calculateGst(
     return { ok: false, error: "Enter a valid, non-negative amount with a representable value." };
   }
 
-  if (typeof rate === "string" && rate.trim() === "") {
-    return { ok: false, error: "Enter a GST rate between 0% and 100%." };
-  }
-  const numericRate = typeof rate === "number" ? rate : Number(rate);
-  if (!Number.isFinite(numericRate) || numericRate < 0 || numericRate > 100) {
+  const numericRate = parseRate(rate);
+  const rateFraction = parseRateFraction(rate);
+  if (numericRate === null || !Number.isFinite(numericRate) || numericRate < 0 || numericRate > 100 || rateFraction === null || rateFraction.numerator > 100n * rateFraction.scale) {
     return { ok: false, error: "Enter a GST rate between 0% and 100%." };
   }
   if (mode !== "exclusive" && mode !== "inclusive") {
@@ -106,14 +189,21 @@ export function calculateGst(
   let taxPaise: number;
   if (mode === "exclusive") {
     basePaise = amountPaise;
-    const calculatedTax = roundTaxPaise(basePaise, numericRate);
+    const calculatedTax = roundTaxPaise(basePaise, rateFraction);
     if (calculatedTax === null) {
       return { ok: false, error: "This amount is too large to calculate safely." };
     }
     taxPaise = calculatedTax;
   } else {
-    const denominator = 1 + numericRate / 100;
-    basePaise = Math.round(amountPaise / denominator);
+    // base = inclusive total / (1 + rate / 100), calculated as an exact ratio:
+    // totalPaise * rateScale / (100 * rateScale + rateNumerator).
+    const denominator = 100n * rateFraction.scale + rateFraction.numerator;
+    const numerator = BigInt(amountPaise) * 100n * rateFraction.scale;
+    const roundedBasePaise = roundRatioHalfUp(numerator, denominator);
+    if (roundedBasePaise > BigInt(MAX_SAFE_PAISE)) {
+      return { ok: false, error: "This amount is too large to calculate safely." };
+    }
+    basePaise = Number(roundedBasePaise);
     taxPaise = amountPaise - basePaise;
   }
 
@@ -136,10 +226,17 @@ export function calculateGst(
       gstAmount: fromPaise(taxPaise),
       totalAmount: fromPaise(totalPaise),
       rate: numericRate,
+      rateText: rateFraction.text,
       supplyType,
       cgst: fromPaise(cgstPaise),
       sgst: fromPaise(sgstPaise),
       igst: fromPaise(igstPaise),
+      basePaise,
+      gstPaise: taxPaise,
+      totalPaise,
+      cgstPaise,
+      sgstPaise,
+      igstPaise,
     },
   };
 }
