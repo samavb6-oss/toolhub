@@ -139,16 +139,16 @@ export function CurrencyConverterTool() {
       <ToolField label="Amount" htmlFor="currency-converter-amount">
         <input id="currency-converter-amount" data-testid="currency-converter-amount" className={toolInputClass} type="number" min="0" step="any" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
       </ToolField>
-      <button type="button" aria-label="Swap currencies" data-testid="currency-converter-swap" className={secondaryButtonClass} disabled={loading} onClick={swapCurrencies}><ArrowDownUp aria-hidden="true" className="h-4 w-4" />Swap</button>
+      <button type="button" aria-label="Swap currencies" data-testid="currency-converter-swap" className={secondaryButtonClass} onClick={swapCurrencies}><ArrowDownUp aria-hidden="true" className="h-4 w-4" />Swap</button>
       <ToolField label="From currency" htmlFor="currency-converter-from">
-        <select id="currency-converter-from" data-testid="currency-converter-from" className={toolInputClass} value={from} disabled={loading} onChange={(event) => chooseFrom(event.target.value)}>
+        <select id="currency-converter-from" data-testid="currency-converter-from" className={toolInputClass} value={from} onChange={(event) => chooseFrom(event.target.value)}>
           {currencyOptions.map((currency) => <option key={currency.code} value={currency.code}>{currency.code} — {currency.name}</option>)}
         </select>
       </ToolField>
     </div>
     <div className="mt-4 grid gap-4 sm:grid-cols-2">
       <ToolField label="To currency" htmlFor="currency-converter-to">
-        <select id="currency-converter-to" data-testid="currency-converter-to" className={toolInputClass} value={to} disabled={loading} onChange={(event) => chooseTo(event.target.value)}>
+        <select id="currency-converter-to" data-testid="currency-converter-to" className={toolInputClass} value={to} onChange={(event) => chooseTo(event.target.value)}>
           {currencyOptions.map((currency) => <option key={currency.code} value={currency.code}>{currency.code} — {currency.name}</option>)}
         </select>
       </ToolField>
@@ -156,12 +156,12 @@ export function CurrencyConverterTool() {
         <p className="text-xs font-semibold uppercase tracking-wide text-[#91a3b9]">Converted estimate</p>
         <p className="mt-2 break-words text-2xl font-bold text-white">{formattedResult || "—"}</p>
         {rate && from !== to && <p className="mt-2 text-xs leading-5 text-[#aab7c9]">1 {from} = {new Intl.NumberFormat(undefined, { maximumSignificantDigits: 8 }).format(rate.rate)} {to}</p>}
-        {rate && from !== to && <p className="mt-1 text-xs text-[#91a3b9]">Rate date: {rate.date}</p>}
+        {rate && <p className="mt-1 text-xs text-[#91a3b9]">Rate date: {rate.date}</p>}
       </div>
     </div>
     <div className="mt-4 flex flex-wrap gap-3">
       <button type="button" data-testid="button-currency-get-rate" className={primaryButtonClass} disabled={loading} onClick={loadRate}><RefreshCw aria-hidden="true" className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{loading ? "Loading rate…" : "Get rate"}</button>
-      <button type="button" className={secondaryButtonClass} disabled={loading} onClick={() => { setAmount("1"); setFrom("USD"); setTo("INR"); setRate(null); setStatus(""); }}>Reset</button>
+      <button type="button" className={secondaryButtonClass} onClick={() => { setAmount("1"); setFrom("USD"); setTo("INR"); setRate(null); setStatus(""); }}>Reset</button>
     </div>
     <p role="status" aria-live="polite" data-testid="status-currency-converter" className="mt-4 min-h-5 text-xs leading-5 text-[#91a3b9]">{status}</p>
   </ToolPanel>;
