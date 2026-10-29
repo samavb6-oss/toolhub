@@ -38,6 +38,13 @@ const ReadTimeTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => 
 const LoremIpsumTool = lazy(() => import("@/tools/WritingExtraTools").then((m) => ({ default: m.LoremIpsumTool })));
 const GrammarCheckerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.GrammarCheckerTool })));
 const TextSummarizerTool = lazy(() => import("@/tools/WritingAdvancedTools").then((m) => ({ default: m.TextSummarizerTool })));
+const LengthConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.LengthConverterTool })));
+const WeightConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.WeightConverterTool })));
+const TemperatureConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TemperatureConverterTool })));
+const AreaConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.AreaConverterTool })));
+const VolumeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.VolumeConverterTool })));
+const TimeConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.TimeConverterTool })));
+const CurrencyConverterTool = lazy(() => import("@/tools/UnitConverterTools").then((m) => ({ default: m.CurrencyConverterTool })));
 
 const toolComponents = {
   "bmi-calculator": BmiCalculator,
@@ -64,6 +71,13 @@ const toolComponents = {
   "lorem-ipsum": LoremIpsumTool,
   "grammar-checker": GrammarCheckerTool,
   "text-summarizer": TextSummarizerTool,
+  "length-converter": LengthConverterTool,
+  "weight-converter": WeightConverterTool,
+  "temperature-converter": TemperatureConverterTool,
+  "area-converter": AreaConverterTool,
+  "volume-converter": VolumeConverterTool,
+  "time-converter": TimeConverterTool,
+  "currency-converter": CurrencyConverterTool,
   "password-generator": PasswordGenerator,
   "resize-image": ResizeImageTool,
   "crop-image": CropImageTool,
