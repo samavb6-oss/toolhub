@@ -172,3 +172,21 @@ for (const boundary of surchargeBoundaryCases) {
     assert.equal(result.totalTax, boundary.expectedTotalTax);
   });
 }
+
+
+test("old-regime age bands use the correct exemption and tax rates above each nil limit", () => {
+  const grossSalary = 560_000; // After the ₹50,000 standard deduction: ₹510,000 taxable income.
+  const under60 = calculateIncomeTax(base({ grossSalary })).oldRegime;
+  const senior = calculateIncomeTax(base({ grossSalary, ageBand: "60to79" })).oldRegime;
+  const verySenior = calculateIncomeTax(base({ grossSalary, ageBand: "80plus" })).oldRegime;
+
+  for (const result of [under60, senior, verySenior]) {
+    assert.equal(result.taxableIncome, 510_000);
+  }
+  assert.equal(under60.taxBeforeRebate, 14_500);
+  assert.equal(under60.totalTax, 15_080);
+  assert.equal(senior.taxBeforeRebate, 12_000);
+  assert.equal(senior.totalTax, 12_480);
+  assert.equal(verySenior.taxBeforeRebate, 2_000);
+  assert.equal(verySenior.totalTax, 2_080);
+});
