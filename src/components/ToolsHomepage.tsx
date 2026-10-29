@@ -30,8 +30,8 @@ const categories: Category[] = [
     name: "Finance", eyebrow: "Loan, EMI, GST, SIP, Tax and interest calculators.", icon: Landmark,
     tint: "#e8f8ef", accent: "#16865a", tools: [
       { name: "EMI Calculator", icon: Calculator }, { name: "SIP Calculator", icon: BarChart3 },
-      { name: "GST Calculator", icon: BadgeDollarSign }, { name: "Loan Calculator", icon: Landmark },
-      { name: "Income Tax Calculator", icon: FileText }, { name: "Salary Calculator", icon: BriefcaseBusiness },
+      { name: "Dividend Calculator", icon: BadgeDollarSign }, { name: "Loan Calculator", icon: Landmark },
+      { name: "Income Tax Calculator", icon: FileText }, { name: "GST Calculator", icon: BadgeDollarSign },
       { name: "Interest Calculator", icon: Activity }, { name: "More Tools", icon: MoreHorizontal },
     ],
   },
@@ -57,9 +57,10 @@ const categories: Category[] = [
     name: "Writing Tools", eyebrow: "Word counter, grammar checker and text utilities.", icon: PenLine,
     tint: "#fff5e9", accent: "#d77c22", tools: [
       { name: "Word Counter", icon: Type }, { name: "Character Counter", icon: ListChecks },
-      { name: "Case Converter", icon: Languages }, { name: "Grammar Checker", icon: ShieldCheck },
+      { name: "Case Converter", icon: Languages }, { name: "Text Cleaner", icon: WandSparkles },
+      { name: "Grammar Checker", icon: ShieldCheck },
       { name: "Text Summarizer", icon: FileText }, { name: "Read Time", icon: Timer },
-      { name: "Lorem Ipsum", icon: BookOpen }, { name: "More Tools", icon: MoreHorizontal },
+      { name: "Lorem Ipsum Generator", icon: BookOpen }, { name: "More Tools", icon: MoreHorizontal },
     ],
   },
   {
