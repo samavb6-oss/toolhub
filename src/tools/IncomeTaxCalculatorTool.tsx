@@ -170,8 +170,9 @@ export function IncomeTaxCalculatorTool() {
               {amountField("section80DParents", "tax-80d-parents", values.taxYear === "ty2026-27" ? "Health insurance — parents (section 126) (₹)" : "Health insurance — parents (80D) (₹)", "Capped at ₹25,000 or ₹50,000 for senior-citizen parents.")}
               <label className="flex items-start gap-3 text-xs leading-5 text-[#cbd5e1]">
                 <input type="checkbox" data-testid="checkbox-tax-parents-senior" className="mt-0.5 h-4 w-4 accent-[#6da1ff]" checked={values.parentsSenior} onChange={(event) => setValues((current) => ({ ...current, parentsSenior: event.target.checked }))} />
-                At least one parent covered by this health deduction is a senior citizen (60+).
+                At least one parent covered by this health deduction is resident in India and is aged 60 or above at any time during the tax year.
               </label>
+              <p className="text-xs leading-5 text-[#8291a3]">These inputs cover eligible health-insurance premiums only. Preventive health check-ups and qualifying medical expenses for uninsured senior citizens are not separately included.</p>
               {amountField("nps80CCD1B", "tax-nps", values.taxYear === "ty2026-27" ? "Additional NPS contribution (section 124) (₹)" : "Additional NPS contribution (80CCD(1B)) (₹)", "Capped at ₹50,000, separate from the savings-deduction limit.")}
             </div>
           </div>
