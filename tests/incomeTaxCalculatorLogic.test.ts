@@ -30,6 +30,8 @@ test("new-regime marginal relief limits tax just above ₹12 lakh taxable income
   assert.equal(result.newRegime.taxableIncome, 1_200_100);
   assert.equal(result.newRegime.taxAfterRebate, 100);
   assert.equal(result.newRegime.rebate, result.newRegime.taxBeforeRebate - 100);
+  assert.equal(result.newRegime.cess, 4);
+  assert.equal(result.newRegime.totalTax, 100);
 });
 
 test("new-regime progressive slabs and 4% cess produce expected tax", () => {
@@ -121,10 +123,21 @@ test("surcharge marginal relief limits the jump immediately above ₹50 lakh", (
   const atLimit = calculateIncomeTax(base({ grossSalary: 5_075_000 }));
   const justAbove = calculateIncomeTax(base({ grossSalary: 5_075_010 }));
   assert.equal(atLimit.newRegime.taxableIncome, 5_000_000);
+  assert.equal(atLimit.newRegime.taxBeforeRebate, 1_080_000);
+  assert.equal(atLimit.newRegime.rebate, 0);
+  assert.equal(atLimit.newRegime.taxAfterRebate, 1_080_000);
+  assert.equal(atLimit.newRegime.surcharge, 0);
+  assert.equal(atLimit.newRegime.cess, 43_200);
+  assert.equal(atLimit.newRegime.totalTax, 1_123_200);
+
   assert.equal(justAbove.newRegime.taxableIncome, 5_000_010);
-  assert.ok(justAbove.newRegime.surcharge >= 0);
-  assert.ok(justAbove.newRegime.totalTax >= atLimit.newRegime.totalTax);
-  assert.ok(justAbove.newRegime.totalTax - atLimit.newRegime.totalTax <= 20);
+  assert.equal(justAbove.newRegime.taxBeforeRebate, 1_080_003);
+  assert.equal(justAbove.newRegime.rebate, 0);
+  assert.equal(justAbove.newRegime.taxAfterRebate, 1_080_003);
+  assert.equal(justAbove.newRegime.surcharge, 7);
+  assert.equal(justAbove.newRegime.cess, 43_200.4);
+  assert.equal(justAbove.newRegime.totalTax, 1_123_210);
+  assert.equal(justAbove.newRegime.totalTax - atLimit.newRegime.totalTax, 10);
 });
 
 test("supports both requested tax-year labels and rejects invalid amounts", () => {
