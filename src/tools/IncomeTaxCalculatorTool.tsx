@@ -172,7 +172,7 @@ export function IncomeTaxCalculatorTool() {
                 <input type="checkbox" data-testid="checkbox-tax-parents-senior" className="mt-0.5 h-4 w-4 accent-[#6da1ff]" checked={values.parentsSenior} onChange={(event) => setValues((current) => ({ ...current, parentsSenior: event.target.checked }))} />
                 At least one parent covered by this health deduction is resident in India and is aged 60 or above at any time during the tax year.
               </label>
-              <p className="text-xs leading-5 text-[#8291a3]">These inputs cover eligible health-insurance premiums only. Preventive health check-ups and qualifying medical expenses for uninsured senior citizens are not separately included.</p>
+              <p className="text-xs leading-5 text-[#8291a3]">These inputs cover eligible health-insurance premiums only. CGHS/notified-scheme contributions, preventive health check-ups and qualifying medical expenses for uninsured senior citizens are not separately included.</p>
               {amountField("nps80CCD1B", "tax-nps", values.taxYear === "ty2026-27" ? "Additional NPS contribution (section 124) (₹)" : "Additional NPS contribution (80CCD(1B)) (₹)", "Capped at ₹50,000, separate from the savings-deduction limit.")}
             </div>
           </div>
